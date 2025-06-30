@@ -14,6 +14,7 @@ The _src_ directory is where the files of interest are located. Inside this fold
 
 ### To get started, follow these steps:
 ```bash
+git clone https://github.com/Framework-for-Search-as-Learning/xperframe4sal-backend.git
 git clone https://github.com/Framework-for-Search-as-Learning/xperframe4sal-front.git
 ```
 
@@ -27,17 +28,12 @@ For runing the backend, see the dedicated git repository in https://github.com/F
 
 ### Frontend ###
 
-1. Enter the `web` directory:
-```bash
-cd web
-```
-
-2. Install frontend dependencies:
+1. Install frontend dependencies:
 ```bash
 pnpm install
 ```
 
-3. Running frontend server(make sure that backend server alredy runing):
+2. Running frontend server(Make sure that backend server alredy runing):
 ```bash
 pnpm start
 ```
