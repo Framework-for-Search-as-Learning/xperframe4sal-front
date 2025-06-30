@@ -1,0 +1,29 @@
+.buttonContainer{
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+}
+
+.desktopText{
+    display: block;
+}
+
+.mobileText{
+    display: none;
+}
+
+@media (max-width: 768px){
+    .buttonContainer{
+        justify-content: space-between;
+    }
+
+    .desktopText{
+        display: none;
+    }
+    
+    .mobileText{
+        display: block;
+        width: 25px;
+        height: 25px;
+    }
+}

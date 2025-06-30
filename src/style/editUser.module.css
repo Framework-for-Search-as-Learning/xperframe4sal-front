@@ -1,0 +1,107 @@
+:root {
+  --navbar-height: 96px;
+}
+
+.fullPage {
+  min-height: calc(100dvh - var(--navbar-height));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.stepContainer{
+  width: 35%;
+  display: flex;
+  justify-content: space-between;
+  margin:  20px 0 0 0;
+  cursor: pointer;
+}
+
+.stepSelector{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 10px;
+  position: relative;
+  transition-duration: 0.4s;
+  text-decoration: none;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.stepSelector:after {
+  content: "";
+  background: rgb(0, 0, 0, 0.1);
+  display: block;
+  position: absolute;
+  padding-top: 300%;
+  padding-left: 350%;
+  margin-left: -20px!important;
+  margin-top: -120%;
+  opacity: 0;
+  transition: all 0.8s
+}
+
+.stepSelector:active:after {
+  padding: 0;
+  margin: 0;
+  opacity: 1;
+  transition: 0s
+}
+
+.stepSelector * {
+  margin: 0 !important;
+}
+
+
+.inactiveText{
+  color: #a0a0a0;
+}
+
+.container {
+  width: 80%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.userListContainer {
+  display: flex;
+  gap: 20px;
+  max-width: 100%;
+  overflow-x: auto;
+  flex-direction: row;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 30px;
+}
+
+@media (max-width: 540px) {
+  .fullPage > h1{
+    margin: 0 0 10px 0;
+  }
+
+  .container{
+    width: 100%; 
+  }
+
+  .userListContainer{
+    flex-direction: column;
+  }
+
+  .buttonContainer{
+    justify-content: center;
+  }
+
+  .stepContainer{
+    width: 85%;
+  }
+}

@@ -1,0 +1,28 @@
+.container{
+    flex: 0 0 auto;
+    padding: 30px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    height: 350px;
+    width: 400px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+}
+
+.UserInfoArea{
+    max-width: calc(100% - 60px);
+}
+  
+.forceLineBreak {
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: break-word;
+}
+
+@media (max-width: 768px){
+    .container{
+        width: 100%;
+    }
+}
