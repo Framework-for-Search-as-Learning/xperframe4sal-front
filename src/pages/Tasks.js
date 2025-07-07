@@ -63,18 +63,19 @@ const Tasks = () => {
                 let userTasks = response?.data;
 
                 // Filter tasks of the experiment
-                userTasks = userTasks.filter((userTask) =>
-                    Object.keys(experimentResult.tasksProps).includes(
-                        userTask.taskId
-                    )
-                );
+                /** Marcelo diz:  atualmente experimentResult não tem tasksProps */
+                // userTasks = userTasks.filter((userTask) =>
+                //     Object.keys(experimentResult.tasksProps).includes(
+                //         userTask.taskId
+                //     )
+                // );
 
                 setUserTasks(userTasks);
 
                 let taskList = [];
 
                 for (let userTask of userTasks) {
-                    response = await api.get(`task2/${userTask.taskId}`, {
+                    response = await api.get(`task2/${userTask["task_id"]}`, {
                         headers: {
                             Authorization: `Bearer ${user.accessToken}`,
                         },
@@ -86,11 +87,14 @@ const Tasks = () => {
                     }
                 }
 
-                const experimentSteps = mountSteps(
-                    experimentResult.steps,
-                    userExperimentResult.stepsCompleted
-                );
-                setSteps(experimentSteps);
+                /** Marcelo os steps serviam para marcar cada passo que o aluno completou
+                 * por enquanto não existe mais
+                 */
+                // const experimentSteps = mountSteps(
+                //     experimentResult.steps,
+                //     userExperimentResult.stepsCompleted
+                // );
+                // setSteps(experimentSteps);
                 setTasks(taskList);
                 setIsLoading(false);
             } catch (error) {
@@ -104,7 +108,7 @@ const Tasks = () => {
     const handleStartTaskClick = async (e) => {
         try {
             const userTask = userTasks.filter(
-                (userTask) => userTask.taskId === e
+                (userTask) => userTask['task_id'] === e
             )[0];
             await api.patch(`user-task2/${userTask._id}/start`, userTask, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
