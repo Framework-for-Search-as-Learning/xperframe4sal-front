@@ -63,7 +63,7 @@ const EditExperiment = () => {
 
   const fetchSurvey = useCallback(async () => {
     try {
-      const response = await api.get(`survey2`, {
+      const response = await api.get(`/survey2/experiment/${experimentId}`, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       });
       setExperimentSurveys(response.data);

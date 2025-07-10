@@ -94,55 +94,6 @@ const CreateExperimentSurvey = () => {
         setStep(step - 1);
     };
 
-    const handleCreateSurvey = async (e) => {
-        e.preventDefault();
-        const payload = {
-            name: title,
-            title,
-            uuid: uuidv4(),
-            description,
-            type,
-            questions: questions.map((q) => {
-                const question = {
-                    statement: q.statement,
-                    id: q.id,
-                    type: q.type,
-                    required: q.required,
-                    hasscore: q.hasscore,
-                };
-                if (q.type === 'open') {
-                    question.options = [];
-                } else {
-                    question.options = q.options.map((opt) => {
-                        const option = { statement: opt.statement, id: opt.id };
-
-                        if (opt.subquestion) {
-                            option.subquestion = { ...opt.subquestion };
-                            option.hassub = true;
-                        } else {
-                            option.hassub = false;
-                        }
-
-                        if (q.type === 'multiple-choices') {
-                            option.score = opt.score;
-                        }
-
-                        return option;
-                    });
-
-                }
-                return question;
-            }),
-        };
-        console.log(payload)
-        setExperimentSurveys((prev) => [...prev, payload]);
-        setTitle("");
-        setDescription("");
-        setQuestions([]);
-        setType('pre');
-        toggleCreateQuest();
-    };
-
     const toggleSurveyDescription = (surveyId) => {
         if (openSurveyIds.includes(surveyId)) {
             setOpenSurveyIds(openSurveyIds.filter((id) => id !== surveyId));
@@ -241,35 +192,6 @@ const CreateExperimentSurvey = () => {
         }));
     };
 
-    const handleAddQuestion = () => {
-        setQuestions([
-            ...questions,
-            {
-                id: uuidv4(),
-                statement: '',
-                type: 'open',
-                required: false,
-                options: [],
-            },
-        ]);
-    };
-
-    const handleRemoveQuestion = (id) => {
-        setQuestions(questions.filter((q) => q.id !== id));
-    };
-
-    const handleQuestionChange = (id, field, value) => {
-        setQuestions(
-            questions.map((q) =>
-                q.id === id
-                    ? {
-                        ...q,
-                        [field]: value,
-                    }
-                    : q
-            )
-        );
-    };
     const handleEditQuestionChange = (id, field, value) => {
         setEditedSurvey((prevSurvey) => ({
             ...prevSurvey,
@@ -279,59 +201,6 @@ const CreateExperimentSurvey = () => {
         }));
     };
 
-
-    const handleAddOption = (questionId) => {
-        setQuestions(
-            questions.map((q) =>
-                q.id === questionId
-                    ? {
-                        ...q,
-                        options: [
-                            ...q.options,
-                            { id: uuidv4(), statement: '', score: 0, subquestion: null, hassub: false },
-                        ],
-                    }
-                    : q
-            )
-
-        );
-
-        console.log(questions);
-    };
-
-    const handleRemoveOption = (questionId, optionId) => {
-        setQuestions(
-            questions.map((q) =>
-                q.id === questionId
-                    ? {
-                        ...q,
-                        options: q.options.filter((opt) => opt.id !== optionId),
-                    }
-                    : q
-            )
-        );
-    };
-
-    const handleOptionChange = (questionId, optionId, field, value) => {
-        setQuestions(
-            questions.map((q) =>
-                q.id === questionId
-                    ? {
-                        ...q,
-                        options: q.options.map((opt) =>
-                            opt.id === optionId
-                                ? {
-                                    ...opt,
-                                    [field]: value,
-                                    ...(field === "subquestion" ? { hassub: true } : {}),
-                                }
-                                : opt
-                        ),
-                    }
-                    : q
-            )
-        );
-    };
 
     const handleEditSurveysave = (event) => {
         event.preventDefault();
@@ -352,17 +221,6 @@ const CreateExperimentSurvey = () => {
             setEditedSurvey(surveyToEdit);
             setIsEditDialogOpen(true);
         }
-    };
-
-    const handleNameChangeTitleSurvey = (e) => {
-        const inputName = e.target.value;
-        setTitle(inputName);
-        setIsValidTitleSurvey(inputName.trim() !== "");
-    };
-    const handleNameChangeDescSurvey = (e) => {
-        const inputName = e.target.value;
-        setDescription(inputName);
-        setIsValidDescSurvey(inputName.trim() !== "");
     };
 
     const questionTypes = [

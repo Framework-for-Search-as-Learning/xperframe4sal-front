@@ -96,7 +96,7 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
             }),
         };
         console.log(payload)
-        setExperimentSurveys((prev) => [...prev, payload]);
+        setExperimentSurveys(prev => [...prev, payload]);
         setTitle("");
         setDescription("");
         setQuestions([]);
