@@ -53,29 +53,22 @@ const Surveys = () => {
             try {
                 setIsLoading(true);
 
-                const [experimentResponse, userExperimentResponse] =
-                    await Promise.all([
-                        api.get(`experiments2/${experimentId}`, {
-                            headers: {
-                                Authorization: `Bearer ${user.accessToken}`,
-                            },
-                        }),
-                        api.get(
-                            `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${user.accessToken}`,
-                                },
-                            }
-                        ),
-                    ]);
+                const [experimentResponse, userExperimentResponse] = await Promise.all([
+                    api.get(`experiments2/${experimentId}`, {
+                        headers: { Authorization: `Bearer ${user.accessToken}` },
+                    }),
+                    api.get(
+                        `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
+                        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+                    ),
+                ]);
 
-                let experimentResult = experimentResponse.data;
-                let userExperimentResult = userExperimentResponse?.data;
+                const experimentResult = experimentResponse.data;
+                const userExperimentResult = userExperimentResponse?.data;
 
-                console.log("Teste experimentResult: ", userExperimentResult);
                 if (!userExperimentResult) {
                     navigate(`/experiments`);
+                    return;
                 }
 
                 if (!userExperimentResult.stepsCompleted) {
@@ -84,85 +77,66 @@ const Surveys = () => {
 
                 if (!userExperimentResult.stepsCompleted["icf"]) {
                     navigate(`/experiments/${experimentId}/icf`);
+                    return;
                 }
 
-                setHasFinishedTasks(
-                    userExperimentResult?.stepsCompleted["task"]
-                );
+                setHasFinishedTasks(userExperimentResult?.stepsCompleted["task"]);
 
-                let surveyList = [];
-                for (let surveyPropsId in experimentResult.surveysProps) {
-                    let response = await api.get(`survey2/${surveyPropsId}`, {
-                        headers: {
-                            Authorization: `Bearer ${user.accessToken}`,
-                        },
-                    });
-                    const survey = response?.data;
+                const su = await api.get(`survey2/experiment/${experimentId}`, {
+                    headers: { Authorization: `Bearer ${user.accessToken}` },
+                });
 
-                    if (survey.isActive) {
-                        surveyList.push(survey);
+                const surveyArray = su.data;
+                const surveyList = [];
+                const preList = [];
+                const postList = [];
+                const preAnswered = {};
+                const postAnswered = {};
 
-                        response = await api.get(
-                            `survey-answer2?userId=${user.id}&surveyId=${survey._id}`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${user.accessToken}`,
-                                },
-                            }
-                        );
-                        const answeredSurvey = response?.data;
-                        const surveyProps =
-                            experimentResult.surveysProps[surveyPropsId];
+                for (const survey of surveyArray) {
+                    if (!survey?.isActive) continue;
 
-                        let hasAnswered = false;
-                        if (
-                            answeredSurvey &&
-                            Array.isArray(answeredSurvey) &&
-                            answeredSurvey.length > 0
-                        ) {
-                            hasAnswered = true;
+                    surveyList.push(survey);
+
+                    const response = await api.get(
+                        `survey-answer2?userId=${user.id}&surveyId=${survey._id}`,
+                        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+                    );
+
+                    const answeredSurvey = response?.data;
+                    const hasAnswered =
+                        Array.isArray(answeredSurvey) && answeredSurvey.length > 0;
+
+                    if (survey.type === SurveyType.PRE) {
+                        preList.push(survey);
+                        if (hasAnswered || !survey.required) {
+                            preAnswered[survey._id] = true;
                         }
-
-                        if (surveyProps.type === SurveyType.PRE) {
-                            preSurveys.push(survey);
-                            setPreSurveys(preSurveys);
-
-                            if (hasAnswered || !surveyProps.required) {
-                                setAnsweredPreSurveys(
-                                    Object.assign(answeredPreSurveys, {
-                                        [survey._id]: true,
-                                    })
-                                );
-                            }
-                        } else if (surveyProps.type === SurveyType.POST) {
-                            postSurveys.push(survey);
-                            setPostSurveys(postSurveys);
-
-                            if (!hasAnswered && surveyProps.required) {
-                                /** TODO */
-                            } else {
-                                setAnsweredPostSurveys(
-                                    Object.assign(answeredPostSurveys, {
-                                        [survey._id]: true,
-                                    })
-                                );
-                            }
+                    } else if (survey.type === SurveyType.POST) {
+                        postList.push(survey);
+                        if (hasAnswered || !survey.required) {
+                            postAnswered[survey._id] = true;
                         }
                     }
                 }
 
                 if (surveyList.length === 0) {
                     navigate(`/experiments/${experimentId}/tasks`);
+                    return;
                 }
 
-                const activate =
-                    userExperimentResult.stepsCompleted["pre"] || false;
+                setPreSurveys(preList);
+                setPostSurveys(postList);
+                setAnsweredPreSurveys(preAnswered);
+                setAnsweredPostSurveys(postAnswered);
+
+                const activate = userExperimentResult.stepsCompleted["pre"] || false;
                 setShowWarning(!activate);
                 setShouldActivateTask(activate);
 
                 const experimentSteps = mountSteps(
-                    experimentResult.steps,
-                    userExperimentResult.stepsCompleted
+                    experimentResult.steps || [],
+                    userExperimentResult.stepsCompleted || {}
                 );
 
                 setExperiment(experimentResult);
@@ -175,22 +149,14 @@ const Surveys = () => {
                 setOpen(true);
                 setIsSuccess(false);
                 setSeverity("error");
-                setMessage(error);
-                console.log(error);
+                setMessage(error?.message || "Erro ao buscar questionários");
+                console.error(error);
             }
         };
 
         fetchSurveyData();
-    }, [
-        experimentId,
-        user?.id,
-        user?.accessToken,
-        navigate,
-        answeredPreSurveys,
-        answeredPostSurveys,
-        preSurveys,
-        postSurveys,
-    ]);
+    }, [experimentId, user?.id, user?.accessToken, navigate]);
+
 
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
@@ -264,8 +230,7 @@ const Surveys = () => {
                         disabled={
                             hasFinishedTasks ||
                             (answeredPreSurveys[survey._id] &&
-                                experiment?.surveysProps[survey._id]
-                                    ?.uniqueAnswer)
+                                survey?.uniqueAnswer)
                         }
                     >
                         <AccordionSummary
@@ -281,8 +246,7 @@ const Surveys = () => {
                             <Typography>
                                 <span>{survey.title}</span>
                                 {answeredPreSurveys[survey._id] &&
-                                experiment?.surveysProps[survey._id]
-                                    ?.uniqueAnswer ? (
+                                survey?.uniqueAnswer ? (
                                     <span
                                         style={{
                                             color: "red",
@@ -303,8 +267,7 @@ const Surveys = () => {
                             <Typography>{survey.description}</Typography>
                             <div style={{ textAlign: "right" }}>
                                 {answeredPreSurveys[survey._id] &&
-                                    !experiment?.surveysProps[survey._id]
-                                        ?.uniqueAnswer && (
+                                    !survey?.uniqueAnswer && (
                                         <Button
                                             variant="contained"
                                             color="primary"
@@ -339,8 +302,7 @@ const Surveys = () => {
                         (survey, index) =>
                             (!answeredPostSurveys[survey._id] ||
                                 (answeredPostSurveys[survey._id] &&
-                                    !experiment?.surveysProps[survey._id]
-                                        ?.uniqueAnswer)) && (
+                                    !survey?.uniqueAnswer)) && (
                                 <Accordion
                                     sx={{ marginBottom: "5px" }}
                                     key={survey._id}
