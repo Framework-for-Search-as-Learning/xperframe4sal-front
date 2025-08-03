@@ -89,20 +89,20 @@ const Surveys = () => {
                 setHasFinishedTasks(
                     userExperimentResult?.stepsCompleted["task"]
                 );
-
+                
                 let surveyList = [];
-                for (let surveyPropsId in experimentResult.surveysProps) {
-                    let response = await api.get(`survey2/${surveyPropsId}`, {
+                const surveys = await api.get(`survey2/experiment/${experimentId}`, {
                         headers: {
                             Authorization: `Bearer ${user.accessToken}`,
                         },
                     });
-                    const survey = response?.data;
-
+                
+                for (const survey of surveys.data) {
+                   
                     if (survey.isActive) {
                         surveyList.push(survey);
 
-                        response = await api.get(
+                        const response = await api.get(
                             `survey-answer2?userId=${user.id}&surveyId=${survey._id}`,
                             {
                                 headers: {
@@ -110,35 +110,38 @@ const Surveys = () => {
                                 },
                             }
                         );
+                  
                         const answeredSurvey = response?.data;
-                        const surveyProps =
-                            experimentResult.surveysProps[surveyPropsId];
+                        
+                        //const surveyProps =
+                            //experimentResult.surveysProps[surveyPropsId];
 
                         let hasAnswered = false;
                         if (
+                            
                             answeredSurvey &&
                             Array.isArray(answeredSurvey) &&
                             answeredSurvey.length > 0
                         ) {
                             hasAnswered = true;
                         }
-
-                        if (surveyProps.type === SurveyType.PRE) {
+                        if (survey.type === SurveyType.PRE) {
+                          
                             preSurveys.push(survey);
                             setPreSurveys(preSurveys);
 
-                            if (hasAnswered || !surveyProps.required) {
+                            if (hasAnswered ) {
                                 setAnsweredPreSurveys(
                                     Object.assign(answeredPreSurveys, {
                                         [survey._id]: true,
                                     })
                                 );
                             }
-                        } else if (surveyProps.type === SurveyType.POST) {
+                        } else if (survey.type === SurveyType.POST) {
                             postSurveys.push(survey);
                             setPostSurveys(postSurveys);
 
-                            if (!hasAnswered && surveyProps.required) {
+                            if (!hasAnswered ) {
                                 /** TODO */
                             } else {
                                 setAnsweredPostSurveys(
@@ -159,11 +162,13 @@ const Surveys = () => {
                     userExperimentResult.stepsCompleted["pre"] || false;
                 setShowWarning(!activate);
                 setShouldActivateTask(activate);
-
+                console.log("teste: ", experimentResult)
                 const experimentSteps = mountSteps(
                     experimentResult.steps,
                     userExperimentResult.stepsCompleted
                 );
+               
+                console.log("teste3232", experimentSteps)
 
                 setExperiment(experimentResult);
                 setUserExperiment(userExperimentResult);
@@ -207,6 +212,8 @@ const Surveys = () => {
                 experiment: experiment,
             },
         });
+
+    
     };
 
     return (
@@ -264,8 +271,7 @@ const Surveys = () => {
                         disabled={
                             hasFinishedTasks ||
                             (answeredPreSurveys[survey._id] &&
-                                experiment?.surveysProps[survey._id]
-                                    ?.uniqueAnswer)
+                                survey?.uniqueAnswer)
                         }
                     >
                         <AccordionSummary
@@ -281,8 +287,7 @@ const Surveys = () => {
                             <Typography>
                                 <span>{survey.title}</span>
                                 {answeredPreSurveys[survey._id] &&
-                                experiment?.surveysProps[survey._id]
-                                    ?.uniqueAnswer ? (
+                                survey?.uniqueAnswer ? (
                                     <span
                                         style={{
                                             color: "red",
@@ -303,8 +308,7 @@ const Surveys = () => {
                             <Typography>{survey.description}</Typography>
                             <div style={{ textAlign: "right" }}>
                                 {answeredPreSurveys[survey._id] &&
-                                    !experiment?.surveysProps[survey._id]
-                                        ?.uniqueAnswer && (
+                                    !survey?.uniqueAnswer && (
                                         <Button
                                             variant="contained"
                                             color="primary"

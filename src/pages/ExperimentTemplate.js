@@ -5,9 +5,14 @@ import {
 import { ExperimentStatus } from '../components/ExperimentStatus';
 
 const mountSteps = (steps, stepsCompleted) => {
-
+    steps = {
+    "icf": false,
+    "pre": false,
+    "post": false,
+    "task": false
+  }
   steps = Object.entries(steps);
-
+  console.log("Step:", steps)
   steps = steps.sort((a, b) => a[1].order - b[1].order);
 
   const stepsToReturn = [];
