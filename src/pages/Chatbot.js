@@ -1,9 +1,5 @@
-import React, { useState } from 'react';
-import {
-    Container,
-    Box,
-    Paper
-} from '@mui/material';
+import { useState } from 'react';
+import { Container, Paper } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { ChatHeader } from '../components/Chatbot/ChatHeader';
 import { MessageArea } from '../components/Chatbot/MessageArea';
@@ -79,33 +75,62 @@ const Chatbot = () => {
         setIsTyping(true);
 
         try {
-            const response = await chat.sendMessage({ message: messageText });
+            const stream = await chat.sendMessageStream({ message: messageText });
 
-            setTimeout(() => {
-                const botMessage = {
-                    id: Date.now() + 1,
-                    text: marked(response.text),
-                    sender: "bot",
-                    role: "model",
-                    timestamp: new Date(),
-                    parts: [{ text: response.text }]
-                };
+            let fullResponse = "";
+            const botMessageId = Date.now() + 1;
 
-                setMessages(prev => {
-                    const newMessages = [...prev, botMessage];
+            for await (const chunk of stream) {
+                fullResponse += chunk.text;
 
-                    const messagesToSave = newMessages.filter(msg => msg.id !== 1);
-                    history.replaceCookie(messagesToSave);
+                if (fullResponse === chunk.text) {
+                    setIsTyping(false);
 
-                    return newMessages;
-                });
+                    const botMessage = {
+                        id: botMessageId,
+                        text: marked(fullResponse),
+                        sender: "bot",
+                        role: "model",
+                        timestamp: new Date(),
+                        parts: [{ text: fullResponse }]
+                    };
 
-                setIsTyping(false);
-            }, 1000);
+                    setMessages(prev => [...prev, botMessage]);
+                } else {
+                    setMessages(prev =>
+                        prev.map(msg =>
+                            msg.id === botMessageId
+                                ? {
+                                    ...msg,
+                                    text: marked(fullResponse),
+                                    parts: [{ text: fullResponse }]
+                                }
+                                : msg
+                        )
+                    );
+                }
+            }
+
+            setMessages(prev => {
+                const messagesToSave = prev.filter(msg => msg.id !== 1);
+                history.replaceCookie(messagesToSave);
+                return prev;
+            });
 
         } catch (error) {
             console.error('Erro ao enviar mensagem:', error);
             setIsTyping(false);
+
+            const errorMessage = {
+                id: Date.now() + 2,
+                text: "Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.",
+                sender: "bot",
+                role: "model",
+                timestamp: new Date(),
+                parts: [{ text: "Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente." }]
+            };
+
+            setMessages(prev => [...prev, errorMessage]);
         }
     };
 
