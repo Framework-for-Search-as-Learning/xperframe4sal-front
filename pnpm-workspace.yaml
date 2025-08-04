@@ -1,4 +1,0 @@
-onlyBuiltDependencies:
-  - bcrypt
-  - core-js
-  - core-js-pure
