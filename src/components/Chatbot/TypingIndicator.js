@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
+import { LoadingEffect } from '../Loading';
 
 const useStyles = makeStyles((theme) => ({
     typingContainer: {
@@ -62,9 +63,7 @@ const TypingIndicator = () => {
             </Avatar>
 
             <Box className={classes.typingBubble}>
-                <Box className={classes.dot} />
-                <Box className={classes.dot} />
-                <Box className={classes.dot} />
+                <LoadingEffect />
             </Box>
         </Box>
     );
