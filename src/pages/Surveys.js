@@ -84,6 +84,7 @@ const Surveys = () => {
 
                 if (!userExperimentResult.stepsCompleted["icf"]) {
                     navigate(`/experiments/${experimentId}/icf`);
+                    return;
                 }
 
                 setHasFinishedTasks(
@@ -130,6 +131,7 @@ const Surveys = () => {
                             preSurveys.push(survey);
                             setPreSurveys(preSurveys);
 
+                            //TODO retirei verificação do required nesse if
                             if (hasAnswered ) {
                                 setAnsweredPreSurveys(
                                     Object.assign(answeredPreSurveys, {
@@ -141,6 +143,7 @@ const Surveys = () => {
                             postSurveys.push(survey);
                             setPostSurveys(postSurveys);
 
+                            //TODO retirei verificação do required nesse if
                             if (!hasAnswered ) {
                                 /** TODO */
                             } else {

@@ -42,7 +42,7 @@ async function updateUserExperimentStatus(
                     { [stepName]: true }
                 );
                 await api.patch(
-                    `user-experiments/${userExperiment._id}`,
+                    `user-experiments2/${userExperiment._id}`,
                     userExperiment,
                     { headers: { Authorization: `Bearer ${user.accessToken}` } }
                 );
@@ -132,7 +132,6 @@ const Survey = () => {
     const { experimentId, surveyId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
-
     const { t } = useTranslation();
 
     const [formData, setFormData] = useState({});
@@ -196,6 +195,7 @@ const Survey = () => {
                 ]);
 
                 const userExperimentResult = userExperimentResponse?.data;
+                
 
                 if (!userExperimentResult) {
                     navigate(`/experiments`);
@@ -206,14 +206,14 @@ const Survey = () => {
                 const experimentResult = experimentResponse?.data;
                 const surveyResult = surveyResponse?.data;
                 const userSurveyResult = userSurveyResponse?.data;
+                
                 setUserSurvey(userSurveyResult);
 
                 if (isMounted) {
                     let uniqueAnswer = false;
                     if (experimentResult) {
                         uniqueAnswer =
-                            experimentResult.surveysProps[surveyId]
-                                ?.uniqueAnswer;
+                            survey?.uniqueAnswer;
                         setExperiment(experimentResult);
                     }
 
@@ -413,7 +413,7 @@ const Survey = () => {
                 </Typography>
             )}
             {!survey && isLoading && <LoadingIndicator size={70} />}
-            {survey && experiment?.surveysProps[survey._id]?.uniqueAnswer && (
+            {survey && survey?.uniqueAnswer && (
                 <ErrorMessage
                     style={{
                         flex: 1,
