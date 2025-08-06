@@ -274,25 +274,50 @@ const Survey = () => {
                 return;
             }
 
-            let totalScore = 0;
-            let atLeastOneScore = false;
-
-            for (const [, value] of Object.entries(formData)) {
-                if (value.selectedOption?.score !== undefined) {
-                    atLeastOneScore = true;
-                    totalScore += value.selectedOption.score;
+            // Monta o array de respostas no novo formato
+            const answers = Object.entries(formData).map(([index, value]) => {
+                const question = survey.questions[index];
+                if (!question) return null;
+                if (question.type === "open") {
+                    return {
+                        id: question.id || question._id || index,
+                        questionStatement: value.questionStatement,
+                        questionType: question.type,
+                        textAnswer: value.answer
+                    };
+                } else {
+                    // selectedOption pode ser array ou objeto
+                    let selectedOptions = [];
+                    if (Array.isArray(value.selectedOption)) {
+                        selectedOptions = value.selectedOption.map(opt => ({
+                            statement: opt.statement.statement,
+                            score: opt.score ?? 0
+                        }));
+                    } else if (value.selectedOption) {
+                        selectedOptions = [{
+                            statement: value.selectedOption.statement,
+                            score: value.selectedOption.score ?? 0
+                        }];
+                    }
+                    return {
+                        id: question.id || question._id || index,
+                        questionStatement: value.questionStatement,
+                        questionType: question.type,
+                        selectedOptions
+                    };
                 }
-            }
+            }).filter(Boolean);
 
             if (surveyAnswer?.length > 0) {
                 surveyAnswer = surveyAnswer[0];
-                surveyAnswer.answers = formData;
-                surveyAnswer.score = atLeastOneScore ? totalScore : null;
+                surveyAnswer.answers = answers;
+                // Não envia mais score, backend calcula
+                if (surveyAnswer.score !== undefined) delete surveyAnswer.score;
 
                 await separateUsersInGroup(
                     api,
                     user,
-                    surveyAnswer.score,
+                    null,
                     experiment
                 );
 
@@ -311,13 +336,13 @@ const Survey = () => {
                 surveyAnswer = {
                     userId: user.id,
                     surveyId: survey._id,
-                    answers: formData,
-                    score: atLeastOneScore ? totalScore : null,
+                    answers
+                    // Não envia mais score
                 };
                 await separateUsersInGroup(
                     api,
                     user,
-                    surveyAnswer.score,
+                    null,
                     experiment
                 );
                 await handleSurveySubmit(() =>
