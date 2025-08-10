@@ -10,8 +10,9 @@ const mountSteps = (steps, stepsCompleted) => {
   steps = {
     "icf": false,
     "pre": false,
-    "post": false,
-    "task": false
+    "task": false,
+    "post": false
+   
   }
   steps = Object.entries(steps);
   console.log("Step:", steps)
