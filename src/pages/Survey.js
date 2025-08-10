@@ -26,9 +26,14 @@ async function updateUserExperimentStatus(
     try {
         if (userSurveysApiCalls.length > 0) {
             let answeredSurveys = await Promise.all(userSurveysApiCalls);
+            console.log("answeredSurveys: ", answeredSurveys)
             answeredSurveys = answeredSurveys.reduce(
                 (accumulator, answeredSurvey) => {
-                    if (answeredSurvey.data && answeredSurvey.data.length > 0) {
+                    console.log("Accumulator: ", accumulator)
+                    console.log("answeredSurvey: ", answeredSurvey)
+                    //Removi a verificação do length pois o data é objeto, não array
+                    if (answeredSurvey.data /*&& answeredSurvey.data.length > 0*/) {
+                        
                         return accumulator.concat(answeredSurvey.data);
                     }
                     return accumulator;
@@ -312,8 +317,7 @@ const Survey = () => {
                 surveyAnswer = surveyAnswer[0];
                 surveyAnswer.answers = answers;
                 // Não envia mais score, backend calcula
-                if (surveyAnswer.score !== undefined) delete surveyAnswer.score;
-
+                if (surveyAnswer.score !== undefined) delete surveyAnswer.score;                
                 await separateUsersInGroup(
                     api,
                     user,
@@ -353,14 +357,18 @@ const Survey = () => {
                     })
                 );
             }
-
+            
             const userPreSurveysApiCalls = [];
             const userPostSurveysApiCalls = [];
-            for (const [surveyId, surveyProps] of Object.entries(
-                surveysProps
-            )) {
-                if (surveyProps.required) {
-                    if (surveyProps.type === "pre") {
+
+            const surveys = await api.get(`survey2/experiment/${experimentId}`, {
+                        headers: {
+                            Authorization: `Bearer ${user.accessToken}`,
+                        },
+                    });
+            for (const survey of surveys.data) {
+                if (survey.required) {
+                    if (survey.type === "pre") {
                         userPreSurveysApiCalls.push(
                             api.get(
                                 `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,
@@ -372,7 +380,7 @@ const Survey = () => {
                             )
                         );
                     }
-                    if (surveyProps.type === "post") {
+                    if (survey.type === "post") {
                         userPostSurveysApiCalls.push(
                             api.get(
                                 `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,

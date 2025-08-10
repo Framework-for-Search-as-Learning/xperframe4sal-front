@@ -21,11 +21,6 @@ const Survey = ({ survey, callback, params }) => {
   const [formData, setFormData] = useState({});
 
   const joinResponses = (question, questionIndex, option, event, responseToOneQuestion) => {
-    console.log("Question: ", question)
-    console.log("QuestionIndex: ", questionIndex)
-    console.log("Option: ", option)
-    console.log("Event: ", event)
-    console.log("ResponseToOneQuestion: ", responseToOneQuestion)
     if (question.type === 'multiple-selection') {
       if (formData[questionIndex]) {
         if (!formData[questionIndex].selectedOption) {

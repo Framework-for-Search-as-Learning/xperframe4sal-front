@@ -116,13 +116,13 @@ const Surveys = () => {
                         
                         //const surveyProps =
                             //experimentResult.surveysProps[surveyPropsId];
-
+                        console.log("answeredSurvey: ", answeredSurvey)
                         let hasAnswered = false;
                         if (
-                            
-                            answeredSurvey &&
+                            //Remove verificação de vetor para funcionar
+                            answeredSurvey /*&&
                             Array.isArray(answeredSurvey) &&
-                            answeredSurvey.length > 0
+                            answeredSurvey.length > 0*/
                         ) {
                             hasAnswered = true;
                         }
@@ -178,6 +178,7 @@ const Surveys = () => {
                 setSurveys(surveyList);
                 setSteps(experimentSteps);
                 setIsLoading(false);
+
             } catch (error) {
                 setIsLoading(false);
                 setOpen(true);

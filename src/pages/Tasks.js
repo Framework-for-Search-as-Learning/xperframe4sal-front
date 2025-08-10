@@ -74,14 +74,13 @@ const Tasks = () => {
                     }
                 }
 
-                /** Marcelo os steps serviam para marcar cada passo que o aluno completou
-                 * por enquanto não existe mais
-                 */
-                // const experimentSteps = mountSteps(
-                //     experimentResult.steps,
-                //     userExperimentResult.stepsCompleted
-                // );
-                // setSteps(experimentSteps);
+                const experimentSteps = mountSteps(
+                    experimentResult.steps,
+                     userExperimentResult.stepsCompleted
+                 );
+                console.log("experimentSteps2: ", experimentSteps)
+                setSteps(experimentSteps);
+
                 setTasks(taskList);
                 setIsLoading(false);
             } catch (error) {
