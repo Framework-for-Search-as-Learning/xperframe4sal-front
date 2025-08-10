@@ -57,31 +57,18 @@ const Tasks = () => {
                 let userExperimentResult = userExperimentResponse.data;
                 setExperiment(experimentResult);
 
-                let response = await api.get(`user-task2?userId=${user.id}`, {
+                let response = await api.get(`user-task2/user/${user.id}/experiment/${experimentId}`, {
                     headers: { Authorization: `Bearer ${user.accessToken}` },
                 });
                 let userTasks = response?.data;
 
-                // Filter tasks of the experiment
-                /** Marcelo diz:  atualmente experimentResult não tem tasksProps */
-                // userTasks = userTasks.filter((userTask) =>
-                //     Object.keys(experimentResult.tasksProps).includes(
-                //         userTask.taskId
-                //     )
-                // );
 
                 setUserTasks(userTasks);
 
                 let taskList = [];
 
                 for (let userTask of userTasks) {
-                    response = await api.get(`task2/${userTask["task_id"]}`, {
-                        headers: {
-                            Authorization: `Bearer ${user.accessToken}`,
-                        },
-                    });
-                    const task = response?.data;
-
+                    const task = userTask.task
                     if (task.isActive) {
                         taskList.push(task);
                     }
