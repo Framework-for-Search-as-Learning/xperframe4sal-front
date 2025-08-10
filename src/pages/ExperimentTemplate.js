@@ -5,7 +5,9 @@ import {
 import { ExperimentStatus } from '../components/ExperimentStatus';
 
 const mountSteps = (steps, stepsCompleted) => {
-    steps = {
+  //TODO Fiz aparecer os labels, mas precisa de mais correções 
+  
+  steps = {
     "icf": false,
     "pre": false,
     "post": false,
@@ -14,10 +16,12 @@ const mountSteps = (steps, stepsCompleted) => {
   steps = Object.entries(steps);
   console.log("Step:", steps)
   steps = steps.sort((a, b) => a[1].order - b[1].order);
-
+  console.log("Teste:", steps)
   const stepsToReturn = [];
   for (const [key, value] of steps) {
-    stepsToReturn.push({ label: value["label"], completed: stepsCompleted[key], link: value["link"] || "" });
+    console.log("Key: ", key)
+    console.log("label: ", value)
+    stepsToReturn.push({ label: key, completed: stepsCompleted[key], link: value["link"] || "" });
   }
 
   return stepsToReturn;
