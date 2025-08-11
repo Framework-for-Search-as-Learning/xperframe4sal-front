@@ -239,5 +239,14 @@
   "edit_icf": "Editar Termo de Consentimento",
   "register_fail_message": "Falha ao registrar. Verifique os dados e tente novamente.",
   "success_message": "Registro realizado com sucesso!",
-  "error_loading_experiments": "Erro ao Carregar os Experimentos"
+  "error_loading_experiments": "Erro ao Carregar os Experimentos",
+  "select_llm": "Selecionar modelo de LLM",
+  "chatgpt_openai": "ChatGPT (OpenAI)",
+  "gemini_google": "Gemini (Google)",
+  "select_source": "Selecionar fonte de busca",
+  "deepseek_ai": "DeepSeek (DeepSeek AI)",
+    "search_engine": "Motor de busca",
+  "search_provider": "Provedor de busca",
+  "select_search_engine": "Selecionar motor de busca"
+
 }

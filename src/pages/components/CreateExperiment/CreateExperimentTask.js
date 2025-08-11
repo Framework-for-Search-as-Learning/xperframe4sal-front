@@ -56,6 +56,7 @@ const CreateExperimentTask = () => {
         ExperimentSurveys,
     } = useContext(StepContext);
     const { t } = useTranslation();
+
     const [ScoreThresholdmx, setScoreThresholdmx] = useState('0');
     const [RulesExperiment, setRulesExperiment] = useState('score');
     const [ScoreThreshold, setScoreThreshold] = useState('');
@@ -69,6 +70,9 @@ const CreateExperimentTask = () => {
 
     const [taskTitle, setTaskTitle] = useState("");
     const [taskSummary, setTaskSummary] = useState("");
+    const [origin, setOrigin] = useState('');
+    const [llm, setLlm] = useState('');
+    const [searchEngine, setSearchEngine] = useState('')
     const [taskDescription, setTaskDescription] = useState("");
 
     const [editTaskIndex, setEditTaskIndex] = useState(null);
@@ -107,6 +111,18 @@ const CreateExperimentTask = () => {
         { value: 'unic', label: t('unic') },
         { value: 'min_max', label: t('min_max') }
     ];
+
+    const LlmTypes = [
+        { value: 'chat-gpt', label: 'ChatGPT (OpenAI)' },
+        { value: 'gemini', label: 'Gemini (Google)' },
+        { value: 'deepseek', label: 'DeepSeek (DeepSeek AI)' },
+    ];
+    const SearchEngines = [
+        { value: 'google', label: 'Google' },
+        { value: 'bing', label: 'Bing' },
+        { value: 'duckduckgo', label: 'DuckDuckGo' },
+    ];
+
 
     const handleOpenDeleteDialog = (index) => {
         setTaskToDeleteIndex(index);
@@ -518,6 +534,71 @@ const CreateExperimentTask = () => {
                             onChange={handleNameChangeTitleTaskEdit}
                             required
                         />
+                           <Grid container spacing={2} alignItems="center">
+                            {/* Select origem: LLM ou motor de busca */}
+                            <Grid item xs={6}>
+                                <FormControl fullWidth margin="normal">
+                                    <InputLabel id="origin-label">{t('select_source')}</InputLabel>
+                                    <Select
+                                        labelId="origin-label"
+                                        value={origin}
+                                        onChange={(e) => {
+                                            setOrigin(e.target.value);
+                                            setLlm('');
+                                            setSearchEngine('');
+                                        }}
+                                        label={t('select_source')}
+                                    >
+                                        <MenuItem value="llm">Large Language Model</MenuItem>
+                                        <MenuItem value="search-engine">{t('search_engine')}</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+
+                            {/* Se escolher LLM, mostrar select dos modelos */}
+                            {origin === 'llm' && (
+                                <Grid item xs={6}>
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel id="llm-select-label">{t('select_llm')}</InputLabel>
+                                        <Select
+                                            labelId="llm-select-label"
+                                            value={llm}
+                                            onChange={(e) => setLlm(e.target.value)}
+                                            label={t('select_llm')}
+                                        >
+                                            {LlmTypes.map((type) => (
+                                                <MenuItem key={type.value} value={type.value}>
+                                                    {type.label}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            )}
+
+                            {/* Se escolher motor de busca, mostrar select dos motores */}
+                            {origin === 'search-engine' && (
+                                <Grid item xs={6}>
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel id="search-engine-label">{t('select_search_engine')}</InputLabel>
+                                        <Select
+                                            labelId="search-engine-label"
+                                            value={searchEngine}
+                                            onChange={(e) => setSearchEngine(e.target.value)}
+                                            label={t('select_search_engine')}
+                                        >
+                                            {SearchEngines.map((engine) => (
+                                                <MenuItem key={engine.value} value={engine.value}>
+                                                    {engine.label}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            )}
+                        </Grid>
+
+
                         {ExperimentType === 'between-subject' && BtypeExperiment === 'rules_based' && (
                             <>
                                 {RulesExperimentEdit === 'score' && (
@@ -840,6 +921,70 @@ const CreateExperimentTask = () => {
                             onChange={handleNameChangeTitleTask}
                             required
                         />
+                        <Grid container spacing={2} alignItems="center">
+                            {/* Select origem: LLM ou motor de busca */}
+                            <Grid item xs={6}>
+                                <FormControl fullWidth margin="normal">
+                                    <InputLabel id="origin-label">{t('select_source')}</InputLabel>
+                                    <Select
+                                        labelId="origin-label"
+                                        value={origin}
+                                        onChange={(e) => {
+                                            setOrigin(e.target.value);
+                                            setLlm('');
+                                            setSearchEngine('');
+                                        }}
+                                        label={t('select_source')}
+                                    >
+                                        <MenuItem value="llm">Large Language Model</MenuItem>
+                                        <MenuItem value="search-engine">{t('search_engine')}</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+
+                            {/* Se escolher LLM, mostrar select dos modelos */}
+                            {origin === 'llm' && (
+                                <Grid item xs={6}>
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel id="llm-select-label">{t('select_llm')}</InputLabel>
+                                        <Select
+                                            labelId="llm-select-label"
+                                            value={llm}
+                                            onChange={(e) => setLlm(e.target.value)}
+                                            label={t('select_llm')}
+                                        >
+                                            {LlmTypes.map((type) => (
+                                                <MenuItem key={type.value} value={type.value}>
+                                                    {type.label}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            )}
+
+                            {/* Se escolher motor de busca, mostrar select dos motores */}
+                            {origin === 'search-engine' && (
+                                <Grid item xs={6}>
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel id="search-engine-label">{t('select_search_engine')}</InputLabel>
+                                        <Select
+                                            labelId="search-engine-label"
+                                            value={searchEngine}
+                                            onChange={(e) => setSearchEngine(e.target.value)}
+                                            label={t('select_search_engine')}
+                                        >
+                                            {SearchEngines.map((engine) => (
+                                                <MenuItem key={engine.value} value={engine.value}>
+                                                    {engine.label}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            )}
+                        </Grid>
+
                         {ExperimentType === 'between-subject' && BtypeExperiment === 'rules_based' && (
                             <>
                                 {RulesExperiment === 'score' && (
