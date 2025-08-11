@@ -94,6 +94,7 @@ const Question = ({ question, questionIndex, callback, params }) => {
         ? { statement: option.statement, score: option.score }
         : { statement: option };
     }
+
     callback(question, questionIndex, option, event, { [questionIndex]: questionData });
   };
 

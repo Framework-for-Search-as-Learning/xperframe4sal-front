@@ -49,42 +49,42 @@ const ICF = () => {
                         },
                     })
                 ).data;
-                if (experiment?.icfId) {
-                    const icfResponse = (
-                        await api.get(`icf2/${experiment.icf_id}`, {
+                console.log(experiment);
+
+                // Buscar ICF pelo experimentId, não icf_id
+                const icfResponse = (
+                    await api.get(`icf2/experiment/${experimentId}`, {
+                        headers: {
+                            Authorization: `Bearer ${user.accessToken}`,
+                        },
+                    })
+                ).data;
+
+                console.log("icf: ");
+                console.log(icfResponse);
+                setICF(icfResponse);
+
+                if (!userExperiment) {
+                    let response = await api.get(
+                        `user-experiments2?userId=${user.id}&experimentId=${experimentId}`,
+                        {
                             headers: {
                                 Authorization: `Bearer ${user.accessToken}`,
                             },
-                        })
-                    ).data;
-                    setICF(icfResponse);
-                    if (!userExperiment) {
-                        let response = await api.get(
-                            `user-experiments2?userId=${user.id}&experimentId=${experimentId}`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${user.accessToken}`,
-                                },
-                            }
-                        );
-                        const userExperimentsData = response.data;
-                        setUserExperiment(userExperimentsData);
-                        if (userExperimentsData) {
-                            if (
-                                userExperimentsData.stepsCompleted &&
-                                userExperimentsData.stepsCompleted["icf"]
-                            ) {
-                                navigate(
-                                    `/experiments/${experiment._id}/surveys`
-                                );
-                            }
                         }
+                    );
+                    const userExperimentsData = response.data;
+                    setUserExperiment(userExperimentsData);
+
+                    if (
+                        userExperimentsData?.stepsCompleted?.["icf"]
+                    ) {
+                        navigate(`/experiments/${experiment._id}/surveys`);
                     }
-                } else {
-                    navigate("/experiments");
                 }
             } catch (error) {
                 console.log(error);
+                navigate("/experiments");
             }
         }
 
@@ -102,6 +102,8 @@ const ICF = () => {
 
     const handleChange = async (e) => {
         try {
+            console.log("user experiment: ")
+            console.log(userExperiment)
             if (!userExperiment.stepsCompleted) {
                 userExperiment.stepsCompleted = {};
             }
@@ -142,6 +144,7 @@ const ICF = () => {
                         {icf.description}
                     </Typography>
 
+                    {/* 
                     <Typography variant="h6" gutterBottom>
                         {t("researchers_title")}
                     </Typography>
@@ -150,7 +153,8 @@ const ICF = () => {
                         <Typography variant="body1" gutterBottom key={index}>
                             {r}
                         </Typography>
-                    ))}
+                    ))} 
+                    */}
 
                     <Typography
                         variant="body1"
