@@ -165,9 +165,14 @@ const Surveys = () => {
                     userExperimentResult.stepsCompleted["pre"] || false;
                 setShowWarning(!activate);
                 setShouldActivateTask(activate);
-                console.log("teste: ", experimentResult)
+                
+                const steps = await api.get(`experiments2/${experimentId}/step`, {
+                        headers: {
+                            Authorization: `Bearer ${user.accessToken}`,
+                        },
+                    });
                 const experimentSteps = mountSteps(
-                    experimentResult.steps,
+                    steps.data,
                     userExperimentResult.stepsCompleted
                 );
                

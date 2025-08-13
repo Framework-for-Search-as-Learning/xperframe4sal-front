@@ -73,10 +73,14 @@ const Tasks = () => {
                         taskList.push(task);
                     }
                 }
-
+                const steps = await api.get(`experiments2/${experimentId}/step`, {
+                        headers: {
+                            Authorization: `Bearer ${user.accessToken}`,
+                        },
+                    });
                 const experimentSteps = mountSteps(
-                    experimentResult.steps,
-                     userExperimentResult.stepsCompleted
+                    steps.data,
+                    userExperimentResult.stepsCompleted
                  );
                 console.log("experimentSteps2: ", experimentSteps)
                 setSteps(experimentSteps);
