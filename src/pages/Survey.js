@@ -359,13 +359,9 @@ const Survey = () => {
             const userPreSurveysApiCalls = [];
             const userPostSurveysApiCalls = [];
 
-            const surveys = await api.get(`survey2/experiment/${experimentId}`, {
-                        headers: {
-                            Authorization: `Bearer ${user.accessToken}`,
-                        },
-                    });
-            for (const survey of surveys.data) {
-                if (survey.required) {
+            // Aqui era utilizado o surveysProps, como não existe mais irei utilizar
+            // irei utilizar o survey que é passado como parametro para a pagina
+            if (survey.required) {
                     if (survey.type === "pre") {
                         userPreSurveysApiCalls.push(
                             api.get(
@@ -391,7 +387,7 @@ const Survey = () => {
                         );
                     }
                 }
-            }
+            
 
             await updateUserExperimentStatus(
                 userPreSurveysApiCalls,
