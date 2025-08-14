@@ -198,7 +198,7 @@ const Survey = () => {
                         }
                     ),
                 ]);
-
+                
                 const userExperimentResult = userExperimentResponse?.data;
                 
 
@@ -211,9 +211,9 @@ const Survey = () => {
                 const experimentResult = experimentResponse?.data;
                 const surveyResult = surveyResponse?.data;
                 const userSurveyResult = userSurveyResponse?.data;
-                
-                setUserSurvey(userSurveyResult);
 
+                setUserSurvey(userSurveyResult);
+               
                 if (isMounted) {
                     let uniqueAnswer = false;
                     if (experimentResult) {
@@ -312,9 +312,7 @@ const Survey = () => {
                     };
                 }
             }).filter(Boolean);
-
-            if (surveyAnswer?.length > 0) {
-                surveyAnswer = surveyAnswer[0];
+            if (surveyAnswer) {
                 surveyAnswer.answers = answers;
                 // Não envia mais score, backend calcula
                 if (surveyAnswer.score !== undefined) delete surveyAnswer.score;                
