@@ -480,7 +480,7 @@ const EditExperimentTask = () => {
                             color="primary"
                             onClick={toggleCreateTask}
                         >
-                            {isCreateTaskOpen ? "Cancelar" : "Criar Tarefa"}
+                            {isCreateTaskOpen ? t('cancel') : t('create_task')}
                         </Button>
                     </Box>
                 </Box>
@@ -1746,7 +1746,7 @@ const EditExperimentTask = () => {
                                 onClick={handleCancelTask}
                                 color="primary"
                             >
-                                {"Cancelar"}
+                                {t('cancel')}
                             </Button>
                             <Button
                                 variant="contained"
@@ -1755,7 +1755,7 @@ const EditExperimentTask = () => {
                                 onClick={handleCreateTask}
                                 disabled={!isValidFormTask || isLoadingTask}
                             >
-                                {"Criar"}
+                                {t('create')}
                             </Button>
                         </Box>
                     </form>

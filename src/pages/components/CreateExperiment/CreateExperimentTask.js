@@ -386,7 +386,7 @@ const CreateExperimentTask = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <Box sx={{ marginRight: 2 }}>
                                 <Button variant="contained" color="primary" onClick={toggleCreateTask}>
-                                    {isCreateTaskOpen ? 'Cancelar' : 'Criar Tarefa'}
+                                    {isCreateTaskOpen ? t('cancel') : t('create_task')}
                                 </Button>
                             </Box>
                             <Box>
@@ -412,7 +412,7 @@ const CreateExperimentTask = () => {
                             onClick={toggleCreateTask}
                             sx={{ maxWidth: '170px' }}
                         >
-                            {isCreateTaskOpen ? 'Cancelar' : 'Criar Tarefa'}
+                            {isCreateTaskOpen ? t('cancel') : t('create_task')}
                         </Button>
                         <Button
                             variant="contained"
@@ -1127,7 +1127,7 @@ const CreateExperimentTask = () => {
 
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 'auto', width: '100%', mt: 2 }}>
                             <Button variant="contained" onClick={handleCancelTask} color="primary">
-                                {'Cancelar'}
+                                {t('cancel')}
                             </Button>
                             <Button
                                 variant="contained"
@@ -1136,7 +1136,7 @@ const CreateExperimentTask = () => {
                                 onClick={handleCreateTask}
                                 disabled={!isValidFormTask || isLoadingTask}
                             >
-                                {'Criar'}
+                                {t('create')}
                             </Button>
                         </Box>
                     </form>
