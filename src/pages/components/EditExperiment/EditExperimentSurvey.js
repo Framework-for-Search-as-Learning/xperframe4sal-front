@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { useState, useContext, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import 'react-quill/dist/quill.snow.css';
 import StepContext from './context/StepContext';
 import {
@@ -197,7 +196,8 @@ const EditExperimentSurvey = () => {
                                 ? {
                                     ...opt,
                                     [field]: value,
-                                    ...(field === "subquestion" ? { hassub: !!value } : {}),
+                                    ...(field === "subquestion" && value ? { hassub: true } :
+                                        field === "subquestion" && !value ? { hassub: false } : {}),
                                 }
                                 : opt
                         ),
@@ -227,12 +227,58 @@ const EditExperimentSurvey = () => {
         event.preventDefault();
 
         try {
+            // Create a clean copy of the survey with only the necessary properties
+            const cleanSurveyData = {
+                name: editedSurvey.name,
+                title: editedSurvey.title,
+                description: editedSurvey.description,
+                type: editedSurvey.type,
+                questions: editedSurvey.questions.map(question => {
+                    const cleanQuestion = {
+                        id: question.id,
+                        statement: question.statement,
+                        type: question.type,
+                        required: question.required,
+                        options: question.options ? question.options.map(option => {
+                            const cleanOption = {
+                                id: option.id,
+                                statement: option.statement,
+                                score: option.score || 0
+                            };
+
+                            // Only include subquestion if it exists and is not null/undefined
+                            if (option.subquestion && typeof option.subquestion === 'object') {
+                                cleanOption.subquestion = {
+                                    statement: option.subquestion.statement || '',
+                                    type: option.subquestion.type || 'open',
+                                    required: Boolean(option.subquestion.required),
+                                    hasscore: Boolean(option.subquestion.hasscore),
+                                    options: option.subquestion.options ? option.subquestion.options.map(subOpt => ({
+                                        id: subOpt.id,
+                                        statement: subOpt.statement || '',
+                                        score: subOpt.score || 0
+                                    })) : []
+                                };
+                                cleanOption.hassub = true;
+                            }
+
+                            return cleanOption;
+                        }) : []
+                    };
+                    return cleanQuestion;
+                }),
+                experiment_id: editedSurvey.experiment_id,
+                uniqueAnswer: editedSurvey.uniqueAnswer,
+                required: editedSurvey.required
+            };
+
             setExperimentSurveys((prev) => {
                 const updatedSurveys = [...prev];
                 updatedSurveys[IndexId] = editedSurvey;
                 return updatedSurveys;
             });
-            await api.patch(`/survey2/${editedSurvey._id}`, editedSurvey, {
+
+            await api.patch(`/survey2/${editedSurvey._id}`, cleanSurveyData, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
 
@@ -247,13 +293,17 @@ const EditExperimentSurvey = () => {
         if (!questions || !Array.isArray(questions)) return;
 
         questions.forEach((question) => {
-            question.id = generateRandomId();
+            if (!question.id) {
+                question.id = generateRandomId();
+            }
 
             if (question.options && Array.isArray(question.options)) {
                 question.options.forEach((option) => {
-                    option.id = generateRandomId();
+                    if (!option.id) {
+                        option.id = generateRandomId();
+                    }
 
-                    if (option.subquestion && option.subquestion.options) {
+                    if (option.subquestion && typeof option.subquestion === 'object' && option.subquestion.options) {
                         addIdOnSurvey(option.subquestion.options);
                     }
                 });
@@ -265,7 +315,39 @@ const EditExperimentSurvey = () => {
         setIndexId(index);
         let surveyToEdit = ExperimentSurveys[index];
         if (surveyToEdit) {
-            setEditedSurvey(surveyToEdit);
+            // Create a deep copy and ensure all questions and options have IDs
+            const surveyWithIds = {
+                ...surveyToEdit,
+                questions: surveyToEdit.questions.map(question => ({
+                    ...question,
+                    id: question.id || generateRandomId(),
+                    options: question.options ? question.options.map(option => {
+                        const optionWithId = {
+                            ...option,
+                            id: option.id || generateRandomId(),
+                        };
+
+                        // Handle subquestion properly
+                        if (option.subquestion && typeof option.subquestion === 'object' && option.subquestion !== null) {
+                            optionWithId.subquestion = {
+                                ...option.subquestion,
+                                options: option.subquestion.options ? option.subquestion.options.map(subOpt => ({
+                                    ...subOpt,
+                                    id: subOpt.id || generateRandomId()
+                                })) : []
+                            };
+                            optionWithId.hassub = true;
+                        } else {
+                            optionWithId.subquestion = null;
+                            optionWithId.hassub = false;
+                        }
+
+                        return optionWithId;
+                    }) : []
+                }))
+            };
+
+            setEditedSurvey(surveyWithIds);
             setIsEditDialogOpen(true);
         }
     };
@@ -652,7 +734,8 @@ const EditExperimentSurvey = () => {
                                                                             onClick={() => {
                                                                                 const currentOpt = editedSurvey.questions.find((q) => q.id === selectedQId)?.options.find((opt) => opt.id === selectedOptId);
                                                                                 console.log("Adicionar subquestão em: ", currentOpt)
-                                                                                const newValue = currentOpt?.subquestion ? null : {
+                                                                                const hasSubquestion = currentOpt?.subquestion && typeof currentOpt.subquestion === 'object' && currentOpt.subquestion !== null;
+                                                                                const newValue = hasSubquestion ? null : {
                                                                                     statement: "",
                                                                                     type: "open",
                                                                                     options: [],
@@ -668,7 +751,7 @@ const EditExperimentSurvey = () => {
                                                                                 editedSurvey?.questions
                                                                                     ?.find((q) => q.id === selectedQId)
                                                                                     ?.options?.find((opt) => opt.id === selectedOptId)
-                                                                                    ?.subquestion
+                                                                                    ?.subquestion && typeof editedSurvey.questions.find((q) => q.id === selectedQId)?.options?.find((opt) => opt.id === selectedOptId)?.subquestion === 'object'
                                                                                     ? "Removesubq"
                                                                                     : "AddSubq"
                                                                             )}
@@ -677,7 +760,7 @@ const EditExperimentSurvey = () => {
                                                                 </Box>
 
                                                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                                    {opt.subquestion !== null && (
+                                                                    {opt.subquestion && typeof opt.subquestion === 'object' && opt.subquestion !== null && (
                                                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, ml: 8, marginTop: 2 }}>
                                                                             <Grid container spacing={2} alignItems="center">
                                                                                 <Grid item xs={6}>
@@ -815,7 +898,7 @@ const EditExperimentSurvey = () => {
                                                                                                 ...opt.subquestion,
                                                                                                 options: [
                                                                                                     ...(opt.subquestion.options || []),
-                                                                                                    { id: uuidv4(), },
+                                                                                                    { id: generateRandomId(), statement: '', score: 0 },
                                                                                                 ],
                                                                                             })
                                                                                         }
