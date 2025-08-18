@@ -280,6 +280,7 @@ const Survey = () => {
             }
 
             // Monta o array de respostas no novo formato
+
             const answers = Object.entries(formData).map(([index, value]) => {
                 const question = survey.questions[index];
                 if (!question) return null;
@@ -294,10 +295,14 @@ const Survey = () => {
                     // selectedOption pode ser array ou objeto
                     let selectedOptions = [];
                     if (Array.isArray(value.selectedOption)) {
+                        console.log("entrou aqui1: ", value.selectedOption)
+
                         selectedOptions = value.selectedOption.map(opt => ({
-                            statement: opt.statement.statement,
+                            statement: opt.statement,
                             score: opt.score ?? 0
                         }));
+                        console.log("entrou aqui2: ", selectedOptions)
+
                     } else if (value.selectedOption) {
                         selectedOptions = [{
                             statement: value.selectedOption.statement,
