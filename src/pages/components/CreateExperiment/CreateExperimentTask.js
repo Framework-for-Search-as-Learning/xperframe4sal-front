@@ -71,8 +71,8 @@ const CreateExperimentTask = () => {
     const [taskTitle, setTaskTitle] = useState("");
     const [taskSummary, setTaskSummary] = useState("");
     const [origin, setOrigin] = useState('');
-    const [llm, setLlm] = useState('');
-    const [searchEngine, setSearchEngine] = useState('')
+    const [llm, setLlm] = useState('gemini');
+    const [searchEngine, setSearchEngine] = useState('google')
     const [taskDescription, setTaskDescription] = useState("");
 
     const [editTaskIndex, setEditTaskIndex] = useState(null);
@@ -113,14 +113,14 @@ const CreateExperimentTask = () => {
     ];
 
     const LlmTypes = [
-        { value: 'chat-gpt', label: 'ChatGPT (OpenAI)' },
         { value: 'gemini', label: 'Gemini (Google)' },
-        { value: 'deepseek', label: 'DeepSeek (DeepSeek AI)' },
+        //{ value: 'chat-gpt', label: 'ChatGPT (OpenAI)' },
+        //{ value: 'deepseek', label: 'DeepSeek (DeepSeek AI)' },
     ];
     const SearchEngines = [
         { value: 'google', label: 'Google' },
-        { value: 'bing', label: 'Bing' },
-        { value: 'duckduckgo', label: 'DuckDuckGo' },
+        //{ value: 'bing', label: 'Bing' },
+        //{ value: 'duckduckgo', label: 'DuckDuckGo' },
     ];
 
 
@@ -217,6 +217,8 @@ const CreateExperimentTask = () => {
             selectedQuestionIds: questionIds,
             ScoreThreshold: ScoreThreshold,
             ScoreThresholdmx: ScoreThresholdmx,
+            search_source: origin,
+            search_model: (origin == 'llm' ? llm : searchEngine)
         };
 
         console.log(newTask)
@@ -534,7 +536,7 @@ const CreateExperimentTask = () => {
                             onChange={handleNameChangeTitleTaskEdit}
                             required
                         />
-                           <Grid container spacing={2} alignItems="center">
+                        <Grid container spacing={2} alignItems="center">
                             {/* Select origem: LLM ou motor de busca */}
                             <Grid item xs={6}>
                                 <FormControl fullWidth margin="normal">
@@ -544,8 +546,6 @@ const CreateExperimentTask = () => {
                                         value={origin}
                                         onChange={(e) => {
                                             setOrigin(e.target.value);
-                                            setLlm('');
-                                            setSearchEngine('');
                                         }}
                                         label={t('select_source')}
                                     >
@@ -571,6 +571,7 @@ const CreateExperimentTask = () => {
                                                     {type.label}
                                                 </MenuItem>
                                             ))}
+                                            <optgroup label={t('more_soon')} ></optgroup>
                                         </Select>
                                     </FormControl>
                                 </Grid>
@@ -592,6 +593,7 @@ const CreateExperimentTask = () => {
                                                     {engine.label}
                                                 </MenuItem>
                                             ))}
+                                            <optgroup label={t('more_soon')} ></optgroup>
                                         </Select>
                                     </FormControl>
                                 </Grid>
@@ -931,8 +933,6 @@ const CreateExperimentTask = () => {
                                         value={origin}
                                         onChange={(e) => {
                                             setOrigin(e.target.value);
-                                            setLlm('');
-                                            setSearchEngine('');
                                         }}
                                         label={t('select_source')}
                                     >
@@ -958,6 +958,7 @@ const CreateExperimentTask = () => {
                                                     {type.label}
                                                 </MenuItem>
                                             ))}
+                                            <optgroup label={t('more_soon')} ></optgroup>
                                         </Select>
                                     </FormControl>
                                 </Grid>
@@ -979,6 +980,7 @@ const CreateExperimentTask = () => {
                                                     {engine.label}
                                                 </MenuItem>
                                             ))}
+                                            <optgroup label={t('more_soon')} ></optgroup>
                                         </Select>
                                     </FormControl>
                                 </Grid>
