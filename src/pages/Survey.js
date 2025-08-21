@@ -26,9 +26,14 @@ async function updateUserExperimentStatus(
     try {
         if (userSurveysApiCalls.length > 0) {
             let answeredSurveys = await Promise.all(userSurveysApiCalls);
+            console.log("answeredSurveys: ", answeredSurveys)
             answeredSurveys = answeredSurveys.reduce(
                 (accumulator, answeredSurvey) => {
-                    if (answeredSurvey.data && answeredSurvey.data.length > 0) {
+                    console.log("Accumulator: ", accumulator)
+                    console.log("answeredSurvey: ", answeredSurvey)
+                    //Removi a verificação do length pois o data é objeto, não array
+                    if (answeredSurvey.data /*&& answeredSurvey.data.length > 0*/) {
+                        
                         return accumulator.concat(answeredSurvey.data);
                     }
                     return accumulator;
@@ -42,7 +47,7 @@ async function updateUserExperimentStatus(
                     { [stepName]: true }
                 );
                 await api.patch(
-                    `user-experiments/${userExperiment._id}`,
+                    `user-experiments2/${userExperiment._id}`,
                     userExperiment,
                     { headers: { Authorization: `Bearer ${user.accessToken}` } }
                 );
@@ -132,7 +137,6 @@ const Survey = () => {
     const { experimentId, surveyId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
-
     const { t } = useTranslation();
 
     const [formData, setFormData] = useState({});
@@ -194,8 +198,9 @@ const Survey = () => {
                         }
                     ),
                 ]);
-
+                
                 const userExperimentResult = userExperimentResponse?.data;
+                
 
                 if (!userExperimentResult) {
                     navigate(`/experiments`);
@@ -206,14 +211,14 @@ const Survey = () => {
                 const experimentResult = experimentResponse?.data;
                 const surveyResult = surveyResponse?.data;
                 const userSurveyResult = userSurveyResponse?.data;
-                setUserSurvey(userSurveyResult);
 
+                setUserSurvey(userSurveyResult);
+               
                 if (isMounted) {
                     let uniqueAnswer = false;
                     if (experimentResult) {
                         uniqueAnswer =
-                            experimentResult.surveysProps[surveyId]
-                                ?.uniqueAnswer;
+                            survey?.uniqueAnswer;
                         setExperiment(experimentResult);
                     }
 
@@ -274,25 +279,52 @@ const Survey = () => {
                 return;
             }
 
-            let totalScore = 0;
-            let atLeastOneScore = false;
+            // Monta o array de respostas no novo formato
 
-            for (const [, value] of Object.entries(formData)) {
-                if (value.selectedOption?.score !== undefined) {
-                    atLeastOneScore = true;
-                    totalScore += value.selectedOption.score;
+            const answers = Object.entries(formData).map(([index, value]) => {
+                const question = survey.questions[index];
+                if (!question) return null;
+                if (question.type === "open") {
+                    return {
+                        id: question.id || question._id || index,
+                        questionStatement: value.questionStatement,
+                        questionType: question.type,
+                        textAnswer: value.answer
+                    };
+                } else {
+                    // selectedOption pode ser array ou objeto
+                    let selectedOptions = [];
+                    if (Array.isArray(value.selectedOption)) {
+                        console.log("entrou aqui1: ", value.selectedOption)
+
+                        selectedOptions = value.selectedOption.map(opt => ({
+                            statement: opt.statement,
+                            score: opt.score ?? 0
+                        }));
+                        console.log("entrou aqui2: ", selectedOptions)
+
+                    } else if (value.selectedOption) {
+                        selectedOptions = [{
+                            statement: value.selectedOption.statement,
+                            score: value.selectedOption.score ?? 0
+                        }];
+                    }
+                    return {
+                        id: question.id || question._id || index,
+                        questionStatement: value.questionStatement,
+                        questionType: question.type,
+                        selectedOptions
+                    };
                 }
-            }
-
-            if (surveyAnswer?.length > 0) {
-                surveyAnswer = surveyAnswer[0];
-                surveyAnswer.answers = formData;
-                surveyAnswer.score = atLeastOneScore ? totalScore : null;
-
+            }).filter(Boolean);
+            if (surveyAnswer) {
+                surveyAnswer.answers = answers;
+                // Não envia mais score, backend calcula
+                if (surveyAnswer.score !== undefined) delete surveyAnswer.score;                
                 await separateUsersInGroup(
                     api,
                     user,
-                    surveyAnswer.score,
+                    null,
                     experiment
                 );
 
@@ -311,13 +343,13 @@ const Survey = () => {
                 surveyAnswer = {
                     userId: user.id,
                     surveyId: survey._id,
-                    answers: formData,
-                    score: atLeastOneScore ? totalScore : null,
+                    answers
+                    // Não envia mais score
                 };
                 await separateUsersInGroup(
                     api,
                     user,
-                    surveyAnswer.score,
+                    null,
                     experiment
                 );
                 await handleSurveySubmit(() =>
@@ -328,14 +360,14 @@ const Survey = () => {
                     })
                 );
             }
-
+            
             const userPreSurveysApiCalls = [];
             const userPostSurveysApiCalls = [];
-            for (const [surveyId, surveyProps] of Object.entries(
-                surveysProps
-            )) {
-                if (surveyProps.required) {
-                    if (surveyProps.type === "pre") {
+
+            // Aqui era utilizado o surveysProps, como não existe mais irei utilizar
+            // irei utilizar o survey que é passado como parametro para a pagina
+            if (survey.required) {
+                    if (survey.type === "pre") {
                         userPreSurveysApiCalls.push(
                             api.get(
                                 `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,
@@ -347,7 +379,7 @@ const Survey = () => {
                             )
                         );
                     }
-                    if (surveyProps.type === "post") {
+                    if (survey.type === "post") {
                         userPostSurveysApiCalls.push(
                             api.get(
                                 `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,
@@ -360,7 +392,7 @@ const Survey = () => {
                         );
                     }
                 }
-            }
+            
 
             await updateUserExperimentStatus(
                 userPreSurveysApiCalls,
@@ -413,7 +445,7 @@ const Survey = () => {
                 </Typography>
             )}
             {!survey && isLoading && <LoadingIndicator size={70} />}
-            {survey && experiment?.surveysProps[survey._id]?.uniqueAnswer && (
+            {survey && survey?.uniqueAnswer && (
                 <ErrorMessage
                     style={{
                         flex: 1,

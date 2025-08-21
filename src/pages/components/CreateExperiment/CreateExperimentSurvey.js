@@ -94,6 +94,55 @@ const CreateExperimentSurvey = () => {
         setStep(step - 1);
     };
 
+    const handleCreateSurvey = async (e) => {
+        e.preventDefault();
+        const payload = {
+            name: title,
+            title,
+            uuid: uuidv4(),
+            description,
+            type,
+            questions: questions.map((q) => {
+                const question = {
+                    statement: q.statement,
+                    id: q.id,
+                    type: q.type,
+                    required: q.required,
+                    hasscore: q.hasscore,
+                };
+                if (q.type === 'open') {
+                    question.options = [];
+                } else {
+                    question.options = q.options.map((opt) => {
+                        const option = { statement: opt.statement, id: opt.id };
+
+                        if (opt.subquestion) {
+                            option.subquestion = { ...opt.subquestion };
+                            option.hassub = true;
+                        } else {
+                            option.hassub = false;
+                        }
+
+
+                        option.score = opt.score;
+
+
+                        return option;
+                    });
+
+                }
+                return question;
+            }),
+        };
+        console.log(payload)
+        setExperimentSurveys((prev) => [...prev, payload]);
+        setTitle("");
+        setDescription("");
+        setQuestions([]);
+        setType('pre');
+        toggleCreateQuest();
+    };
+
     const toggleSurveyDescription = (surveyId) => {
         if (openSurveyIds.includes(surveyId)) {
             setOpenSurveyIds(openSurveyIds.filter((id) => id !== surveyId));

@@ -238,5 +238,14 @@
   "edit_icf": "Edit Consent Form",
   "register_fail_message": "Registration failed. Please check your information and try again.",
   "success_message": "Successfully registered!",
-  "error_loading_experiments": "Error Loading Experiments"
+  "error_loading_experiments": "Error Loading Experiments",
+  "select_llm": "Select LLM model",
+  "chatgpt_openai": "ChatGPT (OpenAI)",
+  "gemini_google": "Gemini (Google)",
+  "deepseek_ai": "DeepSeek (DeepSeek AI)",
+  "select_source": "Select search source",
+  "search_engine": "Search engine",
+  "search_provider": "Search provider",
+  "select_search_engine": "Select search engine"
+
 }

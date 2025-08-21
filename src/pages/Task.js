@@ -234,13 +234,13 @@ const Task = () => {
                             }
                         ),
                         api.post(
-                            `/user-task-session/`,
+                            `/user-task-session2/`,
                             {
-                                userId: user.id,
-                                taskId: taskId,
+                                user_id: user.id,
+                                task_id: taskId,
                                 query: query,
                                 serpNumber: serpNumber,
-                                pages: {},
+                                //pages: {},
                             },
                             {
                                 headers: {
@@ -275,7 +275,7 @@ const Task = () => {
             url: url,
         };
         const response = await api.patch(
-            `/user-task-session/${session._id}/open-page/${rank}`,
+            `/user-task-session2/${session._id}/open-page/${rank}`,
             payload,
             { headers: { Authorization: `Bearer ${user.accessToken}` } }
         );
@@ -290,7 +290,7 @@ const Task = () => {
         document.body.style.overflow = "auto";
 
         const response = await api.patch(
-            `/user-task-session/${session._id}/close-page/${clickedResultRank}`,
+            `/user-task-session2/${session._id}/close-page/${clickedResultRank}`,
             session,
             { headers: { Authorization: `Bearer ${user.accessToken}` } }
         );
@@ -308,7 +308,7 @@ const Task = () => {
                 document.body.style.overflow = "auto";
 
                 const sessionResult = await api.patch(
-                    `/user-task-session/${session._id}/close-page/${clickedResultRank}`,
+                    `/user-task-session2/${session._id}/close-page/${clickedResultRank}`,
                     session,
                     { headers: { Authorization: `Bearer ${user.accessToken}` } }
                 );
