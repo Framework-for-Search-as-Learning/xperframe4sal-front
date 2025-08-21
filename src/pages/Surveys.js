@@ -53,29 +53,22 @@ const Surveys = () => {
             try {
                 setIsLoading(true);
 
-                const [experimentResponse, userExperimentResponse] =
-                    await Promise.all([
-                        api.get(`experiments2/${experimentId}`, {
-                            headers: {
-                                Authorization: `Bearer ${user.accessToken}`,
-                            },
-                        }),
-                        api.get(
-                            `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${user.accessToken}`,
-                                },
-                            }
-                        ),
-                    ]);
+                const [experimentResponse, userExperimentResponse] = await Promise.all([
+                    api.get(`experiments2/${experimentId}`, {
+                        headers: { Authorization: `Bearer ${user.accessToken}` },
+                    }),
+                    api.get(
+                        `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
+                        { headers: { Authorization: `Bearer ${user.accessToken}` } }
+                    ),
+                ]);
 
-                let experimentResult = experimentResponse.data;
-                let userExperimentResult = userExperimentResponse?.data;
+                const experimentResult = experimentResponse.data;
+                const userExperimentResult = userExperimentResponse?.data;
 
-                console.log("Teste experimentResult: ", userExperimentResult);
                 if (!userExperimentResult) {
                     navigate(`/experiments`);
+                    return;
                 }
 
                 if (!userExperimentResult.stepsCompleted) {
@@ -90,16 +83,16 @@ const Surveys = () => {
                 setHasFinishedTasks(
                     userExperimentResult?.stepsCompleted["task"]
                 );
-                
+
                 let surveyList = [];
                 const surveys = await api.get(`survey2/experiment/${experimentId}`, {
-                        headers: {
-                            Authorization: `Bearer ${user.accessToken}`,
-                        },
-                    });
-                
+                    headers: {
+                        Authorization: `Bearer ${user.accessToken}`,
+                    },
+                });
+
                 for (const survey of surveys.data) {
-                   
+
                     if (survey.isActive) {
                         surveyList.push(survey);
 
@@ -111,11 +104,11 @@ const Surveys = () => {
                                 },
                             }
                         );
-                  
+
                         const answeredSurvey = response?.data;
-                        
+
                         //const surveyProps =
-                            //experimentResult.surveysProps[surveyPropsId];
+                        //experimentResult.surveysProps[surveyPropsId];
                         console.log("answeredSurvey: ", answeredSurvey)
                         let hasAnswered = false;
                         if (
@@ -127,12 +120,12 @@ const Surveys = () => {
                             hasAnswered = true;
                         }
                         if (survey.type === SurveyType.PRE) {
-                          
+
                             preSurveys.push(survey);
                             setPreSurveys(preSurveys);
 
                             //TODO retirei verificação do required nesse if
-                            if (hasAnswered ) {
+                            if (hasAnswered) {
                                 setAnsweredPreSurveys(
                                     Object.assign(answeredPreSurveys, {
                                         [survey._id]: true,
@@ -144,7 +137,7 @@ const Surveys = () => {
                             setPostSurveys(postSurveys);
 
                             //TODO retirei verificação do required nesse if
-                            if (!hasAnswered ) {
+                            if (!hasAnswered) {
                                 /** TODO */
                             } else {
                                 setAnsweredPostSurveys(
@@ -159,23 +152,28 @@ const Surveys = () => {
 
                 if (surveyList.length === 0) {
                     navigate(`/experiments/${experimentId}/tasks`);
+                    return;
                 }
 
-                const activate =
-                    userExperimentResult.stepsCompleted["pre"] || false;
+                setPreSurveys(preList);
+                setPostSurveys(postList);
+                setAnsweredPreSurveys(preAnswered);
+                setAnsweredPostSurveys(postAnswered);
+
+                const activate = userExperimentResult.stepsCompleted["pre"] || false;
                 setShowWarning(!activate);
                 setShouldActivateTask(activate);
-                
+
                 const steps = await api.get(`experiments2/${experimentId}/step`, {
-                        headers: {
-                            Authorization: `Bearer ${user.accessToken}`,
-                        },
-                    });
+                    headers: {
+                        Authorization: `Bearer ${user.accessToken}`,
+                    },
+                });
                 const experimentSteps = mountSteps(
                     steps.data,
                     userExperimentResult.stepsCompleted
                 );
-               
+
                 console.log("teste3232", experimentSteps)
 
                 setExperiment(experimentResult);
@@ -189,22 +187,14 @@ const Surveys = () => {
                 setOpen(true);
                 setIsSuccess(false);
                 setSeverity("error");
-                setMessage(error);
-                console.log(error);
+                setMessage(error?.message || "Erro ao buscar questionários");
+                console.error(error);
             }
         };
 
         fetchSurveyData();
-    }, [
-        experimentId,
-        user?.id,
-        user?.accessToken,
-        navigate,
-        answeredPreSurveys,
-        answeredPostSurveys,
-        preSurveys,
-        postSurveys,
-    ]);
+    }, [experimentId, user?.id, user?.accessToken, navigate]);
+
 
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
@@ -222,7 +212,7 @@ const Surveys = () => {
             },
         });
 
-    
+
     };
 
     return (
@@ -296,7 +286,7 @@ const Surveys = () => {
                             <Typography>
                                 <span>{survey.title}</span>
                                 {answeredPreSurveys[survey._id] &&
-                                survey?.uniqueAnswer ? (
+                                    survey?.uniqueAnswer ? (
                                     <span
                                         style={{
                                             color: "red",
@@ -352,8 +342,7 @@ const Surveys = () => {
                         (survey, index) =>
                             (!answeredPostSurveys[survey._id] ||
                                 (answeredPostSurveys[survey._id] &&
-                                    !experiment?.surveysProps[survey._id]
-                                        ?.uniqueAnswer)) && (
+                                    !survey?.uniqueAnswer)) && (
                                 <Accordion
                                     sx={{ marginBottom: "5px" }}
                                     key={survey._id}
@@ -379,8 +368,8 @@ const Surveys = () => {
                                         <Typography>
                                             <span>{survey.title}</span>
                                             {answeredPostSurveys[survey._id] &&
-                                            experiment?.surveysProps[survey._id]
-                                                ?.uniqueAnswer ? (
+                                                experiment?.surveysProps[survey._id]
+                                                    ?.uniqueAnswer ? (
                                                 <span
                                                     style={{
                                                         color: "red",
@@ -433,7 +422,7 @@ const Surveys = () => {
                                                 }
                                                 disabled={
                                                     answeredPostSurveys[
-                                                        survey._id
+                                                    survey._id
                                                     ]
                                                 }
                                             >

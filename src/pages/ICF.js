@@ -140,12 +140,12 @@ const ICF = () => {
                         {icf.title}
                     </Typography>
 
-                    <Typography 
-                        variant="body1" 
+                    <Typography
+                        variant="body1"
                         paragraph
-                        dangerouslySetInnerHTML={{ __html: icf.description}}
+                        dangerouslySetInnerHTML={{ __html: icf.description }}
                     />
-                
+
                     {/* 
                     <Typography variant="h6" gutterBottom>
                         {t("researchers_title")}
