@@ -53,22 +53,29 @@ const Surveys = () => {
             try {
                 setIsLoading(true);
 
-                const [experimentResponse, userExperimentResponse] = await Promise.all([
-                    api.get(`experiments2/${experimentId}`, {
-                        headers: { Authorization: `Bearer ${user.accessToken}` },
-                    }),
-                    api.get(
-                        `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
-                        { headers: { Authorization: `Bearer ${user.accessToken}` } }
-                    ),
-                ]);
+                const [experimentResponse, userExperimentResponse] =
+                    await Promise.all([
+                        api.get(`experiments2/${experimentId}`, {
+                            headers: {
+                                Authorization: `Bearer ${user.accessToken}`,
+                            },
+                        }),
+                        api.get(
+                            `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${user.accessToken}`,
+                                },
+                            }
+                        ),
+                    ]);
 
-                const experimentResult = experimentResponse.data;
-                const userExperimentResult = userExperimentResponse?.data;
+                let experimentResult = experimentResponse.data;
+                let userExperimentResult = userExperimentResponse?.data;
 
+                console.log("Teste experimentResult: ", userExperimentResult);
                 if (!userExperimentResult) {
                     navigate(`/experiments`);
-                    return;
                 }
 
                 if (!userExperimentResult.stepsCompleted) {
@@ -152,15 +159,10 @@ const Surveys = () => {
 
                 if (surveyList.length === 0) {
                     navigate(`/experiments/${experimentId}/tasks`);
-                    return;
                 }
 
-                setPreSurveys(preList);
-                setPostSurveys(postList);
-                setAnsweredPreSurveys(preAnswered);
-                setAnsweredPostSurveys(postAnswered);
-
-                const activate = userExperimentResult.stepsCompleted["pre"] || false;
+                const activate =
+                    userExperimentResult.stepsCompleted["pre"] || false;
                 setShowWarning(!activate);
                 setShouldActivateTask(activate);
 
@@ -187,14 +189,22 @@ const Surveys = () => {
                 setOpen(true);
                 setIsSuccess(false);
                 setSeverity("error");
-                setMessage(error?.message || "Erro ao buscar questionários");
-                console.error(error);
+                setMessage(error);
+                console.log(error);
             }
         };
 
         fetchSurveyData();
-    }, [experimentId, user?.id, user?.accessToken, navigate]);
-
+    }, [
+        experimentId,
+        user?.id,
+        user?.accessToken,
+        navigate,
+        answeredPreSurveys,
+        answeredPostSurveys,
+        preSurveys,
+        postSurveys,
+    ]);
 
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
@@ -342,7 +352,8 @@ const Surveys = () => {
                         (survey, index) =>
                             (!answeredPostSurveys[survey._id] ||
                                 (answeredPostSurveys[survey._id] &&
-                                    !survey?.uniqueAnswer)) && (
+                                    !experiment?.surveysProps[survey._id]
+                                        ?.uniqueAnswer)) && (
                                 <Accordion
                                     sx={{ marginBottom: "5px" }}
                                     key={survey._id}
