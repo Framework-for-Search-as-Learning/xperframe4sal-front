@@ -1,5 +1,3 @@
-import { SearchResult } from "../components/SearchResult.js";
-import { SearchBar } from "../components/SearchBar.js";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { api } from "../config/axios.js";
@@ -8,14 +6,13 @@ import { Tooltip, IconButton, Box, Pagination } from "@mui/material";
 import Pause from "@mui/icons-material/Pause";
 import Stop from "@mui/icons-material/Stop";
 import PlayArrow from "@mui/icons-material/PlayArrow";
-import { LoadingIndicator } from "../components/LoadIndicator";
-import { useCookies } from "react-cookie";
-import md5 from "md5";
-import { ReactComponent as GoogleLogo } from "./../assets/search-engines-logos/Google.svg";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { ConfirmDialog } from "../components/ConfirmDialog.js";
 import { CustomSnackbar } from "../components/CustomSnackbar";
 import { useTranslation } from "react-i18next";
+import { Google } from "../components/SearchEngines/Google.js";
+import { Chatbot } from "../components/Chatbot/Chatbot.js";
+import useCookies from "../lib/useCookies.js";
 
 async function updateUserExperimentStatus(userExperiment, user, api) {
     try {
@@ -35,28 +32,19 @@ async function updateUserExperimentStatus(userExperiment, user, api) {
 
 const Task = () => {
     const { t } = useTranslation();
-    const [result, setResult] = useState({});
     const navigate = useNavigate();
     const location = useLocation();
     const { experimentId, taskId } = useParams();
     const [task, setTask] = useState(location?.state?.task);
     const [userTask, setUserTask] = useState(null);
-    const [showSearchBar] = useState(true);
-    const [defaultQuery] = useState();
     const [user] = useState(JSON.parse(localStorage.getItem("user")));
     const [, setOpen] = useState(false);
-    const [query, setQuery] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalResults, setTotalResults] = useState(0);
-    const [resultsPerPage] = useState(10);
     const [isSuccess, setIsSuccess] = useState(false);
     const [redirect, setRedirect] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const [isShowingResultModal, setIsShowingResultModal] = useState(false);
     const [urlResultModal, setUrlResultModal] = useState("");
     const [titleResultModal, setTitleResultModal] = useState("");
     const [session, setSession] = useState({});
-    const [cookies, setCookie] = useCookies();
     const [clickedResultRank, setClickedResultRank] = useState(null);
     const [paused, setPaused] = useState(false);
     const [finished, setFinished] = useState(false);
@@ -64,6 +52,10 @@ const Task = () => {
     const [showSnackBar, setShowSnackBar] = useState(false);
     const [severity, setSeverity] = useState("success");
     const [message, setMessage] = useState("success");
+
+    const history = useCookies("history");
+
+    console.log(task)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -178,9 +170,13 @@ const Task = () => {
             await updateUserExperimentStatus(userExperiment?.data, user, api);
             const userTaskBackup = await api.patch(
                 `user-task2/${userTask._id}/finish`,
-                userTask,
+                {
+                    ...userTask,
+                    metadata: history.getCookie()
+                },
                 { headers: { Authorization: `Bearer ${user.accessToken}` } }
             );
+            history.clearCookie()
             setConfirmDialogOpen(false);
             setUserTask(userTaskBackup.data);
             setShowSnackBar(true);
@@ -206,82 +202,6 @@ const Task = () => {
             navigate(`/experiments/${experimentId}/surveys`);
         }
     }, [redirect, navigate, experimentId]);
-
-    const search = async (query, start = 1, num = resultsPerPage) => {
-        setIsLoading(true);
-        query = query.trim();
-
-        if (query) {
-            setQuery(query);
-
-            let cacheKey = md5(user.id + query + start + num);
-
-            if (cacheKey in cookies) {
-                setResult(cookies[cacheKey] || {});
-                setTotalResults(cookies[cacheKey]?.totalResults || 0);
-            } else {
-                try {
-                    const serpNumber = Math.ceil(start / num);
-
-                    /** TODO: should get the search engine from the task. Remove `google` as hardcoded */
-                    const [searchResults, userTaskSession] = await Promise.all([
-                        api.get(
-                            `/search-engine/google?query=${query}&start=${start}&num=${num}`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${user.accessToken}`,
-                                },
-                            }
-                        ),
-                        api.post(
-                            `/user-task-session2/`,
-                            {
-                                user_id: user.id,
-                                task_id: taskId,
-                                query: query,
-                                serpNumber: serpNumber,
-                                //pages: {},
-                            },
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${user.accessToken}`,
-                                },
-                            }
-                        ),
-                    ]);
-
-                    setSession(userTaskSession?.data);
-
-                    setCookie(cacheKey, searchResults?.data, { path: "/" });
-                    setResult(searchResults?.data || {});
-                    setTotalResults(searchResults?.data?.totalResults || 0);
-                } catch (error) {
-                    console.error("Error fetching search results:", error);
-                }
-            }
-        }
-        setIsLoading(false);
-    };
-
-    const openModal = async (url, rank, title) => {
-        setUrlResultModal(url);
-        setTitleResultModal(title);
-        setIsShowingResultModal(true);
-        setClickedResultRank(rank);
-        document.body.style.overflow = "hidden";
-
-        const payload = {
-            title: title,
-            url: url,
-        };
-        const response = await api.patch(
-            `/user-task-session2/${session._id}/open-page/${rank}`,
-            payload,
-            { headers: { Authorization: `Bearer ${user.accessToken}` } }
-        );
-
-        setSession(response.data);
-    };
 
     const closeModal = async () => {
         setUrlResultModal("");
@@ -332,7 +252,7 @@ const Task = () => {
                     }}
                 />
             )}
-            <Box sx={{ display: "flex" }}>
+            <Box sx={{ display: "flex", position: 'fixed', zIndex: 3, right: 10 }}>
                 <CustomSnackbar
                     open={showSnackBar}
                     handleClose={handleCloseSuccessSnackbar}
@@ -411,69 +331,22 @@ const Task = () => {
                     content={t("finalizar_tarefa")}
                 />
             </Box>
-            <div sx={{ marginBottom: "45px", marginTop: "20px" }}>
-                <GoogleLogo
-                    alt="Google"
-                    style={{
-                        position: "relative",
-                        display: "flex",
-                        width: "auto",
-                        margin: "0 auto",
-                        paddingBottom: "10px",
-                    }}
+
+            {task.search_source == 'search-engine' && (
+                <Google
+                    user={user}
+                    taskId={taskId}
+                    api={api}
+                    session={session}
+                    setSession={setSession}
+                    setUrlResultModal={setUrlResultModal}
+                    setTitleResultModal={setTitleResultModal}
+                    setIsShowingResultModal={setIsShowingResultModal}
+                    setClickedResultRank={setClickedResultRank}
                 />
-                {showSearchBar ? (
-                    <SearchBar
-                        userId={user._id}
-                        taskId={taskId}
-                        handleSearch={search}
-                        defaultQuery={defaultQuery}
-                    />
-                ) : null}
-            </div>
-            {isLoading && <LoadingIndicator size={50} />}
-            {!isLoading && (
-                <div>
-                    <div>
-                        {result &&
-                            result.items?.length > 0 &&
-                            result.items.map((searchResult, index) => (
-                                <SearchResult
-                                    userId={user._id}
-                                    key={index}
-                                    rank={searchResult.rank}
-                                    title={searchResult.title}
-                                    snippet={searchResult.snippet}
-                                    link={searchResult.link}
-                                    openModalHandle={openModal}
-                                    taskId={taskId}
-                                />
-                            ))}
-                    </div>
-                    <div>
-                        {result && result.items?.length > 0 && (
-                            <Box mt={3} display="flex" justifyContent="center">
-                                <Pagination
-                                    count={Math.ceil(
-                                        totalResults / resultsPerPage
-                                    )}
-                                    page={currentPage}
-                                    onChange={(event, page) => {
-                                        setCurrentPage(page);
-                                        search(
-                                            query,
-                                            (page - 1) * resultsPerPage + 1
-                                        );
-                                    }}
-                                    variant="outlined"
-                                    shape="rounded"
-                                    size="medium"
-                                    color="primary"
-                                />
-                            </Box>
-                        )}
-                    </div>
-                </div>
+            )}
+            {task.search_source == 'llm' && (
+                <Chatbot />
             )}
 
             {isShowingResultModal && (

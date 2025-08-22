@@ -14,7 +14,6 @@ import { ForgotPassword } from './ForgotPassword';
 import { NotFoundPage } from './NotFoundPage';
 import { ResetPassword } from './ResetPassword';
 import { EditExperiment } from './EditExperiment';
-import { Chatbot } from './Chatbot';
 
 export {
   ICF,
@@ -34,6 +33,5 @@ export {
   Instructions,
 
   EditExperiment,
-  Chatbot,
 
 }
