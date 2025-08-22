@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Container, Paper } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { ChatHeader } from '../components/Chatbot/ChatHeader';
-import { MessageArea } from '../components/Chatbot/MessageArea';
-import { MessageInput } from '../components/Chatbot/MessageInput';
-import createChat from '../lib/gemini';
-import useCookies from '../lib/useCookies';
+import { ChatHeader } from './ChatHeader';
+import { MessageArea } from './MessageArea';
+import { MessageInput } from './MessageInput';
+import createChat from '../../lib/gemini';
+import useCookies from '../../lib/useCookies';
 import { marked } from "marked";
 
 
