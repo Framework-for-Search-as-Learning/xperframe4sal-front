@@ -245,8 +245,8 @@
   "gemini_google": "Gemini (Google)",
   "select_source": "Selecionar fonte de busca",
   "deepseek_ai": "DeepSeek (DeepSeek AI)",
-    "search_engine": "Motor de busca",
+  "search_engine": "Motor de busca",
   "search_provider": "Provedor de busca",
-  "select_search_engine": "Selecionar motor de busca"
-
+  "select_search_engine": "Selecionar motor de busca",
+  "more_soon": "Mais em breve!"
 }
