@@ -13,6 +13,11 @@ const useCookies = (name) => {
         setCookies(newCookies)
     }
 
+    const clearCookie = () => {
+        Cookies.remove(name);
+        setCookies([])
+    }
+
     const replaceCookie = (newContent) => {
         Cookies.set(name, JSON.stringify(newContent), { expires: 7 })
         setCookies(newContent)
@@ -20,12 +25,13 @@ const useCookies = (name) => {
 
     const getCookie = () => {
         const value = Cookies.get(name)
-        return value ? JSON.parse(value) : []
+        return value ? JSON.parse(value) : [null]
     }
 
     return {
         cookies: cookies,
         setCookie: setCookie,
+        clearCookie: clearCookie,
         replaceCookie: replaceCookie,
         getCookie: getCookie
     };
