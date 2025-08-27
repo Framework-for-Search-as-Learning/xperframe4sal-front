@@ -33,20 +33,7 @@ const ExperimentAccordion = ({ experiment, expanded, onChange, onAccess, onEdit,
         dangerouslySetInnerHTML={{ __html: experiment.summary }}
       />
       <div className={styles.buttonContainer} >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => onAccess(experiment._id)}
-        >
-          <div className={styles.desktopText} >
-            {t('Access')}
-          </div>
-          <div className={styles.mobileText} >
-            <MeetingRoomIcon/>
-          </div>
-        </Button>
-
-        {isOwner && (
+        {isOwner ? (
           <>
             <Button
               variant="contained"
@@ -57,7 +44,7 @@ const ExperimentAccordion = ({ experiment, expanded, onChange, onAccess, onEdit,
                 {t('edit_user')}
               </div>
               <div className={styles.mobileText} >
-                <PersonIcon/>
+                <PersonIcon />
               </div>
             </Button>
 
@@ -70,28 +57,41 @@ const ExperimentAccordion = ({ experiment, expanded, onChange, onAccess, onEdit,
                 {t('edit')}
               </div>
               <div className={styles.mobileText} >
-                <EditIcon/>
+                <EditIcon />
               </div>
             </Button>
-                
+
             <Button
-            variant="contained"
-            color="primary"
-            style={{ background: '#D32F2F' }}
-            onClick={() => onDelete(experiment._id)}
-          >
+              variant="contained"
+              color="primary"
+              style={{ background: '#D32F2F' }}
+              onClick={() => onDelete(experiment._id)}
+            >
               <div className={styles.desktopText} >
                 {t('delete')}
               </div>
               <div className={styles.mobileText} >
-              <DeleteIcon/>
+                <DeleteIcon />
               </div>
-          </Button>
+            </Button>
           </>
+        ) : (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => onAccess(experiment._id)}
+          >
+            <div className={styles.desktopText} >
+              {t('Access')}
+            </div>
+            <div className={styles.mobileText} >
+              <MeetingRoomIcon />
+            </div>
+          </Button>
         )}
       </div>
     </AccordionDetails>
   </Accordion>
 );
 
-export {ExperimentAccordion}
+export { ExperimentAccordion }

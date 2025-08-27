@@ -9,6 +9,9 @@ import {
   MenuItem,
   Typography,
   styled,
+  Tooltip,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import ReactQuill from 'react-quill';
@@ -18,7 +21,6 @@ import { Messages } from 'primereact/messages';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
-import { red } from '@mui/material/colors';
 
 const CustomContainer = styled('div')(({ theme }) => ({
   backgroundColor: '#fafafa',
@@ -47,6 +49,7 @@ const EditExperimentForm = () => {
   const [isValidTitleExp, setIsValidTitleExp] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [user] = useState(JSON.parse(localStorage.getItem('user')));
+  const [showReadOnlyMessage, setShowReadOnlyMessage] = useState(false);
   const [
     ExperimentTitle,
     setExperimentTitle,
@@ -74,6 +77,14 @@ const EditExperimentForm = () => {
     const value = e.target.value;
     setExperimentTitle(value);
     setIsValidTitleExp(value.trim().length > 0);
+  };
+
+  const handleReadOnlyClick = () => {
+    setShowReadOnlyMessage(true);
+  };
+
+  const handleCloseSnackbar = () => {
+    setShowReadOnlyMessage(false);
   };
   const handleEditExperimentSubmit = async (e) => {
     e.preventDefault();
@@ -169,36 +180,70 @@ const EditExperimentForm = () => {
               required
             />
 
-            <FormControl fullWidth margin="normal">
-              <InputLabel>{t('Experiment_Type')}</InputLabel>
-              <Select
-                value={ExperimentType}
-                onChange={(e) => setExperimentType(e.target.value)}
-                label={t('ExperimentTypes')}
-              >
-                {ExperimentTypes.map((stype) => (
-                  <MenuItem key={stype.value} value={stype.value}>
-                    {stype.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            {ExperimentType === 'between-subject' && (
+            <Tooltip
+              title={t('experiment_type_readonly_tooltip') || 'O tipo de experimento não pode ser alterado após a criação'}
+              arrow
+              placement="top"
+            >
               <FormControl fullWidth margin="normal">
-                <InputLabel>{t('Group_Separation_Method')}</InputLabel>
+                <InputLabel>{t('Experiment_Type')}</InputLabel>
                 <Select
-                  value={BtypeExperiment}
-                  onChange={(e) => setBtypeExperiment(e.target.value)}
-                  label={t('ExperimentTypesbetween')}
+                  value={ExperimentType}
+                  onChange={(e) => setExperimentType(e.target.value)}
+                  label={t('ExperimentTypes')}
+                  readOnly
+                  onClick={handleReadOnlyClick}
+                  sx={{
+                    backgroundColor: '#f5f5f5',
+                    '& .MuiSelect-select': {
+                      cursor: 'not-allowed',
+                    },
+                    '&:hover': {
+                      backgroundColor: '#eeeeee',
+                    }
+                  }}
                 >
-                  {betweenExperimentTypes.map((stype) => (
+                  {ExperimentTypes.map((stype) => (
                     <MenuItem key={stype.value} value={stype.value}>
                       {stype.label}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
+            </Tooltip>
+
+            {ExperimentType === 'between-subject' && (
+              <Tooltip
+                title={t('group_separation_readonly_tooltip') || 'O método de separação de grupos não pode ser alterado após a criação'}
+                arrow
+                placement="top"
+              >
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>{t('Group_Separation_Method')}</InputLabel>
+                  <Select
+                    value={BtypeExperiment}
+                    onChange={(e) => setBtypeExperiment(e.target.value)}
+                    label={t('ExperimentTypesbetween')}
+                    readOnly
+                    onClick={handleReadOnlyClick}
+                    sx={{
+                      backgroundColor: '#f5f5f5',
+                      '& .MuiSelect-select': {
+                        cursor: 'not-allowed',
+                      },
+                      '&:hover': {
+                        backgroundColor: '#eeeeee',
+                      }
+                    }}
+                  >
+                    {betweenExperimentTypes.map((stype) => (
+                      <MenuItem key={stype.value} value={stype.value}>
+                        {stype.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Tooltip>
             )}
 
 
@@ -243,6 +288,21 @@ const EditExperimentForm = () => {
         >
           <Messages ref={msgs} />
         </Box>
+
+        <Snackbar
+          open={showReadOnlyMessage}
+          autoHideDuration={4000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity="info"
+            sx={{ width: '100%' }}
+          >
+            {t('readonly_field_message') || 'Este campo não pode ser alterado durante a edição do experimento'}
+          </Alert>
+        </Snackbar>
       </Box>
     </Box>
   );

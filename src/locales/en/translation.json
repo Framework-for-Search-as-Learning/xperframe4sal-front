@@ -247,5 +247,8 @@
   "search_engine": "Search engine",
   "search_provider": "Search provider",
   "select_search_engine": "Select search engine",
-  "more_soon": "More soon!"
+  "more_soon": "More soon!",
+  "experiment_type_readonly_tooltip": "Experiment type cannot be changed after creation",
+  "group_separation_readonly_tooltip": "Group separation method cannot be changed after creation",
+  "readonly_field_message": "This field cannot be changed when editing the experiment"
 }

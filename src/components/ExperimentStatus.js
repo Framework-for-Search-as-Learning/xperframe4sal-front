@@ -13,8 +13,7 @@ const ExperimentStatus = (params) => {
   const { experimentId } = useParams();
 
   const steps = params.steps || [];
-
-  const completeds = steps.filter(step => step.completed);
+  const completeds = params.completeds || [];
 
   const isSmallerScreen = useMediaQuery('(max-width:600px)');
 
