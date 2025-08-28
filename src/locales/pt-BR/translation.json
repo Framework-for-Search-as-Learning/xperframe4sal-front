@@ -251,5 +251,7 @@
   "more_soon": "Mais em breve!",
   "experiment_type_readonly_tooltip": "O tipo de experimento não pode ser alterado após a criação",
   "group_separation_readonly_tooltip": "O método de separação de grupos não pode ser alterado após a criação",
-  "readonly_field_message": "Este campo não pode ser alterado durante a edição do experimento"
+  "readonly_field_message": "Este campo não pode ser alterado durante a edição do experimento",
+  "need_minimal_pt1": "Você precisar criar pelo menos",
+  "need_minimal_pt2": "tarefas para prosseguir"
 }
