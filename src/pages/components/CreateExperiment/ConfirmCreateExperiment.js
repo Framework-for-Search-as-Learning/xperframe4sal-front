@@ -22,6 +22,11 @@ const ConfirmCreateExperiment = () => {
     const handleBack = () => {
         setStep(step - 1);
     };
+
+    let minimal_tasks = 1;
+    if (ExperimentType === 'between-subject')
+        minimal_tasks = 2;
+
     return (
         <Box
             sx={{
@@ -68,12 +73,23 @@ const ConfirmCreateExperiment = () => {
                         <p dangerouslySetInnerHTML={{ __html: ExperimentDesc }} />
                     </Grid>
 
-                    <Grid item xs={12}>
-                        <strong>{t('selected_task')}:</strong> {
-                            ExperimentTasks.length > 0
-                                ? ExperimentTasks.map(task => task.title).join(', ')
-                                : t('non_selected_task')
-                        }
+                    <Grid
+                        item
+                        xs={12}
+                        sx={{ display: 'flex', flexDirection: 'column' }}
+                    >
+                        <div>
+                            <strong>{t('selected_task')}:</strong> {
+                                ExperimentTasks.length > 0
+                                    ? ExperimentTasks.map(task => task.title).join(', ')
+                                    : t('non_selected_task')
+                            }
+                        </div>
+                        {ExperimentTasks.length < minimal_tasks && (
+                            <p style={{ color: 'red' }}>
+                                {t('need_minimal_pt1')} {minimal_tasks} {t('need_minimal_pt2')}
+                            </p>
+                        )}
                     </Grid>
 
                     <Grid item xs={12}>
@@ -97,6 +113,7 @@ const ConfirmCreateExperiment = () => {
                     </Button>
 
                     <Button
+                        disabled={ExperimentTasks.length < minimal_tasks}
                         variant="contained"
                         color="primary"
                         onClick={handleCreate}
@@ -116,6 +133,7 @@ const ConfirmCreateExperiment = () => {
                     </Button>
 
                     <Button
+                        disabled={ExperimentTasks.length < minimal_tasks}
                         variant="contained"
                         color="primary"
                         onClick={handleCreate}
