@@ -350,7 +350,7 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                             </Grid>
                                         )}
 
-                                        <Grid item xs={2}>
+                                        <Grid item xs={10}>
                                             <FormControlLabel
                                                 control={
                                                     <Switch
@@ -360,6 +360,17 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                                     />
                                                 }
                                                 label={t('required')}
+                                            />
+
+                                            <FormControlLabel
+                                                control={
+                                                    <Switch
+                                                        checked={q.uniqueAnswer}
+                                                        onChange={(e) => handleQuestionChange(q.id, 'uniqueAnswer', e.target.checked)}
+                                                        color="primary"
+                                                    />
+                                                }
+                                                label={t('unique_answer')}
                                             />
                                         </Grid>
                                         <Grid item xs={1}>
@@ -513,6 +524,17 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                                                                     />
                                                                                 }
                                                                                 label={t('required')}
+                                                                            />
+
+                                                                            <FormControlLabel
+                                                                                control={
+                                                                                    <Switch
+                                                                                        checked={q.uniqueAnswer}
+                                                                                        onChange={(e) => handleQuestionChange(q.id, 'uniqueAnswer', e.target.checked)}
+                                                                                        color="primary"
+                                                                                    />
+                                                                                }
+                                                                                label={t('unique_answer')}
                                                                             />
                                                                         </Grid>
 
