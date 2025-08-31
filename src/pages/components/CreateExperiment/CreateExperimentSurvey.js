@@ -108,6 +108,7 @@ const CreateExperimentSurvey = () => {
                     id: q.id,
                     type: q.type,
                     required: q.required,
+                    uniqueAnswer: q.uniqueAnswer,
                     hasscore: q.hasscore,
                 };
                 if (q.type === 'open') {
@@ -197,6 +198,7 @@ const CreateExperimentSurvey = () => {
                     statement: '',
                     type: 'open',
                     required: false,
+                    uniqueAnswer: false,
                     options: [],
                 },
             ],
@@ -654,6 +656,17 @@ const CreateExperimentSurvey = () => {
                                                         }
                                                         label={t('required')}
                                                     />
+
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Switch
+                                                                checked={q.uniqueAnswer}
+                                                                onChange={(e) => handleEditQuestionChange(q.id, 'uniqueAnswer', e.target.checked)}
+                                                                color="primary"
+                                                            />
+                                                        }
+                                                        label={t('unique_answer')}
+                                                    />
                                                 </Grid>
 
                                                 <Grid item xs={1}>
@@ -802,6 +815,17 @@ const CreateExperimentSurvey = () => {
                                                                                             />
                                                                                         }
                                                                                         label={t('required')}
+                                                                                    />
+
+                                                                                    <FormControlLabel
+                                                                                        control={
+                                                                                            <Switch
+                                                                                                checked={q.uniqueAnswer}
+                                                                                                onChange={(e) => handleEditQuestionChange(q.id, 'uniqueAnswer', e.target.checked)}
+                                                                                                color="primary"
+                                                                                            />
+                                                                                        }
+                                                                                        label={t('unique_answer')}
                                                                                     />
                                                                                 </Grid>
 
