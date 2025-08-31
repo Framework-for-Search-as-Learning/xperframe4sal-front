@@ -252,5 +252,6 @@
   "group_separation_readonly_tooltip": "Group separation method cannot be changed after creation",
   "readonly_field_message": "This field cannot be changed when editing the experiment",
   "need_minimal_pt1": "You need create at least",
-  "need_minimal_pt2": "tasks to continue"
+  "need_minimal_pt2": "tasks to continue",
+  "unique_answer": "Unique answer"
 }
