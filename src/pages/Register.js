@@ -10,6 +10,7 @@ import {
   InputAdornment,
   IconButton,
   Box,
+  FormControlLabel,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { ErrorMessage } from '../components/ErrorMessage';
@@ -22,7 +23,7 @@ const Register = () => {
   const { t } = useTranslation();
 
   const [name, setName] = useState('');
-  const [researcher, setResearcher] = useState(true);
+  const [researcher, setResearcher] = useState(false);
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(true);
@@ -83,6 +84,9 @@ const Register = () => {
       if (response.data) {
         setAlertMessage(t("success_message"));
         setMessageType('success');
+        const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
+        localStorage.setItem('user', JSON.stringify({ ...userData, expirationTime }));
+        navigate("/experiments");
       }
     } catch (e) {
       setAlertMessage(t("register_fail_message"));
@@ -117,7 +121,7 @@ const Register = () => {
           </Typography>
           {isLoading ? <LoadingIndicator size={50} /> : ""}
           {alertMessage && <ErrorMessage message={alertMessage} messageType={messageType} onClose={() => setAlertMessage(null)} />}
-          
+
           <TextField
             label={t('name_label')}
             error={!isValidName}
@@ -173,6 +177,16 @@ const Register = () => {
                 </InputAdornment>
               ),
             }}
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={researcher}
+                onChange={(e) => setResearcher(e.target.checked)}
+                color="primary"
+              />
+            }
+            label={t('researcher_label')}
           />
           <Button
             variant="contained"
