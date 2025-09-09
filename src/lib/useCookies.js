@@ -3,8 +3,13 @@ import { useState } from "react";
 
 const useCookies = (name) => {
     const [cookies, setCookies] = useState(() => {
-        const value = Cookies.get(name)
-        return value ? JSON.parse(value) : []
+        try {
+            const value = Cookies.get(name)
+            return value ? JSON.parse(value) : []
+        } catch (error) {
+            console.error('Error parsing initial cookie:', error);
+            return []
+        }
     })
 
     const setCookie = (newContent) => {
@@ -24,8 +29,13 @@ const useCookies = (name) => {
     }
 
     const getCookie = () => {
-        const value = Cookies.get(name)
-        return value ? JSON.parse(value) : [null]
+        try {
+            const value = Cookies.get(name)
+            return value ? JSON.parse(value) : []
+        } catch (error) {
+            console.error('Error parsing cookie:', error);
+            return []
+        }
     }
 
     return {
