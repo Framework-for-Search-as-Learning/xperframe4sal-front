@@ -17,8 +17,53 @@ import {
 
 import { FunctionsToOptions } from './FunctionsToOptions';
 
-const Survey = ({ survey, callback, params }) => {
+const Survey = ({ survey, callback, params, existingAnswers }) => {
   const [formData, setFormData] = useState({});
+
+  // Função para converter as respostas existentes para o formato do formData
+  const convertExistingAnswersToFormData = (answers) => {
+    if (!answers || !Array.isArray(answers)) return {};
+
+    const convertedData = {};
+    answers.forEach((answer) => {
+      // Encontrar o índice da questão no survey baseado no questionStatement ou id
+      const questionIndex = survey.questions.findIndex(q =>
+        q.statement === answer.questionStatement ||
+        q.id === answer.id ||
+        q._id === answer.id
+      );
+
+      if (questionIndex !== -1) {
+        if (answer.questionType === 'open') {
+          convertedData[questionIndex] = {
+            questionStatement: answer.questionStatement,
+            answer: answer.textAnswer,
+            selectedOption: {
+              statement: answer.textAnswer
+            }
+          };
+        } else {
+          // Para multiple-choice e multiple-selection
+          convertedData[questionIndex] = {
+            questionStatement: answer.questionStatement,
+            selectedOption: answer.selectedOptions || []
+          };
+        }
+      }
+    });
+    return convertedData;
+  };
+
+  // Inicializar formData com respostas existentes
+  useEffect(() => {
+    if (existingAnswers && existingAnswers.length > 0) {
+      console.log('Loading existing answers:', existingAnswers);
+      const initialFormData = convertExistingAnswersToFormData(existingAnswers);
+      console.log('Converted form data:', initialFormData);
+      setFormData(initialFormData);
+      callback(initialFormData);
+    }
+  }, [existingAnswers]);
 
   const joinResponses = (question, questionIndex, option, event, responseToOneQuestion) => {
     if (question.type === 'multiple-selection') {
@@ -68,16 +113,19 @@ const Survey = ({ survey, callback, params }) => {
             question={question}
             questionIndex={questionIndex}
             callback={joinResponses}
-            params={params} />
+            params={params}
+            initialValue={formData[questionIndex]} />
       )}
     </Paper>
   );
 };
 
 
-const Question = ({ question, questionIndex, callback, params }) => {
+const Question = ({ question, questionIndex, callback, params, initialValue }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [externalOptions, setExternalOptions] = useState(null);
+  const [textValue, setTextValue] = useState('');
+  const [checkedOptions, setCheckedOptions] = useState([]);
 
   const handleClickOption = (optionIndex) => {
     setSelectedOption(optionIndex);
@@ -99,11 +147,14 @@ const Question = ({ question, questionIndex, callback, params }) => {
   };
 
   const handleChangeOpen = (statement, questionIndex, event) => {
+    const value = event.target.value;
+    setTextValue(value);
+
     const questionData = {
       questionStatement: statement,
-      answer: event.target.value,
+      answer: value,
       selectedOption: {
-        statement: event.target.value
+        statement: value
       }
     };
 
@@ -111,21 +162,59 @@ const Question = ({ question, questionIndex, callback, params }) => {
   };
 
   const handleCheckboxChange = (statement, questionIndex, event, option) => {
+    const optionStatement = option.statement || option;
+    let newCheckedOptions;
+
+    if (event.target.checked) {
+      newCheckedOptions = [...checkedOptions, optionStatement];
+    } else {
+      newCheckedOptions = checkedOptions.filter(opt => opt !== optionStatement);
+    }
+
+    setCheckedOptions(newCheckedOptions);
+
     const questionData = {
       questionStatement: statement,
-      selectedOption: []
+      selectedOption: newCheckedOptions.map(optStatement => {
+        const foundOption = question.options.find(opt =>
+          (opt.statement || opt) === optStatement
+        );
+        return foundOption && foundOption.score !== undefined
+          ? { statement: optStatement, score: foundOption.score }
+          : { statement: optStatement };
+      })
     };
 
-    if (option) {
-      option.score !== undefined
-        ? questionData.selectedOption.push({ statement: option.statement, score: option.score })
-        : questionData.selectedOption.push({ statement: option });
-    }
     callback(question, questionIndex, option, event, { [questionIndex]: questionData });
   };
 
 
   const initialized = useRef(false);
+
+  // Inicializar valores com base na resposta existente
+  useEffect(() => {
+    if (initialValue) {
+      if (question.type === 'open' && initialValue.answer) {
+        setTextValue(initialValue.answer);
+      }
+      // Para multiple-choices, encontrar o índice da opção selecionada
+      if (question.type === 'multiple-choices' && initialValue.selectedOption) {
+        const selectedStatement = initialValue.selectedOption.statement;
+        const optionIndex = question.options.findIndex(option =>
+          (option.statement || option) === selectedStatement
+        );
+        if (optionIndex !== -1) {
+          setSelectedOption(optionIndex);
+        }
+      }
+      // Para multiple-selection, marcar as opções selecionadas
+      if (question.type === 'multiple-selection' && initialValue.selectedOption && Array.isArray(initialValue.selectedOption)) {
+        const selectedStatements = initialValue.selectedOption.map(opt => opt.statement);
+        setCheckedOptions(selectedStatements);
+      }
+    }
+  }, [initialValue, question]);
+
   useEffect(() => {
     const handleExternalOptions = async (question) => {
       try {
@@ -162,13 +251,18 @@ const Question = ({ question, questionIndex, callback, params }) => {
           <FormControl name={questionIndex}>
             <RadioGroup
               name={Math.random().toString(36).substring(2, 10) + questionIndex}
+              value={selectedOption !== null ? selectedOption.toString() : ''}
               onChange={
-                (event) => handleChangeMultipleChoices(
-                  question.statement,
-                  questionIndex,
-                  event,
-                  question.options[event.target.value]
-                )
+                (event) => {
+                  const optionIndex = parseInt(event.target.value);
+                  setSelectedOption(optionIndex);
+                  handleChangeMultipleChoices(
+                    question.statement,
+                    questionIndex,
+                    event,
+                    question.options[optionIndex]
+                  )
+                }
               }
             >
               {question.options.map((option, optionIndex) => (
@@ -219,6 +313,7 @@ const Question = ({ question, questionIndex, callback, params }) => {
               <FormControlLabel
                 key={optionIndex}
                 control={<Checkbox
+                  checked={checkedOptions.includes(option?.statement || option)}
                   onChange={(event) => handleCheckboxChange(
                     question.statement,
                     questionIndex,
@@ -250,6 +345,7 @@ const Question = ({ question, questionIndex, callback, params }) => {
               <FormControlLabel
                 key={optionIndex}
                 control={<Checkbox
+                  checked={checkedOptions.includes(option.statement || option)}
                   onChange={(event) => handleCheckboxChange(
                     question.statement,
                     questionIndex,
@@ -278,8 +374,8 @@ const Question = ({ question, questionIndex, callback, params }) => {
             label="Resposta"
             variant="outlined"
             fullWidth
+            value={textValue}
             helperText={question.helperText ? <span dangerouslySetInnerHTML={{ __html: question.helperText }} /> : ""}
-
             onChange={(event) => handleChangeOpen(question.statement, questionIndex, event)}
           />
         </>

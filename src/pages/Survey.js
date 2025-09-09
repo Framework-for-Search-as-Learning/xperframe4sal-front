@@ -33,7 +33,7 @@ async function updateUserExperimentStatus(
                     console.log("answeredSurvey: ", answeredSurvey)
                     //Removi a verificação do length pois o data é objeto, não array
                     if (answeredSurvey.data /*&& answeredSurvey.data.length > 0*/) {
-                        
+
                         return accumulator.concat(answeredSurvey.data);
                     }
                     return accumulator;
@@ -177,17 +177,17 @@ const Survey = () => {
                     ),
                     !experiment
                         ? api.get(`experiments2/${experimentId}`, {
-                              headers: {
-                                  Authorization: `Bearer ${user.accessToken}`,
-                              },
-                          })
+                            headers: {
+                                Authorization: `Bearer ${user.accessToken}`,
+                            },
+                        })
                         : null,
                     !survey
                         ? api.get(`survey2/${surveyId}`, {
-                              headers: {
-                                  Authorization: `Bearer ${user.accessToken}`,
-                              },
-                          })
+                            headers: {
+                                Authorization: `Bearer ${user.accessToken}`,
+                            },
+                        })
                         : null,
                     api.get(
                         `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,
@@ -198,9 +198,9 @@ const Survey = () => {
                         }
                     ),
                 ]);
-                
+
                 const userExperimentResult = userExperimentResponse?.data;
-                
+
 
                 if (!userExperimentResult) {
                     navigate(`/experiments`);
@@ -213,7 +213,7 @@ const Survey = () => {
                 const userSurveyResult = userSurveyResponse?.data;
 
                 setUserSurvey(userSurveyResult);
-               
+
                 if (isMounted) {
                     let uniqueAnswer = false;
                     if (experimentResult) {
@@ -320,7 +320,7 @@ const Survey = () => {
             if (surveyAnswer) {
                 surveyAnswer.answers = answers;
                 // Não envia mais score, backend calcula
-                if (surveyAnswer.score !== undefined) delete surveyAnswer.score;                
+                if (surveyAnswer.score !== undefined) delete surveyAnswer.score;
                 await separateUsersInGroup(
                     api,
                     user,
@@ -360,39 +360,39 @@ const Survey = () => {
                     })
                 );
             }
-            
+
             const userPreSurveysApiCalls = [];
             const userPostSurveysApiCalls = [];
 
             // Aqui era utilizado o surveysProps, como não existe mais irei utilizar
             // irei utilizar o survey que é passado como parametro para a pagina
             if (survey.required) {
-                    if (survey.type === "pre") {
-                        userPreSurveysApiCalls.push(
-                            api.get(
-                                `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,
-                                {
-                                    headers: {
-                                        Authorization: `Bearer ${user.accessToken}`,
-                                    },
-                                }
-                            )
-                        );
-                    }
-                    if (survey.type === "post") {
-                        userPostSurveysApiCalls.push(
-                            api.get(
-                                `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,
-                                {
-                                    headers: {
-                                        Authorization: `Bearer ${user.accessToken}`,
-                                    },
-                                }
-                            )
-                        );
-                    }
+                if (survey.type === "pre") {
+                    userPreSurveysApiCalls.push(
+                        api.get(
+                            `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${user.accessToken}`,
+                                },
+                            }
+                        )
+                    );
                 }
-            
+                if (survey.type === "post") {
+                    userPostSurveysApiCalls.push(
+                        api.get(
+                            `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${user.accessToken}`,
+                                },
+                            }
+                        )
+                    );
+                }
+            }
+
 
             await updateUserExperimentStatus(
                 userPreSurveysApiCalls,
@@ -437,6 +437,8 @@ const Survey = () => {
         }
     }, [redirect, navigate, experimentId]);
 
+    console.log("DEBUG:", surveyAnswer?.answers);
+
     return (
         <>
             {!survey && (
@@ -471,6 +473,7 @@ const Survey = () => {
                         survey={survey}
                         callback={handleChange}
                         params={{ user: user, experimentId: experimentId }}
+                        existingAnswers={surveyAnswer?.answers}
                     />
                     <div
                         style={{
