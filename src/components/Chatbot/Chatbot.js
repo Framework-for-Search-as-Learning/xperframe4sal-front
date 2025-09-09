@@ -44,12 +44,17 @@ const Chatbot = () => {
             parts: [{ text: `Olá! Sou o assistente ${BOT_NAME}. Como posso te ajudar hoje?` }]
         };
 
-        return savedMessages.length > 0 ? [welcomeMessage, ...savedMessages] : [welcomeMessage];
+        // Filtra mensagens válidas do cookie para evitar null/undefined
+        const validSavedMessages = Array.isArray(savedMessages)
+            ? savedMessages.filter(msg => msg && msg.id && msg.role && msg.parts)
+            : [];
+
+        return validSavedMessages.length > 0 ? [welcomeMessage, ...validSavedMessages] : [welcomeMessage];
     });
 
     const getGeminiHistory = () => {
         return messages
-            .filter(msg => msg.id !== 1)
+            .filter(msg => msg && msg.id && msg.id !== 1 && msg.role && msg.parts)
             .map(msg => ({
                 role: msg.role === "user" ? "user" : "model",
                 parts: msg.parts
@@ -112,7 +117,7 @@ const Chatbot = () => {
             }
 
             setMessages(prev => {
-                const messagesToSave = prev.filter(msg => msg.id !== 1);
+                const messagesToSave = prev.filter(msg => msg && msg.id && msg.id !== 1);
                 history.replaceCookie(messagesToSave);
                 return prev;
             });
