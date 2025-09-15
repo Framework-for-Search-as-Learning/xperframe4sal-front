@@ -5,6 +5,7 @@ import { Button, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import EditUser from "./EditUser";
 import { ExperimentAccordion } from "../../components/Researcher/ExperimentAccordion";
+import styles from '../../style/researcher.module.css'
 import { LoadingState } from "../../components/Researcher/LoadingState";
 
 const Researcher = () => {
@@ -189,19 +190,11 @@ const Researcher = () => {
 
     return (
         <>
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginTop: "16px",
-                    marginBottom: "16px",
-                }}
-            >
+            <div className={styles.titleContainer} >
                 <Typography variant="h6" gutterBottom>
                     {t("researcher_experiments_title")}
                 </Typography>
-                <div style={{ display: "flex", gap: 5 }}>
+                <div className={styles.buttonContainer}>
                     <Button
                         variant="contained"
                         color="primary"
