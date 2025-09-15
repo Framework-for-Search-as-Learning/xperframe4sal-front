@@ -5,6 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import PersonIcon from '@mui/icons-material/Person';
 import DeleteIcon from '@mui/icons-material/Delete';
 import styles from '../../style/text.module.css'
+import { FileDownload } from "@mui/icons-material";
 
 const ExperimentAccordion = ({ experiment, expanded, onChange, onAccess, onEdit, onDelete, onEdituser, isOwner, t }) => (
   <Accordion
@@ -35,6 +36,18 @@ const ExperimentAccordion = ({ experiment, expanded, onChange, onAccess, onEdit,
       <div className={styles.buttonContainer} >
         {isOwner ? (
           <>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => onAccess(experiment._id)}
+            >
+              <div className={styles.desktopText} >
+                {t('export')}
+              </div>
+              <div className={styles.mobileText} >
+                <FileDownload />
+              </div>
+            </Button>
             <Button
               variant="contained"
               color="primary"
