@@ -254,5 +254,11 @@
   "readonly_field_message": "Este campo não pode ser alterado durante a edição do experimento",
   "need_minimal_pt1": "Você precisar criar pelo menos",
   "need_minimal_pt2": "tarefas para prosseguir",
-  "unique_answer": "Resposta Unica"
+  "unique_answer": "Resposta Unica",
+  "export": "Exportar",
+  "import": "Importar",
+  "export_error": "Erro ao exportar, por favor, tente novamente mais tarde",
+  "import_error": "Erro ao importar, por favor, tente novamente mais tarde",
+  "import_success": "Experimento importado com sucesso!",
+  "import_invalid_file": "Por favor, selecione um arquivo YAML válido"
 }

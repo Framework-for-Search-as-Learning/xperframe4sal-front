@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../config/axios";
 import { Button, Typography } from "@mui/material";
@@ -17,6 +17,7 @@ const Researcher = () => {
     const [editingUser, setEditingUser] = useState(null);
     const user = JSON.parse(localStorage.getItem("user"));
     const { t } = useTranslation();
+    const fileInputRef = useRef(null);
 
     const fetchAllExperiments = useCallback(async () => {
         setIsLoading(true);
@@ -82,6 +83,82 @@ const Researcher = () => {
         navigate(`/experiments/${experimentId}/surveys`);
     };
 
+    const handleExportExperiment = async (experimentId) => {
+        try {
+            const response = await api.get(`experiments2/export/${experimentId}`, {
+                headers: { Authorization: `Bearer ${user.accessToken}` },
+                responseType: 'blob'
+            });
+
+            const blob = new Blob([response.data], { type: 'application/x-yaml' });
+            const url = window.URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `experiment_export_${experimentId}.yaml`;
+            document.body.appendChild(link);
+            link.click();
+
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error('Export error:', error);
+            setError(t("export_error") || "Erro ao exportar experimento");
+        }
+    }
+
+    const handleImportExperiment = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file extension
+        if (!file.name.endsWith('.yaml') && !file.name.endsWith('.yml')) {
+            setError(t("import_invalid_file") || "Please select a valid YAML file");
+            return;
+        }
+
+        // Create FormData to send the file
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            setIsLoading(true);
+            setError(null);
+
+            const response = await api.post(`experiments2/import/${user.id}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${user.accessToken}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            // Reset file input
+            event.target.value = '';
+
+            // Refresh experiments list
+            await fetchAllExperiments();
+
+            // Navigate to the newly created experiment for editing
+            if (response.data && response.data._id) {
+                navigate(`/EditExperiment/${response.data._id}`);
+            }
+
+        } catch (error) {
+            console.error('Import error:', error);
+            setError(t("import_error") || "Erro ao importar experimento");
+            event.target.value = '';
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleEditExperiment = (experimentId) => {
         navigate(`/EditExperiment/${experimentId}`);
     };
@@ -124,13 +201,29 @@ const Researcher = () => {
                 <Typography variant="h6" gutterBottom>
                     {t("researcher_experiments_title")}
                 </Typography>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleCreateExperiment}
-                >
-                    {t("create_experiment_button")}
-                </Button>
+                <div style={{ display: "flex", gap: 5 }}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCreateExperiment}
+                    >
+                        {t("create_experiment_button")}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleImportExperiment}
+                    >
+                        {t("import")}
+                    </Button>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept=".yaml,.yml"
+                        style={{ display: 'none' }}
+                    />
+                </div>
             </div>
 
             {isLoading && <LoadingState />}
@@ -146,19 +239,19 @@ const Researcher = () => {
 
             {experimentsOwner?.length > 0
                 ? experimentsOwner.map((experiment, index) => (
-                      <ExperimentAccordion
-                          key={experiment._id}
-                          experiment={experiment}
-                          expanded={expanded === `panel-owner-${index}`}
-                          onChange={handleChange(`panel-owner-${index}`)}
-                          onAccess={handleAccessExperiment}
-                          onEdit={handleEditExperiment}
-                          onDelete={handleDeleteExperiment}
-                          onEdituser={handleEditUser}
-                          isOwner={true}
-                          t={t}
-                      />
-                  ))
+                    <ExperimentAccordion
+                        key={experiment._id}
+                        experiment={experiment}
+                        expanded={expanded === `panel-owner-${index}`}
+                        onChange={handleChange(`panel-owner-${index}`)}
+                        onAccess={handleExportExperiment}
+                        onEdit={handleEditExperiment}
+                        onDelete={handleDeleteExperiment}
+                        onEdituser={handleEditUser}
+                        isOwner={true}
+                        t={t}
+                    />
+                ))
                 : !isLoading && <Typography>{t("no_experiments")}</Typography>}
 
             <Typography variant="h6" gutterBottom style={{ marginTop: "16px" }}>
@@ -167,18 +260,18 @@ const Researcher = () => {
 
             {experiments?.length > 0
                 ? experiments.map((experiment, index) => (
-                      <ExperimentAccordion
-                          key={experiment._id}
-                          experiment={experiment}
-                          expanded={expanded === `panel-${index}`}
-                          onChange={handleChange(`panel-${index}`)}
-                          onAccess={handleAccessExperiment}
-                          onEdit={handleEditExperiment}
-                          onEdituser={handleEditUser}
-                          isOwner={false}
-                          t={t}
-                      />
-                  ))
+                    <ExperimentAccordion
+                        key={experiment._id}
+                        experiment={experiment}
+                        expanded={expanded === `panel-${index}`}
+                        onChange={handleChange(`panel-${index}`)}
+                        onAccess={handleAccessExperiment}
+                        onEdit={handleEditExperiment}
+                        onEdituser={handleEditUser}
+                        isOwner={false}
+                        t={t}
+                    />
+                ))
                 : !isLoading && <Typography>{t("no_experiments")}</Typography>}
         </>
     );

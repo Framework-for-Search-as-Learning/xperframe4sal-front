@@ -253,5 +253,11 @@
   "readonly_field_message": "This field cannot be changed when editing the experiment",
   "need_minimal_pt1": "You need create at least",
   "need_minimal_pt2": "tasks to continue",
-  "unique_answer": "Unique answer"
+  "unique_answer": "Unique answer",
+  "export": "Export",
+  "import": "Import",
+  "export_error": "Unexpeted error to export, please try again later",
+  "import_error": "Unexpeted error to import, please try again later",
+  "import_success": "Experiment imported successfully!",
+  "import_invalid_file": "Please select a valid YAML file"
 }
