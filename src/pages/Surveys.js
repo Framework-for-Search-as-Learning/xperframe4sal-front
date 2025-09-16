@@ -338,7 +338,7 @@ const Surveys = () => {
                                     }
                                     disabled={answeredPreSurveys[survey._id]}
                                 >
-                                    Entrar
+                                    {t('enter_label')}
                                 </Button>
                             </div>
                         </AccordionDetails>
