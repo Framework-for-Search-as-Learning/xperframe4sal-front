@@ -39,7 +39,7 @@ const CreateExperimentICF = () => {
         ExperimentDescICF,
         setExperimentDescICF,
     } = useContext(StepContext);
-    
+
     const { t } = useTranslation();
     const [isValidTitleExp, setIsValidTitleExp] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
@@ -111,7 +111,7 @@ const CreateExperimentICF = () => {
                         onChange={handleNameChangeTitle}
                         required
                     />
-                    
+
                     <div style={{ width: '100%', marginTop: '16.5px', marginBottom: '16px' }}>
                         <CustomContainer >
                             <ReactQuill

@@ -7,6 +7,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { Typography } from '@mui/material';
+import { t } from 'i18next';
 
 
 const ExperimentStatus = (params) => {
@@ -43,10 +44,10 @@ const ExperimentStatus = (params) => {
           return (
 
             <Step key={index}>
-              {(!labelProps.error || (index !== completeds.length) || (!step.link)) && <StepLabel {...labelProps} ><Typography variant='h7' color={labelProps.error ? "red" : "green"}>{step.label}</Typography></StepLabel>}
+              {(!labelProps.error || (index !== completeds.length) || (!step.link)) && <StepLabel {...labelProps} ><Typography variant='h7' color={labelProps.error ? "red" : "green"}>{t(step.label)}</Typography></StepLabel>}
               {labelProps.error && (index === completeds.length) && step.link && (
                 <Link to={step.link.replace("{experimentId}", experimentId)} style={{ textDecoration: 'none' }}>
-                  <StepLabel {...labelProps} style={{ cursor: 'pointer' }}  ><Typography variant='h7' color={labelProps.error ? "red" : "green"}>{step.label}</Typography></StepLabel>
+                  <StepLabel {...labelProps} style={{ cursor: 'pointer' }}  ><Typography variant='h7' color={labelProps.error ? "red" : "green"}>{t(step.label)}</Typography></StepLabel>
                 </Link>
               )}
             </Step>

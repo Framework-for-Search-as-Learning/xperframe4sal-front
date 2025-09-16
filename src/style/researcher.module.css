@@ -1,0 +1,23 @@
+.titleContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.buttonContainer {
+    display: flex;
+    gap: 5px;
+}
+
+@media (max-width: 768px) {
+    .titleContainer {
+        flex-direction: column-reverse;
+        gap: 10px;
+    }
+
+    .buttonContainer {
+        flex-direction: column;
+    }
+}
