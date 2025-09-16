@@ -120,7 +120,7 @@ const Researcher = () => {
 
         // Validate file extension
         if (!file.name.endsWith('.yaml') && !file.name.endsWith('.yml')) {
-            setError(t("import_invalid_file") || "Please select a valid YAML file");
+            setError(t("import_invalid_file"));
             return;
         }
 
@@ -142,6 +142,14 @@ const Researcher = () => {
             // Reset file input
             event.target.value = '';
 
+            // Check if there are validation errors
+            if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+                // Display translated error messages
+                const translatedErrors = response.data.map(errorKey => t(errorKey) || errorKey);
+                setError(translatedErrors.join('\n'));
+                return;
+            }
+
             // Refresh experiments list
             await fetchAllExperiments();
 
@@ -152,7 +160,13 @@ const Researcher = () => {
 
         } catch (error) {
             console.error('Import error:', error);
-            setError(t("import_error") || "Erro ao importar experimento");
+            if (error.response && error.response.data && Array.isArray(error.response.data)) {
+                // Handle validation errors from server
+                const translatedErrors = error.response.data.map(errorKey => t(errorKey) || errorKey);
+                setError(translatedErrors.join('\n'));
+            } else {
+                setError(t("import_error"));
+            }
             event.target.value = '';
         } finally {
             setIsLoading(false);
