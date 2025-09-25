@@ -297,5 +297,7 @@
   "accept_icf": "Accept consent form",
   "end_task": "End search task",
   "answer_pre_survey": "Answer Pre-Surveys",
-  "answer_post_survey": "Answer Pos-Surveys"
+  "answer_post_survey": "Answer Pos-Surveys",
+  "chatbot_wellcome_part1": "Hello! i'm the",
+  "chatbot_wellcome_part2": "assistant. How can i help you today?"
 }

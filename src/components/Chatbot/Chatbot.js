@@ -7,6 +7,7 @@ import { MessageInput } from './MessageInput';
 import createChat from '../../lib/gemini';
 import useCookies from '../../lib/useCookies';
 import { marked } from "marked";
+import { useTranslation } from 'react-i18next';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -30,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
 const BOT_NAME = "XF4 Bot"
 
 const Chatbot = () => {
+    const { t } = useTranslation();
     const history = useCookies("history");
     const style = useStyles();
 
@@ -37,14 +39,13 @@ const Chatbot = () => {
         const savedMessages = history.getCookie() || [];
         const welcomeMessage = {
             id: 1,
-            text: `Olá! Sou o assistente ${BOT_NAME}. Como posso te ajudar hoje?`,
+            text: `${t('chatbot_wellcome_part1')} ${BOT_NAME} ${t('chatbot_wellcome_part2')}`,
             sender: "bot",
             role: "model",
             timestamp: new Date(),
             parts: [{ text: `Olá! Sou o assistente ${BOT_NAME}. Como posso te ajudar hoje?` }]
         };
-
-        return savedMessages.length > 0 ? [welcomeMessage, ...savedMessages] : [welcomeMessage];
+        return savedMessages.length > 1 ? [welcomeMessage, ...savedMessages] : [welcomeMessage];
     });
 
     const getGeminiHistory = () => {
@@ -58,7 +59,6 @@ const Chatbot = () => {
 
     const chat = createChat(getGeminiHistory());
     const [isTyping, setIsTyping] = useState(false);
-
     const handleSendMessage = async (messageText) => {
         if (!messageText.trim()) return;
 
@@ -73,7 +73,6 @@ const Chatbot = () => {
 
         setMessages(prev => [...prev, userMessage]);
         setIsTyping(true);
-
         try {
             const stream = await chat.sendMessageStream({ message: messageText });
 

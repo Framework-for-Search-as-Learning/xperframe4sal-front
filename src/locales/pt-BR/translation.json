@@ -298,5 +298,7 @@
   "accept_icf": "Aceitar termo de consentimento",
   "end_task": "Finalizar tarefas de busca",
   "answer_pre_survey": "Responder Pre-Questionarios",
-  "answer_post_survey": "Responder Pos-Questionarios"
+  "answer_post_survey": "Responder Pos-Questionarios",
+  "chatbot_wellcome_part1": "Olá! Sou o assistente",
+  "chatbot_wellcome_part2": ". Como posso te ajudar hoje?"
 }
