@@ -91,6 +91,21 @@ const EditExperimentTask = () => {
     const [SelectedQuestion, setSelectedQuestion] = useState(null);
     const [editTaskIndex, setEditTaskIndex] = useState(null);
 
+    const [origin, setOrigin] = useState('');
+    const [llm, setLlm] = useState('gemini');
+    const [searchEngine, setSearchEngine] = useState('google');
+
+    const LlmTypes = [
+        { value: 'gemini', label: 'Gemini (Google)' },
+        //{ value: 'chat-gpt', label: 'ChatGPT (OpenAI)' },
+        //{ value: 'deepseek', label: 'DeepSeek (DeepSeek AI)' },
+    ];
+    const SearchEngines = [
+        { value: 'google', label: 'Google' },
+        //{ value: 'bing', label: 'Bing' },
+        //{ value: 'duckduckgo', label: 'DuckDuckGo' },
+    ];
+
     const handleEditTask = async (index) => {
         setEditTaskIndex(index);
         const task = tasks.find((t) => t._id === index);
@@ -111,6 +126,13 @@ const EditExperimentTask = () => {
             setScoreThresholdmx(task.max_score);
             setScoreThreshold(task.min_score);
             setscoreType("min_max");
+
+            setOrigin(task.search_source || '');
+            if (task.search_source === 'llm') {
+                setLlm(task.search_model || 'gemini');
+            } else if (task.search_source === 'search-engine') {
+                setSearchEngine(task.search_model || 'google');
+            }
 
             const selectedSurvey2 = ExperimentSurveys.find(s => s._id === task.survey_id);
             setSelectedSurvey(selectedSurvey2);
@@ -199,6 +221,9 @@ const EditExperimentTask = () => {
         setSelectedSurvey(null);
         setSelectedQuestionIds([]);
         setSelectedQuestion(null);
+        setOrigin('');
+        setLlm('gemini');
+        setSearchEngine('google');
     };
 
     const handleSurveyChange = (event) => {
@@ -281,6 +306,8 @@ const EditExperimentTask = () => {
                 min_score: ScoreThreshold,
                 max_score: ScoreThresholdmx,
                 experiment_id: ExperimentId,
+                search_source: origin,
+                search_model: (origin === 'llm' ? llm : searchEngine)
             };
             console.log(newTask)
 
@@ -321,6 +348,8 @@ const EditExperimentTask = () => {
             min_score: ScoreThreshold,
             max_score: ScoreThresholdmx,
             experiment_id: ExperimentId,
+            search_source: origin,
+            search_model: (origin === 'llm' ? llm : searchEngine)
         };
         console.log(newTask)
 
@@ -593,6 +622,70 @@ const EditExperimentTask = () => {
                             onChange={handleNameChangeTitleTask}
                             required
                         />
+
+                        <Grid container spacing={2} alignItems="center">
+                            {/* Select origem: LLM ou motor de busca */}
+                            <Grid item xs={6}>
+                                <FormControl fullWidth margin="normal">
+                                    <InputLabel id="origin-label">{t('select_source')}</InputLabel>
+                                    <Select
+                                        labelId="origin-label"
+                                        value={origin}
+                                        onChange={(e) => {
+                                            setOrigin(e.target.value);
+                                        }}
+                                        label={t('select_source')}
+                                    >
+                                        <MenuItem value="llm">Large Language Model</MenuItem>
+                                        <MenuItem value="search-engine">{t('search_engine')}</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+
+                            {/* Se escolher LLM, mostrar select dos modelos */}
+                            {origin === 'llm' && (
+                                <Grid item xs={6}>
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel id="llm-select-label">{t('select_llm')}</InputLabel>
+                                        <Select
+                                            labelId="llm-select-label"
+                                            value={llm}
+                                            onChange={(e) => setLlm(e.target.value)}
+                                            label={t('select_llm')}
+                                        >
+                                            {LlmTypes.map((type) => (
+                                                <MenuItem key={type.value} value={type.value}>
+                                                    {type.label}
+                                                </MenuItem>
+                                            ))}
+                                            <optgroup label={t('more_soon')} ></optgroup>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            )}
+
+                            {/* Se escolher motor de busca, mostrar select dos motores */}
+                            {origin === 'search-engine' && (
+                                <Grid item xs={6}>
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel id="search-engine-label">{t('select_search_engine')}</InputLabel>
+                                        <Select
+                                            labelId="search-engine-label"
+                                            value={searchEngine}
+                                            onChange={(e) => setSearchEngine(e.target.value)}
+                                            label={t('select_search_engine')}
+                                        >
+                                            {SearchEngines.map((engine) => (
+                                                <MenuItem key={engine.value} value={engine.value}>
+                                                    {engine.label}
+                                                </MenuItem>
+                                            ))}
+                                            <optgroup label={t('more_soon')} ></optgroup>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            )}
+                        </Grid>
 
                         {ExperimentType === "between-subject" &&
                             BtypeExperiment === "rules_based" && (
@@ -1170,6 +1263,70 @@ const EditExperimentTask = () => {
                             onChange={handleNameChangeTitleTask}
                             required
                         />
+
+                        <Grid container spacing={2} alignItems="center">
+                            {/* Select origem: LLM ou motor de busca */}
+                            <Grid item xs={6}>
+                                <FormControl fullWidth margin="normal">
+                                    <InputLabel id="origin-label">{t('select_source')}</InputLabel>
+                                    <Select
+                                        labelId="origin-label"
+                                        value={origin}
+                                        onChange={(e) => {
+                                            setOrigin(e.target.value);
+                                        }}
+                                        label={t('select_source')}
+                                    >
+                                        <MenuItem value="llm">Large Language Model</MenuItem>
+                                        <MenuItem value="search-engine">{t('search_engine')}</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+
+                            {/* Se escolher LLM, mostrar select dos modelos */}
+                            {origin === 'llm' && (
+                                <Grid item xs={6}>
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel id="llm-select-label">{t('select_llm')}</InputLabel>
+                                        <Select
+                                            labelId="llm-select-label"
+                                            value={llm}
+                                            onChange={(e) => setLlm(e.target.value)}
+                                            label={t('select_llm')}
+                                        >
+                                            {LlmTypes.map((type) => (
+                                                <MenuItem key={type.value} value={type.value}>
+                                                    {type.label}
+                                                </MenuItem>
+                                            ))}
+                                            <optgroup label={t('more_soon')} ></optgroup>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            )}
+
+                            {/* Se escolher motor de busca, mostrar select dos motores */}
+                            {origin === 'search-engine' && (
+                                <Grid item xs={6}>
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel id="search-engine-label">{t('select_search_engine')}</InputLabel>
+                                        <Select
+                                            labelId="search-engine-label"
+                                            value={searchEngine}
+                                            onChange={(e) => setSearchEngine(e.target.value)}
+                                            label={t('select_search_engine')}
+                                        >
+                                            {SearchEngines.map((engine) => (
+                                                <MenuItem key={engine.value} value={engine.value}>
+                                                    {engine.label}
+                                                </MenuItem>
+                                            ))}
+                                            <optgroup label={t('more_soon')} ></optgroup>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            )}
+                        </Grid>
 
                         {ExperimentType === "between-subject" &&
                             BtypeExperiment === "rules_based" && (
