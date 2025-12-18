@@ -700,7 +700,7 @@ const EditExperimentSurvey = () => {
                                                                         fullWidth
                                                                         required
                                                                     />
-                                                                    {q.type === 'multiple-choices' && (
+                                                                    {(q.type === 'multiple-choices' || q.type === 'multiple-selection') && (
                                                                         <TextField
                                                                             label={t('weight')}
                                                                             type="number"

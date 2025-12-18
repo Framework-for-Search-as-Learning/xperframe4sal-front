@@ -54,7 +54,7 @@ const CreateExperiment = () => {
                     closable: false,
                 });
             }
-
+            console.log("Survey: ", ExperimentSurveys)
             const experimentIcf = {
                 title: ExperimentTitleICF,
                 description: ExperimentDescICF,

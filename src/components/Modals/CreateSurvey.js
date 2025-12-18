@@ -83,7 +83,7 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                             option.hassub = false;
                         }
 
-                        if (q.type === 'multiple-choices') {
+                        if (q.type === 'multiple-choices' || q.type === 'multiple-selection') {
                             option.score = q.hasscore ? opt.score : 0;
                         }
 
