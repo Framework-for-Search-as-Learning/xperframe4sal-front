@@ -37,8 +37,8 @@ const Surveys = () => {
 
     const [preSurveys, setPreSurveys] = useState([]);
     const [postSurveys, setPostSurveys] = useState([]);
-    const [answeredPreSurveys, setAnsweredPreSurveys] = useState([]);
-    const [answeredPostSurveys, setAnsweredPostSurveys] = useState([]);
+    const [answeredPreSurveys, setAnsweredPreSurveys] = useState({});
+    const [answeredPostSurveys, setAnsweredPostSurveys] = useState({});
     const [, setIsSuccess] = useState(false);
     const [open, setOpen] = useState(false);
     const [severity, setSeverity] = useState("success");
@@ -91,6 +91,8 @@ const Surveys = () => {
                 );
 
                 let surveyList = [];
+                let localPre = [];
+                let localPost = [];
                 const surveys = await api.get(`survey2/experiment/${experimentId}`, {
                     headers: {
                         Authorization: `Bearer ${user.accessToken}`,
@@ -113,45 +115,28 @@ const Surveys = () => {
 
                         const answeredSurvey = response?.data;
 
-                        //const surveyProps =
-                        //experimentResult.surveysProps[surveyPropsId];
                         let hasAnswered = false;
-                        if (
-                            //Remove verificação de vetor para funcionar
-                            answeredSurvey /*&&
-                            Array.isArray(answeredSurvey) &&
-                            answeredSurvey.length > 0*/
-                        ) {
+                        if (answeredSurvey) {
                             hasAnswered = true;
                         }
                         if (survey.type === SurveyType.PRE) {
+                            localPre.push(survey);
 
-                            preSurveys.push(survey);
-                            setPreSurveys(preSurveys);
-
-                            //TODO retirei verificação do required nesse if
                             if (hasAnswered) {
-                                setAnsweredPreSurveys(
-                                    Object.assign(answeredPreSurveys, {
-                                        [survey._id]: true,
-                                    })
-                                );
+                                setAnsweredPreSurveys((prev) => ({ ...prev, [survey._id]: true }));
                             }
                         } else if (survey.type === SurveyType.POST) {
-                            postSurveys.push(survey);
-                            setPostSurveys(postSurveys);
+                            localPost.push(survey);
 
-                            //TODO retirei verificação do required nesse if
                             if (!hasAnswered) {
-                                setAnsweredPostSurveys(
-                                    Object.assign(answeredPostSurveys, {
-                                        [survey._id]: true,
-                                    })
-                                );
+                                setAnsweredPostSurveys((prev) => ({ ...prev, [survey._id]: true }));
                             }
                         }
                     }
                 }
+
+                setPreSurveys(localPre);
+                setPostSurveys(localPost);
 
                 if (surveyList.length === 0) {
                     navigate(`/experiments/${experimentId}/tasks`);
@@ -189,16 +174,7 @@ const Surveys = () => {
         };
 
         fetchSurveyData();
-    }, [
-        experimentId,
-        user?.id,
-        user?.accessToken,
-        navigate,
-        answeredPreSurveys,
-        answeredPostSurveys,
-        preSurveys,
-        postSurveys,
-    ]);
+    }, [experimentId, user?.id, user?.accessToken, navigate]);
 
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
@@ -342,12 +318,12 @@ const Surveys = () => {
 
             {hasFinishedTasks && (
                 <div>
-                    {postSurveys?.map(
-                        (survey, index) =>
+                    {console.log("answeredPostSurveys:", answeredPostSurveys)}
+                    {postSurveys?.map((survey, index) =>
                             (!answeredPostSurveys[survey._id] ||
                                 (answeredPostSurveys[survey._id] &&
-                                    !experiment?.surveysProps[survey._id]
-                                        ?.uniqueAnswer)) && (
+                                        !experiment?.surveysProps?.[survey._id]
+                                            ?.uniqueAnswer)) && (
                                 <Accordion
                                     sx={{ marginBottom: "5px" }}
                                     key={survey._id}
@@ -356,7 +332,7 @@ const Surveys = () => {
                                     onChange={handleChange(`panel-${index}`)}
                                     disabled={
                                         answeredPostSurveys[survey._id] &&
-                                        experiment?.surveysProps[survey._id]
+                                        experiment?.surveysProps?.[survey._id]
                                             ?.uniqueAnswer
                                     }
                                 >
@@ -373,7 +349,7 @@ const Surveys = () => {
                                         <Typography>
                                             <span>{survey.title}</span>
                                             {answeredPostSurveys[survey._id] &&
-                                                experiment?.surveysProps[survey._id]
+                                                experiment?.surveysProps?.[survey._id]
                                                     ?.uniqueAnswer ? (
                                                 <span
                                                     style={{
@@ -398,7 +374,7 @@ const Surveys = () => {
                                         </Typography>
                                         <div style={{ textAlign: "right" }}>
                                             {answeredPostSurveys[survey._id] &&
-                                                !experiment?.surveysProps[
+                                                !experiment?.surveysProps?.[
                                                     survey._id
                                                 ]?.uniqueAnswer && (
                                                     <Button
