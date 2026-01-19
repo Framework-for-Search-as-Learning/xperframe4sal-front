@@ -55,8 +55,6 @@ const Task = () => {
 
     const history = useCookies("history");
 
-    console.log(task)
-
     useEffect(() => {
         const fetchData = async () => {
             try {

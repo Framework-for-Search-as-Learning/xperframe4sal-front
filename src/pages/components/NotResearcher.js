@@ -50,7 +50,6 @@ const NotResearcher = () => {
                             );
                             experimentList.push(response.data);
                         }
-                        console.log("Lista:", experimentList);
                     }
                 }
                 setExperiments(experimentList);

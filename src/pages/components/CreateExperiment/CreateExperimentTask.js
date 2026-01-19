@@ -221,7 +221,6 @@ const CreateExperimentTask = () => {
             search_model: (origin == 'llm' ? llm : searchEngine)
         };
 
-        console.log(newTask)
         setExperimentTasks((prev) => [...prev, newTask]);
         toggleCreateTask();
         setTaskTitle("");

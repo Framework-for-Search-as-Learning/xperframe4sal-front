@@ -135,7 +135,6 @@ const CreateExperimentSurvey = () => {
                 return question;
             }),
         };
-        console.log(payload)
         setExperimentSurveys((prev) => [...prev, payload]);
         setTitle("");
         setDescription("");
@@ -160,7 +159,6 @@ const CreateExperimentSurvey = () => {
     };
 
     const handleEditQuestion = (questionId, field, value) => {
-        console.log(value)
         setEditedSurvey((prev) => ({
             ...prev,
             questions: prev.questions.map((q) =>

@@ -733,7 +733,6 @@ const EditExperimentSurvey = () => {
                                                                         <MenuItem
                                                                             onClick={() => {
                                                                                 const currentOpt = editedSurvey.questions.find((q) => q.id === selectedQId)?.options.find((opt) => opt.id === selectedOptId);
-                                                                                console.log("Adicionar subquestão em: ", currentOpt)
                                                                                 const hasSubquestion = currentOpt?.subquestion && typeof currentOpt.subquestion === 'object' && currentOpt.subquestion !== null;
                                                                                 const newValue = hasSubquestion ? null : {
                                                                                     statement: "",

@@ -82,7 +82,6 @@ const Tasks = () => {
                     steps.data,
                     userExperimentResult.stepsCompleted
                  );
-                console.log("experimentSteps2: ", experimentSteps)
                 setSteps(experimentSteps);
 
                 setTasks(taskList);

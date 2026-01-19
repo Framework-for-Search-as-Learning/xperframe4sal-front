@@ -71,7 +71,6 @@ const EditExperimentICF = () => {
             const { data } = await api.get(`/icf2/experiment/${ExperimentId}`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
-            console.log(data)
             setExperimentTitleICF(data.title || '');
             setExperimentDescICF(data.description || '');
             setIcfid(data._id || '')

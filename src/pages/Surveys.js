@@ -73,7 +73,6 @@ const Surveys = () => {
                 let experimentResult = experimentResponse.data;
                 let userExperimentResult = userExperimentResponse?.data;
 
-                console.log("Teste experimentResult: ", userExperimentResult);
                 if (!userExperimentResult) {
                     navigate(`/experiments`);
                 }
@@ -116,7 +115,6 @@ const Surveys = () => {
 
                         //const surveyProps =
                         //experimentResult.surveysProps[surveyPropsId];
-                        console.log("answeredSurvey: ", answeredSurvey)
                         let hasAnswered = false;
                         if (
                             //Remove verificação de vetor para funcionar
@@ -145,8 +143,6 @@ const Surveys = () => {
 
                             //TODO retirei verificação do required nesse if
                             if (!hasAnswered) {
-                                /** TODO */
-                            } else {
                                 setAnsweredPostSurveys(
                                     Object.assign(answeredPostSurveys, {
                                         [survey._id]: true,
@@ -175,8 +171,6 @@ const Surveys = () => {
                     steps.data,
                     userExperimentResult.stepsCompleted
                 );
-
-                console.log("teste3232", experimentSteps)
 
                 setExperiment(experimentResult);
                 setUserExperiment(userExperimentResult);

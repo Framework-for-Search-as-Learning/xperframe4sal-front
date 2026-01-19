@@ -94,7 +94,6 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                 return question;
             }),
         };
-        console.log(payload)
         setExperimentSurveys(prev => [...prev, payload]);
         setTitle("");
         setDescription("");
@@ -105,7 +104,6 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
             const body = { ...payload, experimentId: experimentId }
             try {
                 await api.post('/survey2', body)
-                console.log("Questionario criada com sucesso: ", body)
             } catch (error) {
 
                 console.error("Erro ao criar Questionario: ", body)
@@ -160,7 +158,6 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
 
         );
 
-        console.log(questions);
     };
 
     const handleRemoveOption = (questionId, optionId) => {

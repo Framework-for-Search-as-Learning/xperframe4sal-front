@@ -309,7 +309,6 @@ const EditExperimentTask = () => {
                 search_source: origin,
                 search_model: (origin === 'llm' ? llm : searchEngine)
             };
-            console.log(newTask)
 
             await api.post(`/task2`, newTask, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
@@ -351,7 +350,6 @@ const EditExperimentTask = () => {
             search_source: origin,
             search_model: (origin === 'llm' ? llm : searchEngine)
         };
-        console.log(newTask)
 
         try {
             const response = await api.patch(

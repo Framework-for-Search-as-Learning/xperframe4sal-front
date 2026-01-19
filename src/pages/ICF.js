@@ -49,7 +49,6 @@ const ICF = () => {
                         },
                     })
                 ).data;
-                console.log(experiment);
 
                 // Buscar ICF pelo experimentId, não icf_id
                 const icfResponse = (
@@ -60,8 +59,6 @@ const ICF = () => {
                     })
                 ).data;
 
-                console.log("icf: ");
-                console.log(icfResponse);
                 setICF(icfResponse);
 
                 if (!userExperiment) {
@@ -102,8 +99,6 @@ const ICF = () => {
 
     const handleChange = async (e) => {
         try {
-            console.log("user experiment: ")
-            console.log(userExperiment)
             if (!userExperiment.stepsCompleted) {
                 userExperiment.stepsCompleted = {};
             }

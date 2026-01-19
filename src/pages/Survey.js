@@ -26,11 +26,8 @@ async function updateUserExperimentStatus(
     try {
         if (userSurveysApiCalls.length > 0) {
             let answeredSurveys = await Promise.all(userSurveysApiCalls);
-            console.log("answeredSurveys: ", answeredSurveys)
             answeredSurveys = answeredSurveys.reduce(
                 (accumulator, answeredSurvey) => {
-                    console.log("Accumulator: ", accumulator)
-                    console.log("answeredSurvey: ", answeredSurvey)
                     //Removi a verificação do length pois o data é objeto, não array
                     if (answeredSurvey.data /*&& answeredSurvey.data.length > 0*/) {
                         
@@ -295,13 +292,11 @@ const Survey = () => {
                     // selectedOption pode ser array ou objeto
                     let selectedOptions = [];
                     if (Array.isArray(value.selectedOption)) {
-                        console.log("entrou aqui1: ", value.selectedOption)
 
                         selectedOptions = value.selectedOption.map(opt => ({
                             statement: opt.statement,
                             score: opt.score ?? 0
                         }));
-                        console.log("entrou aqui2: ", selectedOptions)
 
                     } else if (value.selectedOption) {
                         selectedOptions = [{
