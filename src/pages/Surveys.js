@@ -238,21 +238,19 @@ const Surveys = () => {
             )}
 
             <div>
-                {preSurveys?.map((survey, index) => (
-                    <Accordion
-                        sx={{ marginBottom: "5px" }}
-                        key={survey._id}
-                        elevation={3}
-                        expanded={
-                            expanded === `panel-${index}` && !hasFinishedTasks
-                        }
-                        onChange={handleChange(`panel-${index}`)}
-                        disabled={
-                            hasFinishedTasks ||
-                            (answeredPreSurveys[survey._id] &&
-                                survey?.uniqueAnswer)
-                        }
-                    >
+                {!hasFinishedTasks &&
+                    preSurveys?.map((survey, index) => (
+                        <Accordion
+                            sx={{ marginBottom: "5px" }}
+                            key={survey._id}
+                            elevation={3}
+                            expanded={expanded === `panel-${index}`}
+                            onChange={handleChange(`panel-${index}`)}
+                            disabled={
+                                answeredPreSurveys[survey._id] &&
+                                survey?.uniqueAnswer
+                            }
+                        >
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls={`panel-${index}bh-content`}
