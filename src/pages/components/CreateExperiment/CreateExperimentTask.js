@@ -213,7 +213,7 @@ const CreateExperimentTask = () => {
             summary: taskSummary,
             description: taskDescription,
             RulesExperiment: RulesExperiment,
-            SelectedSurvey: SelectedSurvey.uuid,
+            SelectedSurvey: SelectedSurvey?.uuid || null,
             selectedQuestionIds: questionIds,
             ScoreThreshold: ScoreThreshold,
             ScoreThresholdmx: ScoreThresholdmx,
@@ -244,8 +244,10 @@ const CreateExperimentTask = () => {
             RulesExperiment: RulesExperimentEdit,
             ScoreThreshold: ScoreThresholdEdit,
             ScoreThresholdmx: ScoreThresholdmxEdit,
-            SelectedSurvey: SelectedSurveyEdit.uuid,
+            SelectedSurvey: SelectedSurveyEdit?.uuid || null,
             selectedQuestionIds: questionIds,
+            search_source: origin,
+            search_model: (origin == 'llm' ? llm : searchEngine)
         };
         setExperimentTasks((prev) => {
             const updatedTasks = [...prev];
@@ -273,6 +275,14 @@ const CreateExperimentTask = () => {
         setSelectedQuestionIdsEdit(selectedQuestionIdsObj);
         setScoreThresholdmxEdit(task.ScoreThresholdmx);
         setScoreThresholdEdit(task.ScoreThreshold);
+        
+        setOrigin(task.search_source || '');
+        if (task.search_source === 'llm') {
+           setLlm(task.search_model || 'gemini');
+        } else if (task.search_source === 'search-engine') {
+           setSearchEngine(task.search_model || 'google');
+        }
+        
         toggleEditTask();
     };
 
