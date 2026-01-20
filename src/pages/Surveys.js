@@ -128,7 +128,7 @@ const Surveys = () => {
                         } else if (survey.type === SurveyType.POST) {
                             localPost.push(survey);
 
-                            if (!hasAnswered) {
+                            if (hasAnswered) {
                                 setAnsweredPostSurveys((prev) => ({ ...prev, [survey._id]: true }));
                             }
                         }
