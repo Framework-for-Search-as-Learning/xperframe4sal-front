@@ -41,6 +41,7 @@ const Task = () => {
     const [, setOpen] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [redirect, setRedirect] = useState(false);
+    const [nextPath, setNextPath] = useState(null);
     const [isShowingResultModal, setIsShowingResultModal] = useState(false);
     const [urlResultModal, setUrlResultModal] = useState("");
     const [titleResultModal, setTitleResultModal] = useState("");
@@ -161,11 +162,6 @@ const Task = () => {
 
     const handleFinishTask = async () => {
         try {
-            const userExperiment = await api.get(
-                `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
-                { headers: { Authorization: `Bearer ${user.accessToken}` } }
-            );
-            await updateUserExperimentStatus(userExperiment?.data, user, api);
             const userTaskBackup = await api.patch(
                 `user-task2/${userTask._id}/finish`,
                 {
@@ -174,7 +170,31 @@ const Task = () => {
                 },
                 { headers: { Authorization: `Bearer ${user.accessToken}` } }
             );
-            history.clearCookie()
+            history.clearCookie();
+
+            const allUserTasksResponse = await api.get(
+                `user-task2/user/${user.id}/experiment/${experimentId}`,
+                { headers: { Authorization: `Bearer ${user.accessToken}` } }
+            );
+            const allUserTasks = allUserTasksResponse.data;
+
+            const otherUnfinishedTasks = allUserTasks.filter((t) =>
+                t._id !== userTask._id &&
+                t.task.isActive &&
+                !t.hasFinishedTask
+            );
+
+            if (otherUnfinishedTasks.length === 0) {
+                const userExperiment = await api.get(
+                    `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
+                    { headers: { Authorization: `Bearer ${user.accessToken}` } }
+                );
+                await updateUserExperimentStatus(userExperiment?.data, user, api);
+                setNextPath(`/experiments/${experimentId}/surveys`);
+            } else {
+                setNextPath(`/experiments/${experimentId}/tasks`);
+            }
+
             setConfirmDialogOpen(false);
             setUserTask(userTaskBackup.data);
             setShowSnackBar(true);
@@ -197,9 +217,9 @@ const Task = () => {
 
     useEffect(() => {
         if (redirect) {
-            navigate(`/experiments/${experimentId}/surveys`);
+            navigate(nextPath || `/experiments/${experimentId}/surveys`);
         }
-    }, [redirect, navigate, experimentId]);
+    }, [redirect, navigate, experimentId, nextPath]);
 
     const closeModal = async () => {
         setUrlResultModal("");
