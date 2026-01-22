@@ -153,64 +153,82 @@ const Tasks = () => {
                     Obrigad@!
                 </Typography>
             )}
-            {tasks?.map((task, index) => (
-                <Accordion
-                    sx={{ marginBottom: "5px" }}
-                    key={task._id}
-                    elevation={3}
-                    expanded={true}
-                    // expanded=true{expanded === `panel-${index}`}
-                    onChange={handleChange(`panel-${index}`)}
-                >
-                    <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls={`panel-${index}bh-content`}
-                        id={`panel-${index}bh-header`}
-                        sx={{
-                            "&:hover": {
-                                backgroundColor: "lightgray",
-                            },
-                        }}
+            {tasks?.map((task, index) => {
+                const userTask = userTasks.find((ut) => ut.task._id === task._id);
+                const hasFinished = userTask?.hasFinishedTask;
+
+                return (
+                    <Accordion
+                        sx={{ marginBottom: "5px" }}
+                        key={task._id}
+                        elevation={3}
+                        expanded={true}
+                        // expanded=true{expanded === `panel-${index}`}
+                        onChange={handleChange(`panel-${index}`)}
+                        disabled={hasFinished}
                     >
-                        <Typography>{task.title}</Typography>
-                    </AccordionSummary>
-                    <Divider />
-                    <AccordionDetails>
-                        <Typography
-                            dangerouslySetInnerHTML={{
-                                __html: task.description,
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls={`panel-${index}bh-content`}
+                            id={`panel-${index}bh-header`}
+                            sx={{
+                                "&:hover": {
+                                    backgroundColor: "lightgray",
+                                },
                             }}
-                        />
-                        <div style={{ textAlign: "right" }}>
-                            {userTasks.filter(
-                                (userTask) => userTask.taskId === task._id
-                            )[0]?.isPaused ? (
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    style={{ margin: "16px" }}
-                                    onClick={() =>
-                                        handleContinueTaskClick(task._id)
-                                    }
-                                >
-                                    Retomar
-                                </Button>
-                            ) : (
-                                <Button
-                                    variant="contained"
-                                    color="success"
-                                    style={{ margin: "16px" }}
-                                    onClick={() =>
-                                        handleStartTaskClick(task._id)
-                                    }
-                                >
-                                    Start <PlayArrow />
-                                </Button>
-                            )}
-                        </div>
-                    </AccordionDetails>
-                </Accordion>
-            ))}
+                        >
+                            <Typography>
+                                <span>{task.title}</span>
+                                {hasFinished && (
+                                    <span
+                                        style={{
+                                            color: "red",
+                                            marginLeft: "10px",
+                                            fontWeight: "bold",
+                                        }}
+                                    >
+                                        - {t("task_finished") || "Você já completou esta tarefa."}
+                                    </span>
+                                )}
+                            </Typography>
+                        </AccordionSummary>
+                        <Divider />
+                        <AccordionDetails>
+                            <Typography
+                                dangerouslySetInnerHTML={{
+                                    __html: task.description,
+                                }}
+                            />
+                            <div style={{ textAlign: "right" }}>
+                                {!hasFinished &&
+                                    (userTask?.isPaused ? (
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            style={{ margin: "16px" }}
+                                            onClick={() =>
+                                                handleContinueTaskClick(task._id)
+                                            }
+                                        >
+                                            Retomar
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="contained"
+                                            color="success"
+                                            style={{ margin: "16px" }}
+                                            onClick={() =>
+                                                handleStartTaskClick(task._id)
+                                            }
+                                        >
+                                            Start <PlayArrow />
+                                        </Button>
+                                    ))}
+                            </div>
+                        </AccordionDetails>
+                    </Accordion>
+                );
+            })}
         </ExperimentTemplate>
     );
 };

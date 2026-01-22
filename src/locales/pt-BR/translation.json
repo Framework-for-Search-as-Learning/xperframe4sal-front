@@ -328,5 +328,6 @@
   "yaml_search_model_description": "'google' para search-engine ou 'gemini' para llm",
   "yaml_example_title": "Exemplo Completo com Comentários",
   "yaml_template_title": "Template Básico para Começar",
-  "yaml_template_description": "Use este template como ponto de partida para criar seu próprio arquivo YAML:"
+  "yaml_template_description": "Use este template como ponto de partida para criar seu próprio arquivo YAML:",
+  "task_finished": "Você já completou esta tarefa."
 }
