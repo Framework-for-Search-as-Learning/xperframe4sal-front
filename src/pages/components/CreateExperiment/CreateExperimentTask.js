@@ -107,6 +107,18 @@ const CreateExperimentTask = () => {
         const selectedQuestions = SelectedSurvey.questions.filter(q => selectedIds.includes(q.statement));
         setSelectedQuestion(selectedQuestions);
     };
+
+    const handleSurveyChangeEdit = (event) => {
+        const newSurvey = event.target.value;
+        setSelectedSurveyEdit(newSurvey);
+        setSelectedQuestionIdsEdit([]);
+    };
+    
+    const handleQuestionChangeEdit = (event) => {
+        const selectedQuestions = event.target.value;
+        setSelectedQuestionIdsEdit(selectedQuestions);
+    };
+
     const scoreTypes = [
         { value: 'unic', label: t('unic') },
         { value: 'min_max', label: t('min_max') }
@@ -268,8 +280,8 @@ const CreateExperimentTask = () => {
         const selectedSurveyObj = ExperimentSurveys.find(survey => survey.uuid === task.SelectedSurvey);
         setSelectedSurveyEdit(selectedSurveyObj);
 
-        const selectedQuestionIdsObj = SelectedSurvey?.questions?.filter(quest =>
-            Array.isArray(task?.selectedQuestionIds) && task.selectedQuestionIds.includes(quest.uuid)
+        const selectedQuestionIdsObj = selectedSurveyObj?.questions?.filter(quest =>
+            Array.isArray(task?.selectedQuestionIds) && task.selectedQuestionIds.includes(quest.id)
         ) || [];
 
         setSelectedQuestionIdsEdit(selectedQuestionIdsObj);
@@ -747,7 +759,7 @@ const CreateExperimentTask = () => {
                                                 <InputLabel>{t('select_survey')}</InputLabel>
                                                 <Select
                                                     value={SelectedSurveyEdit}
-                                                    onChange={handleSurveyChange}
+                                                    onChange={handleSurveyChangeEdit}
                                                     label={t('select_survey')}
                                                 >
                                                     {ExperimentSurveys?.length > 0 ? (
@@ -768,18 +780,18 @@ const CreateExperimentTask = () => {
                                                 <InputLabel>{t('select_question')}</InputLabel>
                                                 <Select
                                                     value={selectedQuestionIdsEdit}
-                                                    onChange={handleQuestionChange}
+                                                    onChange={handleQuestionChangeEdit}
                                                     label={t('select_question')}
                                                     multiple
                                                     renderValue={(selected) =>
-                                                        SelectedSurvey.questions
+                                                        SelectedSurveyEdit?.questions
                                                             .filter(q => selected.includes(q))
                                                             .map(q => q.statement || 'Sem enunciado')
                                                             .join(', ')
                                                     }
                                                 >
-                                                    {SelectedSurvey?.questions && SelectedSurvey.questions.length > 0 ? (
-                                                        SelectedSurvey.questions
+                                                    {SelectedSurveyEdit?.questions && SelectedSurveyEdit.questions.length > 0 ? (
+                                                        SelectedSurveyEdit.questions
                                                             .filter(q => q.type === 'multiple-selection' || q.type === 'multiple-choices')
                                                             .map((question) => (
                                                                 <MenuItem key={question.id} value={question}>
