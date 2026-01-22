@@ -792,7 +792,7 @@ const CreateExperimentTask = () => {
                                                 >
                                                     {SelectedSurveyEdit?.questions && SelectedSurveyEdit.questions.length > 0 ? (
                                                         SelectedSurveyEdit.questions
-                                                            .filter(q => q.type === 'multiple-selection' || q.type === 'multiple-choices')
+                                                            .filter(q => (q.type === 'multiple-selection' || q.type === 'multiple-choices') && q.hasscore)
                                                             .map((question) => (
                                                                 <MenuItem key={question.id} value={question}>
                                                                     <Checkbox checked={selectedQuestionIdsEdit.includes(question)} />
@@ -1179,7 +1179,7 @@ const CreateExperimentTask = () => {
                                                 >
                                                     {SelectedSurvey?.questions && SelectedSurvey.questions.length > 0 ? (
                                                         SelectedSurvey.questions
-                                                            .filter(q => q.type === 'multiple-selection' || q.type === 'multiple-choices')
+                                                            .filter(q => (q.type === 'multiple-selection' || q.type === 'multiple-choices') && q.hasscore)
                                                             .map((question) => (
                                                                 <MenuItem key={question.id} value={question}>
                                                                     <Checkbox checked={selectedQuestionIds.includes(question)} />
