@@ -82,11 +82,28 @@ const Register = () => {
     try {
       let response = await api.post("/users2", userData);
       if (response.data) {
-        setAlertMessage(t("success_message"));
-        setMessageType('success');
-        const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
-        localStorage.setItem('user', JSON.stringify({ ...userData, expirationTime }));
-        navigate("/experiments");
+        // Auto-login after successful registration
+        try {
+          let loginResponse = await api.post("/login", { username: email, password: password });
+          if (loginResponse.data) {
+            let user = loginResponse.data;
+            user.email = email;
+            const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
+            localStorage.setItem('user', JSON.stringify({ ...user, expirationTime }));
+            
+            setAlertMessage(t("success_message"));
+            setMessageType('success');
+            navigate("/experiments");
+          } else {
+             // If login response is empty for some reason, redirect to login
+             navigate("/login");
+          }
+        } catch (loginError) {
+           // If auto-login fails, redirect to login page
+           setAlertMessage(t("success_message"));
+           setMessageType('success');
+           navigate("/login");
+        }
       }
     } catch (e) {
       setAlertMessage(t("register_fail_message"));
