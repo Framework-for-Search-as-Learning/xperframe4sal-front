@@ -6,18 +6,85 @@
     margin-bottom: 16px;
 }
 
+.titleContainer :global(.p-tabview-nav), 
+.titleContainer :global(.MuiTabs-root) {
+  margin-bottom: 0 !important; 
+  border-bottom: none !important;
+}
+
 .buttonContainer {
     display: flex;
-    gap: 5px;
+    gap: 12px;
+    align-items: center;
+}
+
+.headerRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.headerRow :global(.p-tabview .p-tabview-nav) {
+   
+    margin-bottom: 0 !important;
+}
+
+.experimentList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 8px 0;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 40px;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    border: 1px dashed #cfd8dc;
+    color: #546e7a;
+}
+
+.researcherContainer {
+    margin: 0 20px 0 20px
 }
 
 @media (max-width: 768px) {
-    .titleContainer {
-        flex-direction: column-reverse;
-        gap: 10px;
+    .headerRow {
+        flex-direction: column;
+        align-items: stretch; 
+        gap: 8px; 
+        border-bottom: none;
+        margin-bottom: 20px;
+    }
+
+    .headerRow :global(.p-tabview) {
+        width: 100%;
+    }
+    
+    .headerRow :global(.p-tabview-nav) {
+        flex-wrap: nowrap !important; 
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; 
+        padding-bottom: 4px; 
     }
 
     .buttonContainer {
+        width: 100%;
         flex-direction: column;
+        gap: 8px;
+    }
+
+    .buttonContainer > button {
+        width: 100%; 
+    }
+
+    .headerRow :global(.p-tabview-nav-link) {
+        font-size: 14px;
+        padding: 12px 10px;
+    }
+    
+    .researcherContainer {
+        margin: 0
     }
 }

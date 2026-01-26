@@ -7,12 +7,21 @@ import EditUser from "./EditUser";
 import { ExperimentAccordion } from "../../components/Researcher/ExperimentAccordion";
 import styles from '../../style/researcher.module.css'
 import { LoadingState } from "../../components/Researcher/LoadingState";
+import { TabView, TabPanel } from 'primereact/tabview';
+import { ExperimentOverview } from "../../components/Researcher/ExperimentOverview";
+
+const experimentStatus = Object.freeze({
+    NOT_STARTED: "NOT_STARTED",
+    IN_PROGRESS: "IN_PROGRESS",
+    FINISHED: "FINISHED"
+})
 
 const Researcher = () => {
     const navigate = useNavigate();
     const [experiments, setExperiments] = useState(null);
     const [experimentsOwner, setOwnerExperiments] = useState(null);
     const [expanded, setExpanded] = useState(null);
+    const [activeTab, setActiveTab] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [editingUser, setEditingUser] = useState(null);
@@ -38,12 +47,15 @@ const Researcher = () => {
                 }
             );
 
+            console.log("ownedExperiments: ", ownedExperiments);
+
             const { data: participatedExperiments } = await api.get(
                 `user-experiments2/user/${user.id}`,
                 {
                     headers: { Authorization: `Bearer ${user.accessToken}` },
                 }
             );
+
 
             /*
       const participatedExperiments = [];
@@ -63,8 +75,10 @@ const Researcher = () => {
             setOwnerExperiments(ownedExperiments);
 
             if (ownedExperiments.length > 0) {
+                setActiveTab(0);
                 setExpanded(`panel-owner-0`);
             } else if (participatedExperiments.length > 0) {
+                setActiveTab(1);
                 setExpanded(`panel-0`);
             }
         } catch (err) {
@@ -203,25 +217,30 @@ const Researcher = () => {
     }
 
     return (
-        <>
-            <div className={styles.titleContainer} >
-                <Typography variant="h6" gutterBottom>
-                    {t("researcher_experiments_title")}
-                </Typography>
+        <div className={styles.researcherContainer}>
+            <div className={styles.headerRow}>
+                <TabView 
+                    activeIndex={activeTab}
+                    onTabChange={(e) => setActiveTab(e.index)}
+                >
+                    <TabPanel header={t("researcher_experiments_title")} />
+                    <TabPanel header={t("available_experiments_title")} />
+                </TabView>
+
                 <div className={styles.buttonContainer}>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={handleImportExperiment}
+                    >
+                        {t("import")}
+                    </Button>
                     <Button
                         variant="contained"
                         color="primary"
                         onClick={handleCreateExperiment}
                     >
                         {t("create_experiment_button")}
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleImportExperiment}
-                    >
-                        {t("import")}
                     </Button>
                     <input
                         type="file"
@@ -233,55 +252,89 @@ const Researcher = () => {
                 </div>
             </div>
 
-            {isLoading && <LoadingState />}
-            {error && (
-                <Typography
-                    variant="body1"
-                    color="error"
-                    style={{ marginTop: "16px" }}
-                >
-                    {error}
-                </Typography>
-            )}
+            <div className={styles.experimentList}>
+                {isLoading && <LoadingState />}
+                {error && <Typography variant="body1" color="error">{error}</Typography>}
+                
+                {activeTab === 0 && (
+                    <>
+                        {/* Existing owner experiments list (all) */}
+                        {experimentsOwner?.length > 0 ? (
+                            experimentsOwner.map((experiment, index) => (
+                                <ExperimentAccordion
+                                    key={experiment._id}
+                                    experiment={experiment}
+                                    expanded={expanded === `panel-owner-${index}`}
+                                    onChange={handleChange(`panel-owner-${index}`)}
+                                    onAccess={handleExportExperiment}
+                                    onEdit={handleEditExperiment}
+                                    onDelete={handleDeleteExperiment}
+                                    onEdituser={handleEditUser}
+                                    isOwner={true}
+                                    t={t}
+                                />
+                            ))
+                        ) : (
+                            <div className={styles.emptyState}>
+                                <Typography variant="h6">{t("no_experiments")}</Typography>
+                                <Typography variant="body2">Crie seu primeiro experimento no botão acima.</Typography>
+                            </div>
+                        )}
 
-            {experimentsOwner?.length > 0
-                ? experimentsOwner.map((experiment, index) => (
-                    <ExperimentAccordion
-                        key={experiment._id}
-                        experiment={experiment}
-                        expanded={expanded === `panel-owner-${index}`}
-                        onChange={handleChange(`panel-owner-${index}`)}
-                        onAccess={handleExportExperiment}
-                        onEdit={handleEditExperiment}
-                        onDelete={handleDeleteExperiment}
-                        onEdituser={handleEditUser}
-                        isOwner={true}
-                        t={t}
-                    />
-                ))
-                : !isLoading && <Typography>{t("no_experiments")}</Typography>}
+                        <Typography variant="h6" gutterBottom>
+                            Experimentos Iniciados
+                        </Typography>
 
-            <Typography variant="h6" gutterBottom style={{ marginTop: "16px" }}>
-                {t("see_experiment_list_title")}
-            </Typography>
+                        {experimentsOwner && experimentsOwner.filter(exp => exp.status === experimentStatus.IN_PROGRESS).length > 0 ? (
+                            experimentsOwner
+                                .filter(exp => exp.status === experimentStatus.IN_PROGRESS)
+                                .map((experiment, index) => (
+                                    <ExperimentOverview
+                                        key={experiment._id}
+                                        experiment={experiment}
+                                        expanded={expanded === `panel-owner-inprogress-${index}`}
+                                        onChange={handleChange(`panel-owner-inprogress-${index}`)}
+                                        onAccess={handleExportExperiment}
+                                        onEdit={handleEditExperiment}
+                                        onDelete={handleDeleteExperiment}
+                                        onEdituser={handleEditUser}
+                                        isOwner={true}
+                                        t={t}
+                                    />
+                                ))
+                        ) : (
+                            <div className={styles.emptyState}>
+                                <Typography variant="body2">Nenhum experimento iniciado.</Typography>
+                            </div>
+                        )}
+                    </>
+                )}
+                
+           
 
-            {experiments?.length > 0
-                ? experiments.map((experiment, index) => (
-                    <ExperimentAccordion
-                        key={experiment._id}
-                        experiment={experiment}
-                        expanded={expanded === `panel-${index}`}
-                        onChange={handleChange(`panel-${index}`)}
-                        onAccess={handleAccessExperiment}
-                        onEdit={handleEditExperiment}
-                        onEdituser={handleEditUser}
-                        isOwner={false}
-                        t={t}
-                    />
-                ))
-                : !isLoading && <Typography>{t("no_experiments")}</Typography>}
-        </>
+                {activeTab === 1 && (
+                    experiments?.length > 0 ? (
+                        experiments.map((experiment, index) => (
+                            <ExperimentAccordion
+                                key={experiment._id}
+                                experiment={experiment}
+                                expanded={expanded === `panel-${index}`}
+                                onChange={handleChange(`panel-${index}`)}
+                                onAccess={handleAccessExperiment}
+                                onEdit={handleEditExperiment}
+                                onEdituser={handleEditUser}
+                                isOwner={false}
+                                t={t}
+                            />
+                        ))
+                    ) : (
+                            <div className={styles.emptyState}>
+                                <Typography variant="h6">{t("no_experiments")}</Typography>
+                            </div>
+                        )
+                )}
+            </div>
+        </div>
     );
 };
-
 export default Researcher;

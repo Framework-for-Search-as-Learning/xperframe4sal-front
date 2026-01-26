@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../config/axios";
+import styles from '../../style/researcher.module.css'
 import {
     Accordion,
     AccordionDetails,
@@ -87,7 +88,9 @@ const NotResearcher = () => {
             {!experiments && isLoading && <LoadingIndicator size={70} />}
 
             {experiments?.length === 0 && (
-                <Typography variant="body1">{t("no_experiments")}</Typography>
+                <div className={styles.emptyState}>
+                    <Typography variant="h6">{t("no_experiments")}</Typography>
+                </div>
             )}
 
             {experiments &&
