@@ -74,6 +74,9 @@ const CreateExperimentTask = () => {
     const [llm, setLlm] = useState('gemini');
     const [searchEngine, setSearchEngine] = useState('google')
     const [taskDescription, setTaskDescription] = useState("");
+    const [llmApiKey, setLlmApiKey] = useState('');
+    const [searchEngineApiKey, setSearchEngineApiKey] = useState('');
+    const [searchEngineCx, setSearchEngineCx] = useState('');
 
     const [editTaskIndex, setEditTaskIndex] = useState(null);
     const [taskTitleEdit, setTaskTitleEdit] = useState("");
@@ -88,6 +91,9 @@ const CreateExperimentTask = () => {
 
     const [isValidTitleTaskEdit, setIsValidTitleTaskEdit] = React.useState(true);
     const [isValidSumaryTaskEdit, setIsValidSumaryTaskEdit] = React.useState(true);
+    const [llmApiKeyEdit, setLlmApiKeyEdit] = useState('');
+    const [searchEngineApiKeyEdit, setSearchEngineApiKeyEdit] = useState('');
+    const [searchEngineCxEdit, setSearchEngineCxEdit] = useState('');
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [taskToDeleteIndex, setTaskToDeleteIndex] = useState(null);
 
@@ -193,6 +199,8 @@ const CreateExperimentTask = () => {
         setTaskDescriptionEdit('');
         setIsValidTitleTaskEdit(true);
         setIsValidSumaryTaskEdit(true);
+        setLlmApiKeyEdit('');
+        setSearchEngineApiKeyEdit('');
         toggleEditTask();
     };
     const handleCancelTask = () => {
@@ -201,6 +209,8 @@ const CreateExperimentTask = () => {
         setTaskDescription('');
         setIsValidTitleTask(true);
         setIsValidSumaryTask(true);
+        setLlmApiKey('');
+        setSearchEngineApiKey('');
         toggleCreateTask();
     };
 
@@ -230,7 +240,10 @@ const CreateExperimentTask = () => {
             ScoreThreshold: ScoreThreshold,
             ScoreThresholdmx: ScoreThresholdmx,
             search_source: origin,
-            search_model: (origin == 'llm' ? llm : searchEngine)
+            search_model: (origin == 'llm' ? llm : searchEngine),
+            geminiApiKey: origin === 'llm' ? llmApiKey : null,
+            googleApikey: origin === 'search-engine' ? searchEngineApiKey : null,
+            googleCx: origin === 'search-engine' ? searchEngineCx : null,
         };
 
         setExperimentTasks((prev) => [...prev, newTask]);
@@ -240,6 +253,9 @@ const CreateExperimentTask = () => {
         setTaskDescription("");
         setScoreThreshold("");
         setScoreThresholdmx("");
+        setLlmApiKey('');
+        setSearchEngineApiKey('');
+        setSearchEngineCx('');
     };
 
     const handleEditTaskSubmit = (e) => {
@@ -259,7 +275,10 @@ const CreateExperimentTask = () => {
             SelectedSurvey: SelectedSurveyEdit?.uuid || null,
             selectedQuestionIds: questionIds,
             search_source: origin,
-            search_model: (origin == 'llm' ? llm : searchEngine)
+            search_model: (origin == 'llm' ? llm : searchEngine),
+            geminiApiKey: origin === 'llm' ? llmApiKeyEdit : null,
+            googleApikey: origin === 'search-engine' ? searchEngineApiKeyEdit : null,
+            googleCx: origin === 'search-engine' ? searchEngineCxEdit : null,
         };
         setExperimentTasks((prev) => {
             const updatedTasks = [...prev];
@@ -267,6 +286,9 @@ const CreateExperimentTask = () => {
             return updatedTasks;
         });
         toggleEditTask();
+        setLlmApiKeyEdit('');
+        setSearchEngineApiKeyEdit('');
+        setSearchEngineCxEdit('');
     };
 
     const handleEditTask = (index) => {
@@ -285,9 +307,11 @@ const CreateExperimentTask = () => {
         ) || [];
 
         setSelectedQuestionIdsEdit(selectedQuestionIdsObj);
-        setScoreThresholdmxEdit(task.ScoreThresholdmx);
-        setScoreThresholdEdit(task.ScoreThreshold);
-        
+                setScoreThresholdmxEdit(task.ScoreThresholdmx);
+                setScoreThresholdEdit(task.ScoreThreshold);
+                setLlmApiKeyEdit(task.llm_api_key || '');
+                setSearchEngineApiKeyEdit(task.search_api_key || '');
+                setSearchEngineCxEdit(task.search_api_cx || '');
         setOrigin(task.search_source || '');
         if (task.search_source === 'llm') {
            setLlm(task.search_model || 'gemini');
@@ -598,6 +622,22 @@ const CreateExperimentTask = () => {
                                 </Grid>
                             )}
 
+
+                            {origin === 'llm' && (
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        margin="normal"
+                                        label={t('llm_api_key')}
+                                        value={llmApiKeyEdit}
+                                        onChange={(e) => setLlmApiKeyEdit(e.target.value)}
+                                    />
+                                </Grid>
+                            )}
+
+                            {/* Se escolher LLM mostrar campo para chave da API */}
+                            {/* No edit dialog use edit-specific fields only (llm) */}
+
                             {/* Se escolher motor de busca, mostrar select dos motores */}
                             {origin === 'search-engine' && (
                                 <Grid item xs={6}>
@@ -618,6 +658,30 @@ const CreateExperimentTask = () => {
                                         </Select>
                                     </FormControl>
                                 </Grid>
+                            )}
+
+                            {/* Se escolher motor de busca mostrar campos para chave da API (ex: Google) */}
+                            {origin === 'search-engine' && (
+                                <>
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            fullWidth
+                                            margin="normal"
+                                            label={t('search_engine_api_key')}
+                                            value={searchEngineApiKeyEdit}
+                                            onChange={(e) => setSearchEngineApiKeyEdit(e.target.value)}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            fullWidth
+                                            margin="normal"
+                                            label={t('search_engine_cx')}
+                                            value={searchEngineCxEdit}
+                                            onChange={(e) => setSearchEngineCxEdit(e.target.value)}
+                                        />
+                                    </Grid>
+                                </>
                             )}
                         </Grid>
 

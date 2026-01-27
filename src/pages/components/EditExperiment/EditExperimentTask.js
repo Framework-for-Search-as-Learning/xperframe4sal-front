@@ -94,6 +94,8 @@ const EditExperimentTask = () => {
     const [origin, setOrigin] = useState('');
     const [llm, setLlm] = useState('gemini');
     const [searchEngine, setSearchEngine] = useState('google');
+    const [llmApiKey, setLlmApiKey] = useState('');
+    const [searchEngineApiKey, setSearchEngineApiKey] = useState('');
 
     const LlmTypes = [
         { value: 'gemini', label: 'Gemini (Google)' },
@@ -128,6 +130,11 @@ const EditExperimentTask = () => {
             setscoreType("min_max");
 
             setOrigin(task.search_source || '');
+            setLlmApiKey(task.llm_api_key || '');
+                        setLlmApiKey(task.llm_api_key || '');
+                        setSearchEngineApiKey(task.search_api_key || '');
+                        setSearchEngineCx(task.search_api_cx || '');
+            setSearchEngineApiKey(task.search_api_key || '');
             if (task.search_source === 'llm') {
                 setLlm(task.search_model || 'gemini');
             } else if (task.search_source === 'search-engine') {
@@ -224,6 +231,11 @@ const EditExperimentTask = () => {
         setOrigin('');
         setLlm('gemini');
         setSearchEngine('google');
+        setLlmApiKey('');
+        setSearchEngineApiKey('');
+        setLlmApiKey('');
+        setSearchEngineApiKey('');
+        setSearchEngineCx('');
     };
 
     const handleSurveyChange = (event) => {
@@ -307,7 +319,10 @@ const EditExperimentTask = () => {
                 max_score: ScoreThresholdmx,
                 experiment_id: ExperimentId,
                 search_source: origin,
-                search_model: (origin === 'llm' ? llm : searchEngine)
+                search_model: (origin === 'llm' ? llm : searchEngine),
+                llm_api_key: origin === 'llm' ? llmApiKey : null,
+                search_api_key: origin === 'search-engine' ? searchEngineApiKey : null,
+                search_api_cx: origin === 'search-engine' ? searchEngineCx : null
             };
 
             await api.post(`/task2`, newTask, {
@@ -348,7 +363,10 @@ const EditExperimentTask = () => {
             max_score: ScoreThresholdmx,
             experiment_id: ExperimentId,
             search_source: origin,
-            search_model: (origin === 'llm' ? llm : searchEngine)
+            search_model: (origin === 'llm' ? llm : searchEngine),
+            llm_api_key: origin === 'llm' ? llmApiKey : null,
+            search_api_key: origin === 'search-engine' ? searchEngineApiKey : null,
+            search_api_cx: origin === 'search-engine' ? searchEngineCx : null
         };
 
         try {
@@ -662,6 +680,18 @@ const EditExperimentTask = () => {
                                 </Grid>
                             )}
 
+                            {origin === 'llm' && (
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        margin="normal"
+                                        label={t('llm_api_key')}
+                                        value={llmApiKey}
+                                        onChange={(e) => setLlmApiKey(e.target.value)}
+                                    />
+                                </Grid>
+                            )}
+
                             {/* Se escolher motor de busca, mostrar select dos motores */}
                             {origin === 'search-engine' && (
                                 <Grid item xs={6}>
@@ -682,6 +712,29 @@ const EditExperimentTask = () => {
                                         </Select>
                                     </FormControl>
                                 </Grid>
+                            )}
+
+                            {origin === 'search-engine' && (
+                                <>
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            fullWidth
+                                            margin="normal"
+                                            label={t('search_engine_api_key')}
+                                            value={searchEngineApiKey}
+                                            onChange={(e) => setSearchEngineApiKey(e.target.value)}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            fullWidth
+                                            margin="normal"
+                                            label={t('search_engine_cx')}
+                                            value={searchEngineCx}
+                                            onChange={(e) => setSearchEngineCx(e.target.value)}
+                                        />
+                                    </Grid>
+                                </>
                             )}
                         </Grid>
 
