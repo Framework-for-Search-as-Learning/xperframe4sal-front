@@ -10,6 +10,8 @@ import {
     Typography,
     Divider,
 } from "@mui/material";
+import BlockIcon from '@mui/icons-material/Block'; 
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import { LoadingIndicator } from "../../components/LoadIndicator";
@@ -26,6 +28,17 @@ const NotResearcher = () => {
 
     const [user] = useState(JSON.parse(localStorage.getItem("user")));
     const [userExperiments, setUserExperiments] = useState(null);
+    
+        const resolveStatus = (s, exp) => {
+                const raw = (s ?? exp?.status ?? '').toString().trim().toLowerCase();
+                const inactiveValues = ['finished', 'inactive', 'inativo', 'completed', 'done', 'false', '0'];
+                const isInactive = inactiveValues.includes(raw);
+                const label = isInactive ? (t ? t('inactive') : 'Inativo') : (t ? t('active') : 'Ativo');
+                const Icon = isInactive ? BlockIcon : PlayCircleOutlineIcon;
+                const color = isInactive ? '#757575' : '#2e7d32';
+                return { isInactive, label, Icon, color };
+        };
+
 
     useEffect(() => {
         const fetchExperimentData = async () => {
@@ -65,7 +78,20 @@ const NotResearcher = () => {
         fetchExperimentData();
     }, [user?.id, user?.accessToken]);
 
-    const handleClick = (experimentId) => {
+    const handleClick = async (experimentId) => {
+
+        const res = await api.get(
+            `experiments2/${experimentId}/status`, {
+                    headers: { Authorization: `Bearer ${user.accessToken}` },
+            }
+        );
+
+        const status = res.data
+
+        if(status !== "IN_PROGRESS") {
+            location.reload();
+            return;
+        }
         navigate(`/experiments/${experimentId}/surveys`);
     };
 
@@ -94,7 +120,9 @@ const NotResearcher = () => {
             )}
 
             {experiments &&
-                experiments.map((experiment, index) => (
+                experiments.map((experiment, index) => {
+                    const { isInactive, label: statusLabel, Icon: StatusIcon, color: statusColor } = resolveStatus(null, experiment);
+                    return (
                     <Accordion
                         sx={{ marginBottom: "5px" }}
                         key={experiment._id}
@@ -122,19 +150,29 @@ const NotResearcher = () => {
                                     __html: experiment.summary,
                                 }}
                             />
+                            <div className={styles.statusWrapper}>
+                                <div className={styles.statusContainer}>
+                                    <StatusIcon sx={{ fontSize: 18, color: statusColor }} />
+                                    <Typography variant="body2" sx={{ color: '#424242' }}>
+                                        Status: {statusLabel}
+                                    </Typography>
+                                </div>
+                            </div>
                             <div style={{ textAlign: "right" }}>
                                 <Button
                                     variant="contained"
                                     color="primary"
                                     style={{ margin: "16px" }}
                                     onClick={() => handleClick(experiment._id)}
+                                    disabled={isInactive}
                                 >
                                     {t("Access")}
                                 </Button>
                             </div>
                         </AccordionDetails>
                     </Accordion>
-                ))}
+                    );
+                })}
         </>
     );
 };

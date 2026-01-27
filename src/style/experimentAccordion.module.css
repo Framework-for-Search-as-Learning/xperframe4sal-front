@@ -1,0 +1,57 @@
+.footerContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.statusWrapper {
+    display: flex;
+    align-items: center;
+}
+
+.statusContainer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #757575;
+}
+
+.buttonContainer {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.actionButton {
+    text-transform: uppercase !important;
+    font-weight: 500 !important;
+}
+
+.deleteButton {
+    background-color: #d32f2f !important;
+    color: white !important;
+}
+
+/* Responsividade */
+.mobileText { display: none; }
+.desktopText { display: block; }
+
+@media (max-width: 900px) {
+    .footerContainer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .buttonContainer {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 600px) {
+    .desktopText { display: none; }
+    .mobileText { display: flex; align-items: center; }
+    .buttonContainer { justify-content: space-between; }
+}

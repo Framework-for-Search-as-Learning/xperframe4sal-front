@@ -8,7 +8,8 @@ import { ExperimentAccordion } from "../../components/Researcher/ExperimentAccor
 import styles from '../../style/researcher.module.css'
 import { LoadingState } from "../../components/Researcher/LoadingState";
 import { TabView, TabPanel } from 'primereact/tabview';
-import { ExperimentOverview } from "../../components/Researcher/ExperimentOverview";
+import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
+import BlockIcon from '@mui/icons-material/Block';
 
 const experimentStatus = Object.freeze({
     NOT_STARTED: "NOT_STARTED",
@@ -73,6 +74,8 @@ const Researcher = () => {
 
             setExperiments(participatedExperiments);
             setOwnerExperiments(ownedExperiments);
+
+            console.log("experimentsOwner", experimentsOwner)
 
             if (ownedExperiments.length > 0) {
                 setActiveTab(0);
@@ -204,6 +207,22 @@ const Researcher = () => {
         }
     };
 
+    const handleEditExperimentStatus = async (experimentId, currentStatus) => {
+        const newStatus = currentStatus === experimentStatus.FINISHED 
+            ? experimentStatus.IN_PROGRESS 
+            : experimentStatus.FINISHED;
+
+        try {
+            await api.patch(`experiments2/${experimentId}`, { status: newStatus }, {
+                headers: { Authorization: `Bearer ${user.accessToken}` },
+            });
+
+            fetchAllExperiments();
+        } catch (error) {
+            setError(t("error_updating_status") || "Erro ao atualizar status");
+        }
+    };
+
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : null);
     };
@@ -264,10 +283,12 @@ const Researcher = () => {
                                 <ExperimentAccordion
                                     key={experiment._id}
                                     experiment={experiment}
+                                    status={experiment.status}
                                     expanded={expanded === `panel-owner-${index}`}
                                     onChange={handleChange(`panel-owner-${index}`)}
                                     onAccess={handleExportExperiment}
                                     onEdit={handleEditExperiment}
+                                    onEditStatus={handleEditExperimentStatus}
                                     onDelete={handleDeleteExperiment}
                                     onEdituser={handleEditUser}
                                     isOwner={true}
@@ -280,37 +301,8 @@ const Researcher = () => {
                                 <Typography variant="body2">Crie seu primeiro experimento no botão acima.</Typography>
                             </div>
                         )}
-
-                        <Typography variant="h6" gutterBottom>
-                            Experimentos Iniciados
-                        </Typography>
-
-                        {experimentsOwner && experimentsOwner.filter(exp => exp.status === experimentStatus.IN_PROGRESS).length > 0 ? (
-                            experimentsOwner
-                                .filter(exp => exp.status === experimentStatus.IN_PROGRESS)
-                                .map((experiment, index) => (
-                                    <ExperimentOverview
-                                        key={experiment._id}
-                                        experiment={experiment}
-                                        expanded={expanded === `panel-owner-inprogress-${index}`}
-                                        onChange={handleChange(`panel-owner-inprogress-${index}`)}
-                                        onAccess={handleExportExperiment}
-                                        onEdit={handleEditExperiment}
-                                        onDelete={handleDeleteExperiment}
-                                        onEdituser={handleEditUser}
-                                        isOwner={true}
-                                        t={t}
-                                    />
-                                ))
-                        ) : (
-                            <div className={styles.emptyState}>
-                                <Typography variant="body2">Nenhum experimento iniciado.</Typography>
-                            </div>
-                        )}
                     </>
                 )}
-                
-           
 
                 {activeTab === 1 && (
                     experiments?.length > 0 ? (
@@ -318,6 +310,7 @@ const Researcher = () => {
                             <ExperimentAccordion
                                 key={experiment._id}
                                 experiment={experiment}
+                                status={experiment.status}
                                 expanded={expanded === `panel-${index}`}
                                 onChange={handleChange(`panel-${index}`)}
                                 onAccess={handleAccessExperiment}
