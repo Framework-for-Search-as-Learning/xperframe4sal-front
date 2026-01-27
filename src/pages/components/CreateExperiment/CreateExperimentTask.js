@@ -242,7 +242,7 @@ const CreateExperimentTask = () => {
             search_source: origin,
             search_model: (origin == 'llm' ? llm : searchEngine),
             geminiApiKey: origin === 'llm' ? llmApiKey : null,
-            googleApikey: origin === 'search-engine' ? searchEngineApiKey : null,
+            googleApiKey: origin === 'search-engine' ? searchEngineApiKey : null,
             googleCx: origin === 'search-engine' ? searchEngineCx : null,
         };
 
