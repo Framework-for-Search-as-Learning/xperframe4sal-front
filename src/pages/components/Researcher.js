@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../config/axios";
-import { 
-  Button, 
-  Typography, 
+import {
+  Button,
+  Typography,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Box,
   Divider,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import EditUser from "./EditUser";
@@ -18,10 +18,10 @@ import { ExperimentAccordion } from "../../components/Researcher/ExperimentAccor
 import styles from "../../style/researcher.module.css";
 import { LoadingState } from "../../components/Researcher/LoadingState";
 import { TabView, TabPanel } from "primereact/tabview";
-import PeopleIcon from '@mui/icons-material/People';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import AssessmentIcon from '@mui/icons-material/Assessment';
+import PeopleIcon from "@mui/icons-material/People";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 
 const experimentStatus = Object.freeze({
   NOT_STARTED: "NOT_STARTED",
@@ -32,15 +32,15 @@ const experimentStatus = Object.freeze({
 // Mock data function - será substituído pela API real
 const fetchExperimentStats = async (experimentId, accessToken) => {
   // Simula delay da API
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
   // Retorna dados mockados
   return {
-    totalParticipants: 25,
-    completedParticipants: 18,
+    totalParticipants: 2,
+    completedParticipants: 1,
     inProgressParticipants: 5,
-    notStartedParticipants: 2,
-    completionRate: 72,
+    notStartedParticipants: 1,
+    completionRate: 50,
     averageCompletionTime: "15 min",
     lastResponseDate: "2026-01-28",
   };
@@ -48,24 +48,32 @@ const fetchExperimentStats = async (experimentId, accessToken) => {
 
 // Mock function for exporting results
 const exportExperimentResults = async (experimentId, accessToken) => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
   // Simula download de arquivo CSV
-  const mockData = "participant_id,completion_date,responses\n1,2026-01-20,completed\n2,2026-01-21,completed";
+  const mockData =
+    "participant_id,completion_date,responses\n1,2026-01-20,completed\n2,2026-01-21,completed";
   const blob = new Blob([mockData], { type: "text/csv" });
   const url = window.URL.createObjectURL(blob);
-  
+
   const link = document.createElement("a");
   link.href = url;
   link.download = `experiment_results_${experimentId}.csv`;
   document.body.appendChild(link);
   link.click();
-  
+
   document.body.removeChild(link);
   window.URL.revokeObjectURL(url);
 };
 
-const ExperimentStatsModal = ({ open, onClose, experimentId, experimentName, accessToken, t }) => {
+const ExperimentStatsModal = ({
+  open,
+  onClose,
+  experimentId,
+  experimentName,
+  accessToken,
+  t,
+}) => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -113,31 +121,28 @@ const ExperimentStatsModal = ({ open, onClose, experimentId, experimentName, acc
   };
 
   const handleEditExperiment = (experimentId) => {
-  const experiment = experimentsOwner?.find(exp => exp._id === experimentId);
-  
-  if (experiment && experiment.status === experimentStatus.IN_PROGRESS) {
-    setError(
-      t("cannot_edit_active_experiment") || 
-      "Não é possível editar um experimento ativo. Desative-o primeiro."
+    const experiment = experimentsOwner?.find(
+      (exp) => exp._id === experimentId,
     );
-    return;
-  }
-  
-  navigate(`/EditExperiment/${experimentId}`);
-};
+
+    if (experiment && experiment.status === experimentStatus.IN_PROGRESS) {
+      setError(
+        t("cannot_edit_active_experiment") ||
+          "Não é possível editar um experimento ativo. Desative-o primeiro.",
+      );
+      return;
+    }
+
+    navigate(`/EditExperiment/${experimentId}`);
+  };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-    >
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <AssessmentIcon color="primary" />
           <Typography variant="h6">
-            {t("experiment_statistics") || "Estatísticas do Experimento"}
+            {t("Estatísticas do Experimento") || "Estatísticas do Experimento"}
           </Typography>
         </Box>
         <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
@@ -149,7 +154,7 @@ const ExperimentStatsModal = ({ open, onClose, experimentId, experimentName, acc
 
       <DialogContent>
         {loading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
             <CircularProgress />
           </Box>
         )}
@@ -163,14 +168,14 @@ const ExperimentStatsModal = ({ open, onClose, experimentId, experimentName, acc
         {!loading && !error && stats && (
           <Box sx={{ py: 2 }}>
             {/* Total Participants */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-              <PeopleIcon sx={{ fontSize: 40, color: '#1976d2', mr: 2 }} />
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+              <PeopleIcon sx={{ fontSize: 40, color: "#1976d2", mr: 2 }} />
               <Box>
                 <Typography variant="h4" color="primary">
                   {stats.totalParticipants}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  {t("total_participants") || "Total de Participantes"}
+                  {t("Total de Participantes") || "Total de Participantes"}
                 </Typography>
               </Box>
             </Box>
@@ -178,14 +183,14 @@ const ExperimentStatsModal = ({ open, onClose, experimentId, experimentName, acc
             <Divider sx={{ my: 2 }} />
 
             {/* Completed Participants */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <CheckCircleIcon sx={{ fontSize: 32, color: '#2e7d32', mr: 2 }} />
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <CheckCircleIcon sx={{ fontSize: 32, color: "#2e7d32", mr: 2 }} />
               <Box sx={{ flex: 1 }}>
                 <Typography variant="h6" color="success.main">
                   {stats.completedParticipants}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  {t("completed_participants") || "Finalizaram"}
+                  {t("Finalizaram") || "Finalizaram"}
                 </Typography>
               </Box>
               <Typography variant="body2" color="textSecondary">
@@ -194,57 +199,34 @@ const ExperimentStatsModal = ({ open, onClose, experimentId, experimentName, acc
             </Box>
 
             {/* In Progress */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <HourglassEmptyIcon sx={{ fontSize: 32, color: '#ed6c02', mr: 2 }} />
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <HourglassEmptyIcon
+                sx={{ fontSize: 32, color: "#ed6c02", mr: 2 }}
+              />
               <Box sx={{ flex: 1 }}>
                 <Typography variant="h6" color="warning.main">
                   {stats.inProgressParticipants}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  {t("in_progress_participants") || "Em andamento"}
+                  {t("Em andamento") || "Em andamento"}
                 </Typography>
               </Box>
             </Box>
 
             {/* Not Started */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <PeopleIcon sx={{ fontSize: 32, color: '#757575', mr: 2 }} />
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <PeopleIcon sx={{ fontSize: 32, color: "#757575", mr: 2 }} />
               <Box sx={{ flex: 1 }}>
                 <Typography variant="h6" color="textSecondary">
                   {stats.notStartedParticipants}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  {t("not_started_participants") || "Não iniciaram"}
+                  {t("Não iniciaram") || "Não iniciaram"}
                 </Typography>
               </Box>
             </Box>
 
             <Divider sx={{ my: 2 }} />
-
-            {/* Additional Info */}
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body2" color="textSecondary">
-                <strong>{t("average_completion_time") || "Tempo médio"}:</strong> {stats.averageCompletionTime}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                <strong>{t("last_response") || "Última resposta"}:</strong> {stats.lastResponseDate}
-              </Typography>
-            </Box>
-
-            {/* Mock Notice */}
-            <Box 
-              sx={{ 
-                mt: 3, 
-                p: 2, 
-                bgcolor: '#fff3e0', 
-                borderRadius: 1,
-                border: '1px solid #ffb74d'
-              }}
-            >
-              <Typography variant="caption" color="textSecondary">
-                ℹ️ {t("mock_data_notice") || "Dados de exemplo - API em desenvolvimento"}
-              </Typography>
-            </Box>
           </Box>
         )}
       </DialogContent>
@@ -252,10 +234,7 @@ const ExperimentStatsModal = ({ open, onClose, experimentId, experimentName, acc
       <Divider />
 
       <DialogActions sx={{ p: 2, gap: 1 }}>
-        <Button 
-          onClick={onClose}
-          variant="outlined"
-        >
+        <Button onClick={onClose} variant="outlined">
           {t("close") || "Fechar"}
         </Button>
         <Button
@@ -265,10 +244,9 @@ const ExperimentStatsModal = ({ open, onClose, experimentId, experimentName, acc
           disabled={exporting || loading || !stats}
           startIcon={exporting ? <CircularProgress size={16} /> : null}
         >
-          {exporting 
-            ? (t("exporting") || "Exportando...") 
-            : (t("export_results") || "Exportar Resultados")
-          }
+          {exporting
+            ? t("exporting") || "Exportando..."
+            : t("Exportar Resultados") || "Exportar Resultados"}
         </Button>
       </DialogActions>
     </Dialog>
@@ -284,7 +262,11 @@ const Researcher = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
-  const [statsModal, setStatsModal] = useState({ open: false, experimentId: null, experimentName: null });
+  const [statsModal, setStatsModal] = useState({
+    open: false,
+    experimentId: null,
+    experimentName: null,
+  });
   const user = JSON.parse(localStorage.getItem("user"));
   const { t } = useTranslation();
   const fileInputRef = useRef(null);
