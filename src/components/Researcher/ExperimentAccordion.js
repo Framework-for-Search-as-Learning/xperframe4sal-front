@@ -15,8 +15,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import PersonIcon from '@mui/icons-material/Person';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import BlockIcon from '@mui/icons-material/Block';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import ToggleOffIcon from '@mui/icons-material/ToggleOff';
+import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import styles from '../../style/experimentAccordion.module.css';
 
@@ -30,12 +30,12 @@ const EXPERIMENT_STATUS = Object.freeze({
 const STATUS_CONFIG = {
   active: {
     color: '#2e7d32',
-    Icon: PlayCircleOutlineIcon,
+    Icon: ToggleOnIcon,
     labelKey: 'Iniciado'
   },
   inactive: {
     color: '#757575',
-    Icon: BlockIcon,
+    Icon: ToggleOffIcon,
     labelKey: 'Não iniciado'
   }
 };
@@ -90,9 +90,9 @@ const StatusDisplay = ({ isOwner, isInactive, statusColor, StatusIcon, statusLab
             '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
           }}
         >
-          <StatusIcon sx={{ fontSize: 20, marginRight: '8px' }} />
+          <StatusIcon sx={{ fontSize: 25, marginRight: '8px' }} />
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
-            STATUS: {statusLabel}
+            Status: {statusLabel}
           </Typography>
         </Button>
       </Tooltip>
@@ -101,7 +101,7 @@ const StatusDisplay = ({ isOwner, isInactive, statusColor, StatusIcon, statusLab
 
   return (
     <Box className={styles.statusContainer}>
-      <StatusIcon sx={{ fontSize: 18, color: statusColor }} />
+      <StatusIcon sx={{ fontSize: 25, color: statusColor }} />
       <Typography variant="body2" sx={{ color: '#424242' }}>
         Status: {statusLabel}
       </Typography>

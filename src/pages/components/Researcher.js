@@ -38,7 +38,7 @@ const fetchExperimentStats = async (experimentId, accessToken) => {
   return {
     totalParticipants: 2,
     completedParticipants: 1,
-    inProgressParticipants: 5,
+    inProgressParticipants: 0,
     notStartedParticipants: 1,
     completionRate: 50,
     averageCompletionTime: "15 min",

@@ -11,8 +11,8 @@ import {
     Divider,
     Box,
 } from "@mui/material";
-import BlockIcon from '@mui/icons-material/Block';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import ToggleOffIcon from '@mui/icons-material/ToggleOff';
+import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { LoadingIndicator } from "../../components/LoadIndicator";
 import { useTranslation } from "react-i18next";
@@ -27,12 +27,12 @@ const EXPERIMENT_STATUS = Object.freeze({
 const STATUS_CONFIG = {
     active: {
         color: '#2e7d32',
-        Icon: PlayCircleOutlineIcon,
+        Icon: ToggleOnIcon,
         labelKey: 'Ativo'
     },
     inactive: {
         color: '#757575',
-        Icon: BlockIcon,
+        Icon: ToggleOffIcon,
         labelKey: 'Inativo'
     }
 };
@@ -65,9 +65,9 @@ const getStatusConfig = (status, t) => {
 const StatusDisplay = ({ statusColor, StatusIcon, statusLabel }) => (
     <Box className={styles.statusWrapper}>
         <Box className={styles.statusContainer} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <StatusIcon sx={{ fontSize: 18, color: statusColor }} />
+            <StatusIcon sx={{ fontSize: 25, color: statusColor }} />
             <Typography variant="body2" sx={{ color: '#424242' }}>
-                STATUS: {statusLabel}
+                Status: {statusLabel}
             </Typography>
         </Box>
     </Box>
