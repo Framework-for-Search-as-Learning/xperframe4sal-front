@@ -364,7 +364,7 @@ const Task = () => {
                 />
             )}
             {task.search_source == 'llm' && (
-                <Chatbot />
+                <Chatbot taskId={taskId} user={user} />
             )}
 
             {isShowingResultModal && (
