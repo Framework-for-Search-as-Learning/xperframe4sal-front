@@ -1,42 +1,220 @@
 import React from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Button, Divider, Typography, Tooltip } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Button,
+  Divider,
+  Typography,
+  Tooltip,
+  Box
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import EditIcon from '@mui/icons-material/Edit';
 import PersonIcon from '@mui/icons-material/Person';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import BlockIcon from '@mui/icons-material/Block'; 
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline'; 
+import BlockIcon from '@mui/icons-material/Block';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import styles from '../../style/experimentAccordion.module.css';
 
-const ExperimentAccordion = ({ 
-  experiment, 
-  status, 
-  expanded, 
-  onChange, 
-  onAccess,  
-  onEdit, 
-  onEditStatus, 
-  onDelete, 
-  onEdituser, 
-  isOwner, 
-  t 
-}) => {
+// Constants
+const EXPERIMENT_STATUS = Object.freeze({
+  NOT_STARTED: 'NOT_STARTED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  FINISHED: 'FINISHED'
+});
+
+const STATUS_CONFIG = {
+  active: {
+    color: '#2e7d32',
+    Icon: PlayCircleOutlineIcon,
+    labelKey: 'Ativo'
+  },
+  inactive: {
+    color: '#757575',
+    Icon: BlockIcon,
+    labelKey: 'Inativo'
+  }
+};
+
+// Helper functions
+const normalizeStatus = (status) => {
+  return (status ?? '').toString().trim().toUpperCase();
+};
+
+const isStatusInactive = (status) => {
+  const normalized = normalizeStatus(status);
+  return normalized === EXPERIMENT_STATUS.FINISHED;
+};
+
+const isStatusActive = (status) => {
+  const normalized = normalizeStatus(status);
+  return normalized === EXPERIMENT_STATUS.IN_PROGRESS;
+};
+
+const getStatusConfig = (status, t) => {
+  const inactive = isStatusInactive(status);
+  const config = inactive ? STATUS_CONFIG.inactive : STATUS_CONFIG.active;
   
-  const translate = (key, fallback) => t ? t(key) : fallback;
-
-  const resolveStatus = (s) => {
-    const raw = (s ?? experiment?.status ?? '').toString().trim().toLowerCase();
-    const inactiveValues = ['finished', 'finished', 'inactive', 'inativo', 'completed', 'done', 'false', '0'];
-    const isInactive = inactiveValues.includes(raw);
-    const label = isInactive ? (t ? t('inactive') : 'Inativo') : (t ? t('active') : 'Ativo');
-    const Icon = isInactive ? BlockIcon : PlayCircleOutlineIcon;
-    const color = isInactive ? '#757575' : '#2e7d32';
-    return { isInactive, label, Icon, color };
+  return {
+    isInactive: inactive,
+    label: t?.(config.labelKey) ?? (inactive ? 'Inativo' : 'Ativo'),
+    Icon: config.Icon,
+    color: config.color
   };
+};
 
-  const { isInactive, label: statusLabel, Icon: StatusIcon, color: statusColor } = resolveStatus(status);
+// Sub-components
+const StatusDisplay = ({ isOwner, isInactive, statusColor, StatusIcon, statusLabel, onEditStatus, experimentId, status }) => {
+  if (isOwner) {
+    return (
+      <Tooltip title={isInactive ? 'Clique para Ativar' : 'Clique para Desativar'}>
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEditStatus(experimentId, status);
+          }}
+          sx={{
+            textTransform: 'none',
+            color: statusColor,
+            padding: '4px 8px',
+            minWidth: 'auto',
+            '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+          }}
+        >
+          <StatusIcon sx={{ fontSize: 20, marginRight: '8px' }} />
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            STATUS: {statusLabel}
+          </Typography>
+        </Button>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Box className={styles.statusContainer}>
+      <StatusIcon sx={{ fontSize: 18, color: statusColor }} />
+      <Typography variant="body2" sx={{ color: '#424242' }}>
+        Status: {statusLabel}
+      </Typography>
+    </Box>
+  );
+};
+
+const ActionButton = ({ onClick, variant = 'outlined', color, desktopText, Icon, className, disabled, tooltip }) => {
+  const button = (
+    <Button
+      variant={variant}
+      size="small"
+      color={color}
+      className={className}
+      onClick={onClick}
+      disabled={disabled}
+      sx={variant === 'contained' ? { boxShadow: 'none' } : undefined}
+    >
+      <span className={styles.desktopText}>{desktopText}</span>
+      <span className={styles.mobileText}>
+        <Icon fontSize="small" />
+      </span>
+    </Button>
+  );
+
+  if (tooltip && disabled) {
+    return (
+      <Tooltip title={tooltip}>
+        <span>{button}</span>
+      </Tooltip>
+    );
+  }
+
+  return button;
+};
+
+const OwnerActions = ({ experiment, status, onEdit, onEdituser, onAccess, onDelete, onViewStats, t }) => {
+  const isActive = isStatusActive(status);
+  // const editTooltip = isActive 
+  //   ? (t?.('cannot_edit_active_experiment') ?? 'Não é possível editar um experimento ativo. Desative-o primeiro.')
+  //   : '';
+   const editTooltip = isActive 
+    ? ('Não é possível editar um experimento ativo. Desative-o primeiro.')
+    : '';
+
+  return (
+    <>
+      <ActionButton
+        onClick={() => onEdit(experiment._id)}
+        desktopText={t?.('edit') ?? 'EDITAR'}
+        Icon={EditIcon}
+        className={styles.actionButton}
+        disabled={isActive}
+        tooltip={editTooltip}
+      />
+      <ActionButton
+        onClick={() => onEdituser(experiment._id)}
+        desktopText={t?.('edit_user') ?? 'USUÁRIOS'}
+        Icon={PersonIcon}
+        className={styles.actionButton}
+      />
+      <ActionButton
+        onClick={() => onAccess(experiment._id)}
+        desktopText={t?.('export') ?? 'EXPORTAR'}
+        Icon={FileDownloadIcon}
+        className={styles.actionButton}
+      />
+      {onViewStats && (
+        <ActionButton
+          onClick={() => onViewStats(experiment._id, experiment.name)}
+          desktopText={'VER DADOS'}
+          Icon={AssessmentIcon}
+          className={styles.actionButton}
+        />
+      )}
+      <ActionButton
+        onClick={() => onDelete(experiment._id)}
+        variant="contained"
+        color="error"
+        desktopText={t?.('delete') ?? 'EXCLUIR'}
+        Icon={DeleteIcon}
+        className={`${styles.actionButton} ${styles.deleteButton}`}
+      />
+    </>
+  );
+};
+
+const ParticipantActions = ({ experiment, onAccess, isInactive, t }) => (
+  <Button
+    variant="contained"
+    color="primary"
+    onClick={() => onAccess(experiment._id)}
+    disabled={isInactive}
+  >
+    <span className={styles.desktopText}>{t?.('Access') ?? 'ACESSAR'}</span>
+    <span className={styles.mobileText}>
+      <MeetingRoomIcon />
+    </span>
+  </Button>
+);
+
+// Main component
+const ExperimentAccordion = ({
+  experiment,
+  status,
+  expanded,
+  onChange,
+  onAccess,
+  onEdit,
+  onEditStatus,
+  onDelete,
+  onEdituser,
+  onViewStats,
+  isOwner,
+  t
+}) => {
+  const currentStatus = status ?? experiment?.status;
+  const { isInactive, label: statusLabel, Icon: StatusIcon, color: statusColor } = getStatusConfig(currentStatus, t);
 
   return (
     <Accordion
@@ -55,9 +233,9 @@ const ExperimentAccordion = ({
           {experiment.name}
         </Typography>
       </AccordionSummary>
-      
+
       <Divider />
-      
+
       <AccordionDetails sx={{ padding: '16px' }}>
         <Typography
           variant="body2"
@@ -66,99 +244,42 @@ const ExperimentAccordion = ({
           dangerouslySetInnerHTML={{ __html: experiment.summary }}
         />
 
-        <div className={styles.footerContainer}>
-          
-          <div className={styles.statusWrapper}>
-             {isOwner ? (
-                <Tooltip title={isInactive ? "Clique para Ativar" : "Clique para Desativar"}>
-                  <Button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEditStatus(experiment._id, status);
-                    }}
-                    sx={{ 
-                      textTransform: 'none', 
-                      color: statusColor,
-                      padding: '4px 8px',
-                      minWidth: 'auto',
-                      '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
-                    }}
-                  >
-                    <StatusIcon sx={{ fontSize: 20, marginRight: '8px' }} />
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                       Status: {statusLabel}
-                    </Typography>
-                  </Button>
-                </Tooltip>
-             ) : (
+        <Box className={styles.footerContainer}>
+          <Box className={styles.statusWrapper}>
+            <StatusDisplay
+              isOwner={isOwner}
+              isInactive={isInactive}
+              statusColor={statusColor}
+              StatusIcon={StatusIcon}
+              statusLabel={statusLabel}
+              onEditStatus={onEditStatus}
+              experimentId={experiment._id}
+              status={currentStatus}
+            />
+          </Box>
 
-                <div className={styles.statusContainer}>
-                   <StatusIcon sx={{ fontSize: 18, color: statusColor }} />
-                   <Typography variant="body2" sx={{ color: '#424242' }}>
-                      Status: {statusLabel}
-                   </Typography>
-                </div>
-             )}
-          </div>
-
-          <div className={styles.buttonContainer}>
+          <Box className={styles.buttonContainer}>
             {isOwner ? (
-              <>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  className={styles.actionButton}
-                  onClick={() => onEdit(experiment._id)}
-                >
-                  <span className={styles.desktopText}>{translate('edit', 'EDITAR')}</span>
-                  <span className={styles.mobileText}><EditIcon fontSize="small"/></span>
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  size="small"
-                  className={styles.actionButton}
-                  onClick={() => onEdituser(experiment._id)}
-                >
-                  <span className={styles.desktopText}>{translate('edit_user', 'USUÁRIOS')}</span>
-                  <span className={styles.mobileText}><PersonIcon fontSize="small"/></span>
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  size="small"
-                  className={styles.actionButton}
-                  onClick={() => onAccess(experiment._id)}
-                >
-                  <span className={styles.desktopText}>{translate('export', 'EXPORTAR')}</span>
-                  <span className={styles.mobileText}><FileDownloadIcon fontSize="small"/></span>
-                </Button>
-
-                <Button
-                  variant="contained"
-                  size="small"
-                  color="error"
-                  className={`${styles.actionButton} ${styles.deleteButton}`}
-                  onClick={() => onDelete(experiment._id)}
-                  sx={{ boxShadow: 'none' }}
-                >
-                  <span className={styles.desktopText}>{translate('delete', 'EXCLUIR')}</span>
-                  <span className={styles.mobileText}><DeleteIcon fontSize="small"/></span>
-                </Button>
-              </>
+              <OwnerActions
+                experiment={experiment}
+                status={currentStatus}
+                onEdit={onEdit}
+                onEdituser={onEdituser}
+                onAccess={onAccess}
+                onDelete={onDelete}
+                onViewStats={onViewStats}
+                t={t}
+              />
             ) : (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => onAccess(experiment._id)}
-                disabled={isInactive}
-              >
-                <span className={styles.desktopText}>{translate('Access', 'ACESSAR')}</span>
-                <span className={styles.mobileText}><MeetingRoomIcon /></span>
-              </Button>
+              <ParticipantActions
+                experiment={experiment}
+                onAccess={onAccess}
+                isInactive={isInactive}
+                t={t}
+              />
             )}
-          </div>
-        </div>
+          </Box>
+        </Box>
       </AccordionDetails>
     </Accordion>
   );

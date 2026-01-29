@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../config/axios";
-import styles from '../../style/researcher.module.css'
+import styles from '../../style/researcher.module.css';
 import {
     Accordion,
     AccordionDetails,
@@ -9,93 +9,239 @@ import {
     Button,
     Typography,
     Divider,
+    Box,
 } from "@mui/material";
-import BlockIcon from '@mui/icons-material/Block'; 
+import BlockIcon from '@mui/icons-material/Block';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
 import { LoadingIndicator } from "../../components/LoadIndicator";
-
 import { useTranslation } from "react-i18next";
+
+// Constants
+const EXPERIMENT_STATUS = Object.freeze({
+    NOT_STARTED: 'NOT_STARTED',
+    IN_PROGRESS: 'IN_PROGRESS',
+    FINISHED: 'FINISHED'
+});
+
+const STATUS_CONFIG = {
+    active: {
+        color: '#2e7d32',
+        Icon: PlayCircleOutlineIcon,
+        labelKey: 'Ativo'
+    },
+    inactive: {
+        color: '#757575',
+        Icon: BlockIcon,
+        labelKey: 'Inativo'
+    }
+};
+
+const STATUS_REFRESH_INTERVAL = 30000; // 30 seconds
+
+// Helper functions
+const normalizeStatus = (status) => {
+    return (status ?? '').toString().trim().toUpperCase();
+};
+
+const isStatusInactive = (status) => {
+    const normalized = normalizeStatus(status);
+    return normalized === EXPERIMENT_STATUS.FINISHED;
+};
+
+const getStatusConfig = (status, t) => {
+    const inactive = isStatusInactive(status);
+    const config = inactive ? STATUS_CONFIG.inactive : STATUS_CONFIG.active;
+
+    return {
+        isInactive: inactive,
+        label: t?.(config.labelKey) ?? (inactive ? 'Inativo' : 'Ativo'),
+        Icon: config.Icon,
+        color: config.color
+    };
+};
+
+// Sub-component for Status Display
+const StatusDisplay = ({ statusColor, StatusIcon, statusLabel }) => (
+    <Box className={styles.statusWrapper}>
+        <Box className={styles.statusContainer} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <StatusIcon sx={{ fontSize: 18, color: statusColor }} />
+            <Typography variant="body2" sx={{ color: '#424242' }}>
+                STATUS: {statusLabel}
+            </Typography>
+        </Box>
+    </Box>
+);
+
+// Sub-component for Experiment Accordion
+const ExperimentItem = ({ experiment, index, expanded, onExpand, onAccess, t }) => {
+    const { isInactive, label: statusLabel, Icon: StatusIcon, color: statusColor } = 
+        getStatusConfig(experiment.status, t);
+
+    return (
+        <Accordion
+            sx={{ marginBottom: "5px" }}
+            elevation={3}
+            expanded={expanded === `panel-${index}`}
+            onChange={onExpand(`panel-${index}`)}
+        >
+            <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls={`panel-${index}bh-content`}
+                id={`panel-${index}bh-header`}
+                sx={{
+                    "&:hover": {
+                        backgroundColor: "lightgray",
+                    },
+                }}
+                title={t("accordion_summary_hover")}
+            >
+                <Typography>{experiment.name}</Typography>
+            </AccordionSummary>
+            <Divider />
+            <AccordionDetails>
+                <Typography
+                    dangerouslySetInnerHTML={{
+                        __html: experiment.summary,
+                    }}
+                />
+                <StatusDisplay
+                    statusColor={statusColor}
+                    StatusIcon={StatusIcon}
+                    statusLabel={statusLabel}
+                />
+                <Box sx={{ textAlign: "right" }}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        style={{ margin: "16px" }}
+                        onClick={() => onAccess(experiment._id)}
+                        disabled={isInactive}
+                    >
+                        {t("Access")}
+                    </Button>
+                </Box>
+            </AccordionDetails>
+        </Accordion>
+    );
+};
 
 const NotResearcher = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
+    
     const [experiments, setExperiments] = useState(null);
     const [expanded, setExpanded] = useState(`panel-0`);
     const [isLoading, setIsLoading] = useState(false);
-
-    const { t } = useTranslation();
-
     const [user] = useState(JSON.parse(localStorage.getItem("user")));
-    const [userExperiments, setUserExperiments] = useState(null);
-    
-        const resolveStatus = (s, exp) => {
-                const raw = (s ?? exp?.status ?? '').toString().trim().toLowerCase();
-                const inactiveValues = ['finished', 'inactive', 'inativo', 'completed', 'done', 'false', '0'];
-                const isInactive = inactiveValues.includes(raw);
-                const label = isInactive ? (t ? t('inactive') : 'Inativo') : (t ? t('active') : 'Ativo');
-                const Icon = isInactive ? BlockIcon : PlayCircleOutlineIcon;
-                const color = isInactive ? '#757575' : '#2e7d32';
-                return { isInactive, label, Icon, color };
-        };
 
+    // Fetch experiments and their current status
+    const fetchExperiments = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const { data: userExperimentsData } = await api.get(
+                `user-experiments2?userId=${user.id}`,
+                { headers: { Authorization: `Bearer ${user.accessToken}` } }
+            );
 
-    useEffect(() => {
-        const fetchExperimentData = async () => {
-            setIsLoading(true);
-            try {
-                let response = await api.get(
-                    `user-experiments2?userId=${user.id}`,
-                    { headers: { Authorization: `Bearer ${user.accessToken}` } }
+            if (!userExperimentsData?.length) {
+                setExperiments([]);
+                return;
+            }
+
+            // Fetch only unfinished experiments
+            const experimentPromises = userExperimentsData
+                .filter(ue => !ue.hasFinished)
+                .map(ue => 
+                    api.get(`experiments2/${ue.experiment_id}`, {
+                        headers: { Authorization: `Bearer ${user.accessToken}` }
+                    }).catch(err => {
+                        console.error(`Error fetching experiment ${ue.experiment_id}:`, err);
+                        return null;
+                    })
                 );
-                const userExperimentsData = response.data;
-                let experimentList = [];
-                if (userExperimentsData?.length > 0) {
-                    setUserExperiments(userExperimentsData);
-                    for (let i = 0; i < userExperimentsData.length; i++) {
-                        if (!userExperimentsData[i].hasFinished) {
-                            response = await api.get(
-                                `experiments2/${userExperimentsData[i].experiment_id}`,
-                                {
-                                    headers: {
-                                        Authorization: `Bearer ${user.accessToken}`,
-                                    },
-                                }
-                            );
-                            experimentList.push(response.data);
-                        }
-                    }
-                }
-                setExperiments(experimentList);
-            } catch (error) {
-                /**
-                 * TODO:
-                 */
-            }
+
+            const experimentResponses = await Promise.all(experimentPromises);
+            const experimentList = experimentResponses
+                .filter(res => res !== null)
+                .map(res => res.data);
+
+            setExperiments(experimentList);
+        } catch (error) {
+            console.error("Error fetching experiments:", error);
+            setExperiments([]);
+        } finally {
             setIsLoading(false);
-        };
-
-        fetchExperimentData();
-    }, [user?.id, user?.accessToken]);
-
-    const handleClick = async (experimentId) => {
-
-        const res = await api.get(
-            `experiments2/${experimentId}/status`, {
-                    headers: { Authorization: `Bearer ${user.accessToken}` },
-            }
-        );
-
-        const status = res.data
-
-        if(status !== "IN_PROGRESS") {
-            location.reload();
-            return;
         }
-        navigate(`/experiments/${experimentId}/surveys`);
+    }, [user.id, user.accessToken]);
+
+    // Refresh experiment statuses without showing loading
+    const refreshExperimentStatuses = useCallback(async () => {
+        if (!experiments?.length) return;
+
+        try {
+            const updatedExperiments = await Promise.all(
+                experiments.map(async (exp) => {
+                    try {
+                        const { data } = await api.get(
+                            `experiments2/${exp._id}`,
+                            { headers: { Authorization: `Bearer ${user.accessToken}` } }
+                        );
+                        return data;
+                    } catch (error) {
+                        console.error(`Error refreshing experiment ${exp._id}:`, error);
+                        // Return the existing experiment data if refresh fails
+                        return exp;
+                    }
+                })
+            );
+
+            setExperiments(updatedExperiments);
+        } catch (error) {
+            console.error("Error refreshing statuses:", error);
+        }
+    }, [experiments, user.accessToken]);
+
+    // Initial fetch
+    useEffect(() => {
+        fetchExperiments();
+    }, [fetchExperiments]);
+
+    // Auto-refresh statuses
+    useEffect(() => {
+        if (!experiments?.length) return;
+
+        const intervalId = setInterval(refreshExperimentStatuses, STATUS_REFRESH_INTERVAL);
+
+        return () => clearInterval(intervalId);
+    }, [experiments, refreshExperimentStatuses]);
+
+    const handleAccessExperiment = async (experimentId) => {
+        try {
+            const { data: experimentData } = await api.get(
+                `experiments2/${experimentId}`,
+                { headers: { Authorization: `Bearer ${user.accessToken}` } }
+            );
+
+            if (experimentData.status !== EXPERIMENT_STATUS.IN_PROGRESS) {
+                // Update local state with the new status
+                setExperiments(prev => 
+                    prev.map(exp => 
+                        exp._id === experimentId 
+                            ? { ...exp, status: experimentData.status }
+                            : exp
+                    )
+                );
+                return;
+            }
+
+            navigate(`/experiments/${experimentId}/surveys`);
+        } catch (error) {
+            console.error("Error accessing experiment:", error);
+        }
     };
 
-    const handleChange = (panel) => (event, isExpanded) => {
+    const handleAccordionChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
     };
 
@@ -105,74 +251,31 @@ const NotResearcher = () => {
                 {t("see_experiment_list_title")}
             </Typography>
 
-            {!experiments && (
+            {!experiments && isLoading && <LoadingIndicator size={70} />}
+
+            {!experiments && !isLoading && (
                 <Typography variant="body1">
                     {t("loading_experiments")}
                 </Typography>
             )}
 
-            {!experiments && isLoading && <LoadingIndicator size={70} />}
-
             {experiments?.length === 0 && (
-                <div className={styles.emptyState}>
+                <Box className={styles.emptyState}>
                     <Typography variant="h6">{t("no_experiments")}</Typography>
-                </div>
+                </Box>
             )}
 
-            {experiments &&
-                experiments.map((experiment, index) => {
-                    const { isInactive, label: statusLabel, Icon: StatusIcon, color: statusColor } = resolveStatus(null, experiment);
-                    return (
-                    <Accordion
-                        sx={{ marginBottom: "5px" }}
-                        key={experiment._id}
-                        elevation={3}
-                        expanded={expanded === `panel-${index}`}
-                        onChange={handleChange(`panel-${index}`)}
-                    >
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls={`panel-${index}bh-content`}
-                            id={`panel-${index}bh-header`}
-                            sx={{
-                                "&:hover": {
-                                    backgroundColor: "lightgray",
-                                },
-                            }}
-                            title={t("accordion_summary_hover")}
-                        >
-                            <Typography>{experiment.name}</Typography>
-                        </AccordionSummary>
-                        <Divider />
-                        <AccordionDetails>
-                            <Typography
-                                dangerouslySetInnerHTML={{
-                                    __html: experiment.summary,
-                                }}
-                            />
-                            <div className={styles.statusWrapper}>
-                                <div className={styles.statusContainer}>
-                                    <StatusIcon sx={{ fontSize: 18, color: statusColor }} />
-                                    <Typography variant="body2" sx={{ color: '#424242' }}>
-                                        Status: {statusLabel}
-                                    </Typography>
-                                </div>
-                            </div>
-                            <div style={{ textAlign: "right" }}>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    style={{ margin: "16px" }}
-                                    onClick={() => handleClick(experiment._id)}
-                                    disabled={isInactive}
-                                >
-                                    {t("Access")}
-                                </Button>
-                            </div>
-                        </AccordionDetails>
-                    </Accordion>
-                    );
-                })}
+            {experiments?.length > 0 && experiments.map((experiment, index) => (
+                <ExperimentItem
+                    key={experiment._id}
+                    experiment={experiment}
+                    index={index}
+                    expanded={expanded}
+                    onExpand={handleAccordionChange}
+                    onAccess={handleAccessExperiment}
+                    t={t}
+                />
+            ))}
         </>
     );
 };
