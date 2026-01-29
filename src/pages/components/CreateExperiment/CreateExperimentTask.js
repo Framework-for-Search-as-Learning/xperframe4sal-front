@@ -107,7 +107,7 @@ const CreateExperimentTask = () => {
 
   // API Keys State (Create)
   const [geminiApiKey, setGeminiApiKey] = useState("");
-  const [googleApiKey, setGoogleApikey] = useState(""); // Lowercase 'p' as requested
+  const [googleApiKey, setGoogleApikey] = useState(""); 
   const [googleCx, setGoogleCx] = useState("");
 
   const [RulesExperiment, setRulesExperiment] = useState("score");

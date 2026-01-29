@@ -31,12 +31,12 @@ const STATUS_CONFIG = {
   active: {
     color: '#2e7d32',
     Icon: PlayCircleOutlineIcon,
-    labelKey: 'Ativo'
+    labelKey: 'Iniciado'
   },
   inactive: {
     color: '#757575',
     Icon: BlockIcon,
-    labelKey: 'Inativo'
+    labelKey: 'Não iniciado'
   }
 };
 
@@ -47,7 +47,12 @@ const normalizeStatus = (status) => {
 
 const isStatusInactive = (status) => {
   const normalized = normalizeStatus(status);
-  return normalized === EXPERIMENT_STATUS.FINISHED;
+  return normalized === EXPERIMENT_STATUS.FINISHED || normalized === EXPERIMENT_STATUS.NOT_STARTED;
+};
+
+const canEditExperiment = (status) => {
+  const normalized = normalizeStatus(status);
+  return normalized === EXPERIMENT_STATUS.FINISHED || normalized === EXPERIMENT_STATUS.NOT_STARTED;
 };
 
 const isStatusActive = (status) => {

@@ -120,22 +120,6 @@ const ExperimentStatsModal = ({
     }
   };
 
-  const handleEditExperiment = (experimentId) => {
-    const experiment = experimentsOwner?.find(
-      (exp) => exp._id === experimentId,
-    );
-
-    if (experiment && experiment.status === experimentStatus.IN_PROGRESS) {
-      setError(
-        t("cannot_edit_active_experiment") ||
-          "Não é possível editar um experimento ativo. Desative-o primeiro.",
-      );
-      return;
-    }
-
-    navigate(`/EditExperiment/${experimentId}`);
-  };
-
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
@@ -424,6 +408,19 @@ const Researcher = () => {
   };
 
   const handleEditExperiment = (experimentId) => {
+    const experiment = experimentsOwner?.find(
+      (exp) => exp._id === experimentId,
+    );
+
+    // Só bloqueia edição se o status for IN_PROGRESS
+    if (experiment && experiment.status === experimentStatus.IN_PROGRESS) {
+      setError(
+        t("cannot_edit_active_experiment") ||
+          "Não é possível editar um experimento ativo. Desative-o primeiro.",
+      );
+      return;
+    }
+
     navigate(`/EditExperiment/${experimentId}`);
   };
 
