@@ -223,7 +223,7 @@ const ExperimentAccordion = ({
 
   return (
     <Accordion
-      sx={{ marginBottom: '10px', border: '1px solid #e0e0e0' }}
+      sx={{ marginBottom: '5px', border: '1px solid #e0e0e0' }}
       elevation={0}
       expanded={expanded}
       onChange={onChange}
