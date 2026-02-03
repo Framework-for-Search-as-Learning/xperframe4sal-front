@@ -10,7 +10,7 @@ import {
   DialogActions,
   Box,
   Divider,
-  CircularProgress,
+  CircularProgress
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import EditUser from "./EditUser";
