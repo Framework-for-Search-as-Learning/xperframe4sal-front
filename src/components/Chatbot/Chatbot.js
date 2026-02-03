@@ -38,6 +38,10 @@ const Chatbot = ({ taskId, user }) => {
     // Estado para guardar o ID da sessão atual criado pelo backend
     const [sessionId, setSessionId] = useState(null);
     const [isTyping, setIsTyping] = useState(false);
+
+
+    const sessionInitialized = useRef(false); // Trava para não duplicar sessão
+    const abortControllerRef = useRef(null);  // Para cancelar requisição se necessário
     
     // Mensagem inicial estática (apenas visual)
     const [messages, setMessages] = useState([
@@ -53,7 +57,11 @@ const Chatbot = ({ taskId, user }) => {
 
     // 1. Ao montar o componente, cria a sessão no Backend
     useEffect(() => {
+
+        if(sessionInitialized.current || !taskId || !user || !user.accessToken) return;
+
         const initSession = async () => {
+            sessionInitialized.current = true;
             try {
                 const response = await fetch(`${API_URL}/llm-session/start`, {
                     method: 'POST',
@@ -68,11 +76,32 @@ const Chatbot = ({ taskId, user }) => {
                     const data = await response.json();
                     setSessionId(data.id); // Guarda o ID da sessão para usar nas mensagens
                     console.log("Sessão iniciada:", data.id);
+                    console.log("DataChat: ", data)
+                    if(data.messages && data.messages.length > 0){
+                       const history = data.messages.map(msg => ({
+                            id: msg.id,
+                            // Se for bot, já passamos o marked. Se for user, texto puro.
+                            text: msg.role === 'model' ? marked(msg.content) : msg.content,
+                            sender: msg.role === 'user' ? 'user' : 'bot',
+                            role: msg.role,
+                            timestamp: new Date(msg.createdAt)
+                        }));
+
+                        setMessages(prev => {
+                            const welcome = prev.find(m => m.id === 1);
+                            // Fallback de segurança caso não ache a msg de boas vindas
+                            const initialMsg = welcome || prev[0]; 
+                            return [initialMsg, ...history];
+                        });
+                    }
+                    
                 } else {
                     console.error("Falha ao iniciar sessão");
+                    sessionInitialized.current = false;
                 }
             } catch (error) {
                 console.error("Erro ao conectar com backend:", error);
+                sessionInitialized.current = false;
             }
         };
 
@@ -85,6 +114,10 @@ const Chatbot = ({ taskId, user }) => {
     const handleSendMessage = async (messageText) => {
         if (!messageText.trim() || !sessionId) return;
 
+        // Cancela requisição anterior se houver (evita bugs de digitação rápida)
+        if (abortControllerRef.current) abortControllerRef.current.abort();
+        abortControllerRef.current = new AbortController();
+
         // Adiciona mensagem do usuário na tela imediatamente
         const userMessage = {
             id: Date.now(),
@@ -92,7 +125,6 @@ const Chatbot = ({ taskId, user }) => {
             sender: "user",
             role: "user",
             timestamp: new Date(),
-            parts: [{ text: messageText }]
         };
 
         setMessages(prev => [...prev, userMessage]);
@@ -108,7 +140,8 @@ const Chatbot = ({ taskId, user }) => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ content: messageText, userId: user.id})
+                body: JSON.stringify({ content: messageText, userId: user.id}),
+                signal: abortControllerRef.current.signal
             });
 
             if (!response.body) throw new Error('ReadableStream not supported.');
@@ -119,7 +152,15 @@ const Chatbot = ({ taskId, user }) => {
             
             let fullResponse = "";
             const botMessageId = Date.now() + 1;
-            let firstChunkReceived = false;
+
+            // Cria o balão vazio do bot para começar a preencher
+            setMessages(prev => [...prev, {
+                id: botMessageId,
+                text: "", 
+                sender: "bot",
+                role: "model",
+                timestamp: new Date(),
+            }]);
 
             // 4. Loop de leitura (enquanto houver dados chegando)
             while (true) {
@@ -129,45 +170,32 @@ const Chatbot = ({ taskId, user }) => {
                 const chunk = decoder.decode(value, { stream: true });
                 fullResponse += chunk;
 
-                // Cria ou Atualiza a mensagem do bot
-                const botMessage = {
-                    id: botMessageId,
-                    text: marked(fullResponse), // Formata Markdown
-                    sender: "bot",
-                    role: "model",
-                    timestamp: new Date(),
-                    parts: [{ text: fullResponse }]
-                };
 
-                setMessages(prev => {
-                    // Se for o primeiro pedaço, adiciona a mensagem nova
-                    if (!firstChunkReceived) {
-                        return [...prev, botMessage];
-                    }
-                    // Se já existe, atualiza o texto da última mensagem
-                    return prev.map(msg => 
-                        msg.id === botMessageId ? botMessage : msg
-                    );
-                });
+                setMessages(prev => 
+                    prev.map(msg => 
+                        msg.id === botMessageId 
+                            ? { ...msg, text: marked(fullResponse) } 
+                            : msg
+                    )
+                );
 
-                firstChunkReceived = true;
             }
 
-            setIsTyping(false);
-
         } catch (error) {
-            console.error('Erro ao enviar mensagem:', error);
-            setIsTyping(false);
-
-            const errorMessage = {
+            if (error.name === 'AbortError') return; // Ignora se foi cancelado
+            console.error('Erro:', error);
+            
+            setMessages(prev => [...prev, {
                 id: Date.now() + 2,
-                text: "Erro de conexão com o servidor.",
+                text: "Erro de conexão ou resposta interrompida.",
                 sender: "bot",
                 role: "model",
                 timestamp: new Date(),
-                parts: [{ text: "Erro de conexão." }]
-            };
-            setMessages(prev => [...prev, errorMessage]);
+                isError: true
+            }]);
+        } finally {
+            setIsTyping(false);
+            abortControllerRef.current = null;
         }
     };
 
