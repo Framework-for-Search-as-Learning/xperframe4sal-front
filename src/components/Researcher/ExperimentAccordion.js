@@ -164,7 +164,7 @@ const OwnerActions = ({ experiment, status, onEdit, onEdituser, onAccess, onDele
         className={styles.actionButton}
       />
       <ActionButton
-        onClick={() => onAccess(experiment._id)}
+        onClick={() => onAccess(experiment)}
         desktopText={t?.('export') ?? 'EXPORTAR'}
         Icon={FileDownloadIcon}
         className={styles.actionButton}
@@ -189,11 +189,11 @@ const OwnerActions = ({ experiment, status, onEdit, onEdituser, onAccess, onDele
   );
 };
 
-const ParticipantActions = ({ experiment, onAccess, isInactive, t }) => (
+const ParticipantActions = ({ experiment, userExperimentId, userExperimentStatus, onAccess, isInactive, t }) => (
   <Button
     variant="contained"
     color="primary"
-    onClick={() => onAccess(experiment._id)}
+    onClick={() => onAccess(experiment, userExperimentId, userExperimentStatus)}
     disabled={isInactive}
   >
     <span className={styles.desktopText}>{t?.('Access') ?? 'ACESSAR'}</span>
@@ -206,6 +206,8 @@ const ParticipantActions = ({ experiment, onAccess, isInactive, t }) => (
 // Main component
 const ExperimentAccordion = ({
   experiment,
+  userExperimentId,
+  userExperimentStatus,
   status,
   expanded,
   onChange,
@@ -220,7 +222,7 @@ const ExperimentAccordion = ({
 }) => {
   const currentStatus = status ?? experiment?.status;
   const { isInactive, label: statusLabel, Icon: StatusIcon, color: statusColor } = getStatusConfig(currentStatus, t);
-
+  console.log("userExperimentId: ", userExperimentId);
   return (
     <Accordion
       sx={{ marginBottom: '5px', border: '1px solid #e0e0e0' }}
@@ -278,6 +280,8 @@ const ExperimentAccordion = ({
             ) : (
               <ParticipantActions
                 experiment={experiment}
+                userExperimentId={userExperimentId}
+                userExperimentStatus={userExperimentStatus}
                 onAccess={onAccess}
                 isInactive={isInactive}
                 t={t}

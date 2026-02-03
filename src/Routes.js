@@ -20,6 +20,7 @@ import {
   NotResearcher,
   EditExperiment,
 } from './pages';
+import ExperimentMonitoring from './pages/ExperimentMonitoring';
 
 
 const Router = () => {
@@ -52,6 +53,7 @@ const Router = () => {
       <Route path='/experiments' element={<PrivateRoutes />}>
         <Route index element={<Experiments />} />
         <Route path=':experimentId/icf' element={<ICF />} />
+        <Route path=":experimentId/monitoring" element={<ExperimentMonitoring />} />
         <Route path=':experimentId/surveys' element={<Surveys />} />
         <Route path=':experimentId/surveys/:surveyId' element={<Survey />} />
         <Route path=':experimentId/tasks/' element={<Tasks />} />

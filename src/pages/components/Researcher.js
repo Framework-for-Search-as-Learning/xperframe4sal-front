@@ -1,241 +1,19 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../config/axios";
-import {
-  Button,
-  Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Box,
-  Divider,
-  CircularProgress
-} from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import EditUser from "./EditUser";
 import { ExperimentAccordion } from "../../components/Researcher/ExperimentAccordion";
 import styles from "../../style/researcher.module.css";
 import { LoadingState } from "../../components/Researcher/LoadingState";
 import { TabView, TabPanel } from "primereact/tabview";
-import PeopleIcon from "@mui/icons-material/People";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
-import AssessmentIcon from "@mui/icons-material/Assessment";
 
 const experimentStatus = Object.freeze({
   NOT_STARTED: "NOT_STARTED",
   IN_PROGRESS: "IN_PROGRESS",
   FINISHED: "FINISHED",
 });
-
-// Mock data function - será substituído pela API real
-const fetchExperimentStats = async (experimentId, accessToken) => {
-  // Simula delay da API
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // Retorna dados mockados
-  return {
-    totalParticipants: 2,
-    completedParticipants: 1,
-    inProgressParticipants: 0,
-    notStartedParticipants: 1,
-    completionRate: 50,
-    averageCompletionTime: "15 min",
-    lastResponseDate: "2026-01-28",
-  };
-};
-
-// Mock function for exporting results
-const exportExperimentResults = async (experimentId, accessToken) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  // Simula download de arquivo CSV
-  const mockData =
-    "participant_id,completion_date,responses\n1,2026-01-20,completed\n2,2026-01-21,completed";
-  const blob = new Blob([mockData], { type: "text/csv" });
-  const url = window.URL.createObjectURL(blob);
-
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `experiment_results_${experimentId}.csv`;
-  document.body.appendChild(link);
-  link.click();
-
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-};
-
-const ExperimentStatsModal = ({
-  open,
-  onClose,
-  experimentId,
-  experimentName,
-  accessToken,
-  t,
-}) => {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [exporting, setExporting] = useState(false);
-
-  useEffect(() => {
-    if (open && experimentId) {
-      loadStats();
-    }
-  }, [open, experimentId]);
-
-  const loadStats = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // TODO: Substituir por chamada real da API quando disponível
-      // const { data } = await api.get(`experiments2/${experimentId}/stats`, {
-      //   headers: { Authorization: `Bearer ${accessToken}` }
-      // });
-      const data = await fetchExperimentStats(experimentId, accessToken);
-      setStats(data);
-    } catch (err) {
-      console.error("Error loading stats:", err);
-      setError(t("error_loading_stats") || "Erro ao carregar estatísticas");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleExportResults = async () => {
-    setExporting(true);
-    try {
-      // TODO: Substituir por chamada real da API quando disponível
-      // await api.get(`experiments2/${experimentId}/export-results`, {
-      //   headers: { Authorization: `Bearer ${accessToken}` },
-      //   responseType: 'blob'
-      // });
-      await exportExperimentResults(experimentId, accessToken);
-    } catch (err) {
-      console.error("Error exporting results:", err);
-      setError(t("error_exporting_results") || "Erro ao exportar resultados");
-    } finally {
-      setExporting(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <AssessmentIcon color="primary" />
-          <Typography variant="h6">
-            {t("Estatísticas do Experimento") || "Estatísticas do Experimento"}
-          </Typography>
-        </Box>
-        <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-          {experimentName}
-        </Typography>
-      </DialogTitle>
-
-      <Divider />
-
-      <DialogContent>
-        {loading && (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-            <CircularProgress />
-          </Box>
-        )}
-
-        {error && (
-          <Typography color="error" align="center">
-            {error}
-          </Typography>
-        )}
-
-        {!loading && !error && stats && (
-          <Box sx={{ py: 2 }}>
-            {/* Total Participants */}
-            <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-              <PeopleIcon sx={{ fontSize: 40, color: "#1976d2", mr: 2 }} />
-              <Box>
-                <Typography variant="h4" color="primary">
-                  {stats.totalParticipants}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {t("Total de Participantes") || "Total de Participantes"}
-                </Typography>
-              </Box>
-            </Box>
-
-            <Divider sx={{ my: 2 }} />
-
-            {/* Completed Participants */}
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-              <CheckCircleIcon sx={{ fontSize: 32, color: "#2e7d32", mr: 2 }} />
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" color="success.main">
-                  {stats.completedParticipants}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {t("Finalizaram") || "Finalizaram"}
-                </Typography>
-              </Box>
-              <Typography variant="body2" color="textSecondary">
-                {stats.completionRate}%
-              </Typography>
-            </Box>
-
-            {/* In Progress */}
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-              <HourglassEmptyIcon
-                sx={{ fontSize: 32, color: "#ed6c02", mr: 2 }}
-              />
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" color="warning.main">
-                  {stats.inProgressParticipants}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {t("Em andamento") || "Em andamento"}
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Not Started */}
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-              <PeopleIcon sx={{ fontSize: 32, color: "#757575", mr: 2 }} />
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" color="textSecondary">
-                  {stats.notStartedParticipants}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {t("Não iniciaram") || "Não iniciaram"}
-                </Typography>
-              </Box>
-            </Box>
-
-            <Divider sx={{ my: 2 }} />
-          </Box>
-        )}
-      </DialogContent>
-
-      <Divider />
-
-      <DialogActions sx={{ p: 2, gap: 1 }}>
-        <Button onClick={onClose} variant="outlined">
-          {t("close") || "Fechar"}
-        </Button>
-        <Button
-          onClick={handleExportResults}
-          variant="contained"
-          color="primary"
-          disabled={exporting || loading || !stats}
-          startIcon={exporting ? <CircularProgress size={16} /> : null}
-        >
-          {exporting
-            ? t("exporting") || "Exportando..."
-            : t("Exportar Resultados") || "Exportar Resultados"}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
 
 const Researcher = () => {
   const navigate = useNavigate();
@@ -246,11 +24,6 @@ const Researcher = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
-  const [statsModal, setStatsModal] = useState({
-    open: false,
-    experimentId: null,
-    experimentName: null,
-  });
   const user = JSON.parse(localStorage.getItem("user"));
   const { t } = useTranslation();
   const fileInputRef = useRef(null);
@@ -275,6 +48,7 @@ const Researcher = () => {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         },
       );
+      console.log("participatedExperiments: ", participatedExperiments)
 
       setExperiments(participatedExperiments);
       setOwnerExperiments(ownedExperiments);
@@ -299,16 +73,19 @@ const Researcher = () => {
 
   const handleCreateExperiment = () => navigate("/CreateExperiment");
 
-  const handleAccessExperiment = (experimentId) => {
-    navigate(`/experiments/${experimentId}/surveys`);
+  const handleAccessExperiment = async (experiment, userExperimentId, userExperimentStatus) => {
+    console.log("Experiment: ", {id: userExperimentId, status: userExperimentStatus})
+    if(userExperimentStatus === experimentStatus.NOT_STARTED) {
+      await api.patch(`user-experiments2/${userExperimentId}`, { status: experimentStatus.IN_PROGRESS, startDate: new Date()},
+      {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      });
+    }
+    navigate(`/experiments/${experiment._id}/surveys`);
   };
 
-  const handleViewStats = (experimentId, experimentName) => {
-    setStatsModal({ open: true, experimentId, experimentName });
-  };
-
-  const handleCloseStatsModal = () => {
-    setStatsModal({ open: false, experimentId: null, experimentName: null });
+  const handleViewStats = (experimentId) => {
+    navigate(`/experiments/${experimentId}/monitoring`);
   };
 
   const handleExportExperiment = async (experimentId) => {
@@ -548,9 +325,11 @@ const Researcher = () => {
           (experiments?.length > 0 ? (
             experiments.map((experiment, index) => (
               <ExperimentAccordion
-                key={experiment._id}
-                experiment={experiment}
-                status={experiment.status}
+                key={experiment.experiment._id}
+                userExperimentId={experiment._id}
+                userExperimentStatus={experiment.status}
+                experiment={experiment.experiment}
+                status={experiment.experiment.status}
                 expanded={expanded === `panel-${index}`}
                 onChange={handleChange(`panel-${index}`)}
                 onAccess={handleAccessExperiment}
@@ -566,16 +345,6 @@ const Researcher = () => {
             </div>
           ))}
       </div>
-
-      {/* Stats Modal */}
-      <ExperimentStatsModal
-        open={statsModal.open}
-        onClose={handleCloseStatsModal}
-        experimentId={statsModal.experimentId}
-        experimentName={statsModal.experimentName}
-        accessToken={user.accessToken}
-        t={t}
-      />
     </div>
   );
 };
