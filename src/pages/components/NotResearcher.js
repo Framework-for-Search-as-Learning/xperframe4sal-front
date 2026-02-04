@@ -164,8 +164,6 @@ const NotResearcher = () => {
         },
       );
 
-      console.log("userExperimentsData: ", userExperimentsData);
-
       if (!userExperimentsData?.length) {
         setExperiments([]);
         return;
@@ -255,7 +253,6 @@ const NotResearcher = () => {
       }
 
       if (userExperimentStatus === EXPERIMENT_STATUS.NOT_STARTED) {
-        console.log(userExperimentId)
         await api.patch(
           `user-experiments2/${userExperimentId}`,
           { status: EXPERIMENT_STATUS.IN_PROGRESS, startDate: new Date() },

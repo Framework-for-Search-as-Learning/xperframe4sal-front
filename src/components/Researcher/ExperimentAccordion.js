@@ -222,7 +222,6 @@ const ExperimentAccordion = ({
 }) => {
   const currentStatus = status ?? experiment?.status;
   const { isInactive, label: statusLabel, Icon: StatusIcon, color: statusColor } = getStatusConfig(currentStatus, t);
-  console.log("userExperimentId: ", userExperimentId);
   return (
     <Accordion
       sx={{ marginBottom: '5px', border: '1px solid #e0e0e0' }}

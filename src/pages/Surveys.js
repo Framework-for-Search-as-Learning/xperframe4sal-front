@@ -316,7 +316,6 @@ const Surveys = () => {
 
             {hasFinishedTasks && (
                 <div>
-                    {console.log("answeredPostSurveys:", answeredPostSurveys)}
                     {postSurveys?.map((survey, index) =>
                             (!answeredPostSurveys[survey._id] ||
                                 (answeredPostSurveys[survey._id] &&

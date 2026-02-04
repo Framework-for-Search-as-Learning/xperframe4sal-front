@@ -40,15 +40,12 @@ const Researcher = () => {
         },
       );
 
-      console.log("ownedExperiments: ", ownedExperiments);
-
       const { data: participatedExperiments } = await api.get(
         `user-experiments2/user/${user.id}`,
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         },
       );
-      console.log("participatedExperiments: ", participatedExperiments)
 
       setExperiments(participatedExperiments);
       setOwnerExperiments(ownedExperiments);
@@ -74,7 +71,6 @@ const Researcher = () => {
   const handleCreateExperiment = () => navigate("/CreateExperiment");
 
   const handleAccessExperiment = async (experiment, userExperimentId, userExperimentStatus) => {
-    console.log("Experiment: ", {id: userExperimentId, status: userExperimentStatus})
     if(userExperimentStatus === experimentStatus.NOT_STARTED) {
       await api.patch(`user-experiments2/${userExperimentId}`, { status: experimentStatus.IN_PROGRESS, startDate: new Date()},
       {

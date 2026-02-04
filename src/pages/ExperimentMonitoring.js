@@ -147,7 +147,6 @@ const ExperimentMonitoring = () => {
         headers: { Authorization: `Bearer ${user.accessToken}` }
       });
 
-      console.log("data-monitoring: ", data);
       const monitoringData = await fetchExperimentMonitoringData(
         experimentId,
         data,
