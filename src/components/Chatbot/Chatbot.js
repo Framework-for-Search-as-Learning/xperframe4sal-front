@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Container, Paper } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { ChatHeader } from './ChatHeader';
 import { MessageArea } from './MessageArea';
 import { MessageInput } from './MessageInput';
-import createChat from '../../lib/gemini';
-import useCookies from '../../lib/useCookies';
 import { marked } from "marked";
 import { useTranslation } from 'react-i18next';
 
+// Configurações da API
+const API_URL = 'http://localhost:3000/searching-as-learning'
 
 const useStyles = makeStyles((theme) => ({
     chatContainer: {
@@ -28,108 +28,174 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const BOT_NAME = "XF4 Bot"
+const BOT_NAME = "XF4 Bot";
 
-const Chatbot = () => {
+// Adicionei taskId como prop, pois precisamos saber qual experimento iniciar
+const Chatbot = ({ taskId, user }) => { 
     const { t } = useTranslation();
-    const history = useCookies("history");
     const style = useStyles();
+    
+    // Estado para guardar o ID da sessão atual criado pelo backend
+    const [sessionId, setSessionId] = useState(null);
+    const [isTyping, setIsTyping] = useState(false);
 
-    const [messages, setMessages] = useState(() => {
-        const savedMessages = history.getCookie() || [];
-        const welcomeMessage = {
+
+    const sessionInitialized = useRef(false); // Trava para não duplicar sessão
+    const abortControllerRef = useRef(null);  // Para cancelar requisição se necessário
+    
+    // Mensagem inicial estática (apenas visual)
+    const [messages, setMessages] = useState([
+        {
             id: 1,
             text: `${t('chatbot_wellcome_part1')} ${BOT_NAME} ${t('chatbot_wellcome_part2')}`,
             sender: "bot",
             role: "model",
             timestamp: new Date(),
             parts: [{ text: `Olá! Sou o assistente ${BOT_NAME}. Como posso te ajudar hoje?` }]
+        }
+    ]);
+
+    // 1. Ao montar o componente, cria a sessão no Backend
+    useEffect(() => {
+
+        if(sessionInitialized.current || !taskId || !user || !user.accessToken) return;
+
+        const initSession = async () => {
+            sessionInitialized.current = true;
+            try {
+                const response = await fetch(`${API_URL}/llm-session/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${user.accessToken}` 
+                    },
+                    body: JSON.stringify({ taskId: taskId, userId: user.id })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setSessionId(data.id); // Guarda o ID da sessão para usar nas mensagens
+                    console.log("Sessão iniciada:", data.id);
+                    console.log("DataChat: ", data)
+                    if(data.messages && data.messages.length > 0){
+                       const history = data.messages.map(msg => ({
+                            id: msg.id,
+                            // Se for bot, já passamos o marked. Se for user, texto puro.
+                            text: msg.role === 'model' ? marked(msg.content) : msg.content,
+                            sender: msg.role === 'user' ? 'user' : 'bot',
+                            role: msg.role,
+                            timestamp: new Date(msg.createdAt)
+                        }));
+
+                        setMessages(prev => {
+                            const welcome = prev.find(m => m.id === 1);
+                            // Fallback de segurança caso não ache a msg de boas vindas
+                            const initialMsg = welcome || prev[0]; 
+                            return [initialMsg, ...history];
+                        });
+                    }
+                    
+                } else {
+                    console.error("Falha ao iniciar sessão");
+                    sessionInitialized.current = false;
+                }
+            } catch (error) {
+                console.error("Erro ao conectar com backend:", error);
+                sessionInitialized.current = false;
+            }
         };
-        return savedMessages.length > 1 ? [welcomeMessage, ...savedMessages] : [welcomeMessage];
-    });
 
-    const getGeminiHistory = () => {
-        return messages
-            .filter(msg => msg.id !== 1)
-            .map(msg => ({
-                role: msg.role === "user" ? "user" : "model",
-                parts: msg.parts
-            }));
-    };
+        if (taskId && user && user.accessToken) {
+            initSession();
+        }
+    }, [taskId, user]);
 
-    const chat = createChat(getGeminiHistory());
-    const [isTyping, setIsTyping] = useState(false);
+
     const handleSendMessage = async (messageText) => {
-        if (!messageText.trim()) return;
+        if (!messageText.trim() || !sessionId) return;
 
+        // Cancela requisição anterior se houver (evita bugs de digitação rápida)
+        if (abortControllerRef.current) abortControllerRef.current.abort();
+        abortControllerRef.current = new AbortController();
+
+        // Adiciona mensagem do usuário na tela imediatamente
         const userMessage = {
             id: Date.now(),
             text: messageText,
             sender: "user",
             role: "user",
             timestamp: new Date(),
-            parts: [{ text: messageText }]
         };
 
         setMessages(prev => [...prev, userMessage]);
         setIsTyping(true);
-        try {
-            const stream = await chat.sendMessageStream({ message: messageText });
 
+        try {
+            const token = user.accessToken;
+
+            // 2. Faz a requisição para o endpoint de Stream do seu Backend
+            const response = await fetch(`${API_URL}/llm-session/${sessionId}/message`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ content: messageText, userId: user.id}),
+                signal: abortControllerRef.current.signal
+            });
+
+            if (!response.body) throw new Error('ReadableStream not supported.');
+
+            // 3. Configura a leitura do Stream
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            
             let fullResponse = "";
             const botMessageId = Date.now() + 1;
 
-            for await (const chunk of stream) {
-                fullResponse += chunk.text;
-
-                if (fullResponse === chunk.text) {
-                    setIsTyping(false);
-
-                    const botMessage = {
-                        id: botMessageId,
-                        text: marked(fullResponse),
-                        sender: "bot",
-                        role: "model",
-                        timestamp: new Date(),
-                        parts: [{ text: fullResponse }]
-                    };
-
-                    setMessages(prev => [...prev, botMessage]);
-                } else {
-                    setMessages(prev =>
-                        prev.map(msg =>
-                            msg.id === botMessageId
-                                ? {
-                                    ...msg,
-                                    text: marked(fullResponse),
-                                    parts: [{ text: fullResponse }]
-                                }
-                                : msg
-                        )
-                    );
-                }
-            }
-
-            setMessages(prev => {
-                const messagesToSave = prev.filter(msg => msg.id !== 1);
-                history.replaceCookie(messagesToSave);
-                return prev;
-            });
-
-        } catch (error) {
-            console.error('Erro ao enviar mensagem:', error);
-            setIsTyping(false);
-
-            const errorMessage = {
-                id: Date.now() + 2,
-                text: "Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.",
+            // Cria o balão vazio do bot para começar a preencher
+            setMessages(prev => [...prev, {
+                id: botMessageId,
+                text: "", 
                 sender: "bot",
                 role: "model",
                 timestamp: new Date(),
-                parts: [{ text: "Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente." }]
-            };
+            }]);
 
-            setMessages(prev => [...prev, errorMessage]);
+            // 4. Loop de leitura (enquanto houver dados chegando)
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                fullResponse += chunk;
+
+
+                setMessages(prev => 
+                    prev.map(msg => 
+                        msg.id === botMessageId 
+                            ? { ...msg, text: marked(fullResponse) } 
+                            : msg
+                    )
+                );
+
+            }
+
+        } catch (error) {
+            if (error.name === 'AbortError') return; // Ignora se foi cancelado
+            console.error('Erro:', error);
+            
+            setMessages(prev => [...prev, {
+                id: Date.now() + 2,
+                text: "Erro de conexão ou resposta interrompida.",
+                sender: "bot",
+                role: "model",
+                timestamp: new Date(),
+                isError: true
+            }]);
+        } finally {
+            setIsTyping(false);
+            abortControllerRef.current = null;
         }
     };
 

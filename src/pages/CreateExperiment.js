@@ -59,6 +59,7 @@ const CreateExperiment = () => {
                 title: ExperimentTitleICF,
                 description: ExperimentDescICF,
             };
+            console.log("tasks: ", ExperimentTasks)
             await api.post(
                 `/experiments2`,
                 {
