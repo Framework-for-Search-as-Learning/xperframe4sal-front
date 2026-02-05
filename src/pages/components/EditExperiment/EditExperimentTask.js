@@ -639,7 +639,9 @@ const EditExperimentTask = () => {
                     },
                 }}
             >
-                <DialogTitle>{t("task_edit")}</DialogTitle>
+                <Typography variant="h4" gutterBottom align="center">
+                    {t("edit_task")}
+                </Typography>
                 <DialogContent>
                     <form onSubmit={handleEditTaskSubmit}>
                         {/* Campos básicos da tarefa */}
@@ -669,6 +671,7 @@ const EditExperimentTask = () => {
                                         value={origin}
                                         onChange={(e) => setOrigin(e.target.value)}
                                         label={t("select_source")}
+                                        required
                                     >
                                         <MenuItem value="llm">Large Language Model</MenuItem>
                                         <MenuItem value="search-engine">{t("search_engine")}</MenuItem>
@@ -686,6 +689,7 @@ const EditExperimentTask = () => {
                                             value={llm}
                                             onChange={(e) => setLlm(e.target.value)}
                                             label={t("select_llm")}
+                                            required
                                         >
                                             {LlmTypes.map((type) => (
                                                 <MenuItem key={type.value} value={type.value}>
@@ -709,6 +713,7 @@ const EditExperimentTask = () => {
                                             value={searchEngine}
                                             onChange={(e) => setSearchEngine(e.target.value)}
                                             label={t("select_search_engine")}
+                                            required
                                         >
                                             {SearchEngines.map((engine) => (
                                                 <MenuItem key={engine.value} value={engine.value}>
@@ -733,6 +738,7 @@ const EditExperimentTask = () => {
                                         value={geminiApiKey}
                                         onChange={(e) => setGeminiApiKey(e.target.value)}
                                         placeholder="Enter your Gemini API Key"
+                                        required
                                     />
                                 </Grid>
                             )}
@@ -748,6 +754,7 @@ const EditExperimentTask = () => {
                                             value={googleApiKey}
                                             onChange={(e) => setGoogleApiKey(e.target.value)}
                                             placeholder="Enter Google API Key"
+                                            required
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={6}>
@@ -759,6 +766,7 @@ const EditExperimentTask = () => {
                                             value={googleCx}
                                             onChange={(e) => setGoogleCx(e.target.value)}
                                             placeholder="Enter Google CX"
+                                            required
                                         />
                                     </Grid>
                                 </>

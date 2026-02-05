@@ -402,5 +402,6 @@
   "back": "Voltar",
   "error_loading_monitoring": "Erro ao carregar dados de monitoramento",
   "error_exporting_data": "Erro ao exportar dados",
-  "no_metrics": "Nenhuma métrica disponível"
+  "no_metrics": "Nenhuma métrica disponível",
+  "select_llm_provider": "Selecionar Provedor de Chat"
 }

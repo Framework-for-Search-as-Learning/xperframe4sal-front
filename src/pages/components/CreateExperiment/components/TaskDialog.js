@@ -1,5 +1,5 @@
 import React from "react";
-import { Dialog, DialogTitle, DialogContent } from "@mui/material";
+import {Dialog, DialogTitle, DialogContent, Typography} from "@mui/material";
 import TaskForm from "./TaskForm";
 
 /**
@@ -34,9 +34,10 @@ const TaskDialog = ({
         },
       }}
     >
-      <DialogTitle>
-        {mode === "create" ? t("task_creation") : t("task_edit")}
-      </DialogTitle>
+        <Typography fontSize={40} variant="h6" align="center" gutterBottom>
+            {mode === "create" ? t("task_creation") : t("edit_task")}
+        </Typography>
+
       <DialogContent>
         <TaskForm
           config={config}

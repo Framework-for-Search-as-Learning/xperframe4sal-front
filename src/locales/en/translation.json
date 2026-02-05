@@ -329,5 +329,6 @@
   "yaml_example_title": "Complete Example with Comments",
   "yaml_template_title": "Basic Template to Get Started",
   "yaml_template_description": "Use this template as a starting point to create your own YAML file:",
-  "task_finished": "You have already completed this task."
+  "task_finished": "You have already completed this task.",
+  "select_llm_provider": "Select Chat Provider"
 }

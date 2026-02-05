@@ -160,6 +160,8 @@ const CreateExperimentTask = () => {
 
     // Populate Source
     editForm.setOrigin(task.search_source || "");
+    editForm.setLlmProvider(task.llmProvider || "");
+
     if (task.search_source === "llm") {
       editForm.setLlm(task.search_model || "gemini");
     } else if (task.search_source === "search-engine") {
@@ -228,6 +230,8 @@ const CreateExperimentTask = () => {
       // Source & Keys
       origin: form.formState.origin,
       setOrigin: form.setOrigin,
+      llmProvider: form.formState.llmProvider,
+      setLlmProvider: form.setLlmProvider,
       llm: form.formState.llm,
       setLlm: form.setLlm,
       searchEngine: form.formState.searchEngine,

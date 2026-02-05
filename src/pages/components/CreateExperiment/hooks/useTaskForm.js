@@ -47,6 +47,8 @@ export const useTaskForm = (mode = "create", initialData = null) => {
     setFormState((prev) => ({ ...prev, selectedQuestion: value }));
   const setscoreType = (value) =>
     setFormState((prev) => ({ ...prev, scoreType: value }));
+  const setLlmProvider = (value) =>
+      setFormState((prev) => ({ ...prev, llmProvider: value }));
 
   // Reset form to initial state
   const resetForm = () => {
@@ -61,6 +63,7 @@ export const useTaskForm = (mode = "create", initialData = null) => {
       taskDescription: task.description,
       origin: task.search_source,
       llm: task.search_model,
+      llmProvider: task.llmProvider || "",
       searchEngine: task.search_model,
       geminiApiKey: task.geminiApiKey || "",
       googleApiKey: task.googleApiKey || "",
@@ -97,6 +100,7 @@ export const useTaskForm = (mode = "create", initialData = null) => {
       ScoreThreshold: formState.ScoreThreshold,
       ScoreThresholdmx: formState.ScoreThresholdmx,
       search_source: formState.origin,
+      llmProvider: formState.origin === "llm" ? formState.llmProvider : null,
       search_model:
         formState.origin === "llm" ? formState.llm : formState.searchEngine,
       geminiApiKey: formState.origin === "llm" ? formState.geminiApiKey : null,
@@ -115,6 +119,7 @@ export const useTaskForm = (mode = "create", initialData = null) => {
     setTaskDescription,
     setOrigin,
     setLlm,
+    setLlmProvider,
     setSearchEngine,
     setGeminiApiKey,
     setGoogleApikey,
