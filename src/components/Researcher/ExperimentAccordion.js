@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import { Accordion, AccordionDetails, AccordionSummary, Button, Divider, Typography } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';

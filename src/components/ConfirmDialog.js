@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import React, { Fragment, forwardRef } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';

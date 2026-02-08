@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';

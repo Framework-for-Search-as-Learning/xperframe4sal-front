@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';

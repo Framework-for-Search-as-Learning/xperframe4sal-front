@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import React, { useState, useEffect, useRef } from "react";
 import { api } from "../config/axios";
 import { Typography, Stepper, Step, StepLabel } from "@mui/material";

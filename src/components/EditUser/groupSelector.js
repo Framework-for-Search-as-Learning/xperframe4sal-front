@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import { IconButton, Typography } from "@mui/material";
 import { Close, SwapHoriz } from '@mui/icons-material';
 import styles from "../../style/groupSelector.module.css"

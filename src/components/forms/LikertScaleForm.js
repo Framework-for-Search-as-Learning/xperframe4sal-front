@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import Likert from 'react-likert-scale'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'

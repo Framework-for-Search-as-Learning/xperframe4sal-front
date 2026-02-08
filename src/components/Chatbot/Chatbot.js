@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import { useState } from 'react';
 import { Container, Paper } from '@mui/material';
 import { makeStyles } from '@mui/styles';

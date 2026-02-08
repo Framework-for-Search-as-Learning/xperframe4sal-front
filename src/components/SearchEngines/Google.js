@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import { useState } from "react";
 import { Box, Pagination } from "@mui/material";
 import { SearchResult } from "../SearchResult.js";

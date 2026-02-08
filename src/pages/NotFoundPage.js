@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Button, Container, Typography } from '@mui/material';

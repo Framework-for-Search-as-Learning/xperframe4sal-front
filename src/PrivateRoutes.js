@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import { useState, React } from "react";
 import { Outlet, useNavigate, Navigate } from 'react-router-dom'
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";

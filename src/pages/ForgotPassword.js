@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import React, { useState } from 'react';
 import { api } from "../config/axios.js";
 import { useNavigate } from 'react-router-dom';

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, marcelomachado
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import { BrowserRouter } from 'react-router-dom';
 import { Router } from '../Routes';
 import '../config/i18n';
