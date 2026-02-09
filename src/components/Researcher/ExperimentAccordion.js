@@ -31,12 +31,12 @@ const STATUS_CONFIG = {
   active: {
     color: '#2e7d32',
     Icon: ToggleOnIcon,
-    labelKey: 'Iniciado'
+    labelKey: 'Desativar'
   },
   inactive: {
     color: '#757575',
     Icon: ToggleOffIcon,
-    labelKey: 'Não iniciado'
+    labelKey: 'Ativar'
   }
 };
 
@@ -92,7 +92,7 @@ const StatusDisplay = ({ isOwner, isInactive, statusColor, StatusIcon, statusLab
         >
           <StatusIcon sx={{ fontSize: 25, marginRight: '8px' }} />
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
-            Status: {statusLabel}
+              {statusLabel}
           </Typography>
         </Button>
       </Tooltip>
@@ -103,7 +103,7 @@ const StatusDisplay = ({ isOwner, isInactive, statusColor, StatusIcon, statusLab
     <Box className={styles.statusContainer}>
       <StatusIcon sx={{ fontSize: 25, color: statusColor }} />
       <Typography variant="body2" sx={{ color: '#424242' }}>
-        Status: {statusLabel}
+        {statusLabel}
       </Typography>
     </Box>
   );

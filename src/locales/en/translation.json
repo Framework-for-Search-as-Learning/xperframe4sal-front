@@ -330,5 +330,14 @@
   "yaml_template_title": "Basic Template to Get Started",
   "yaml_template_description": "Use this template as a starting point to create your own YAML file:",
   "task_finished": "You have already completed this task.",
-  "select_llm_provider": "Select Chat Provider"
+  "select_llm_provider": "Select Chat Provider",
+  "summary": "Summary",
+  "time_taken": "Time Taken",
+  "tasks_execution_metrics": "Tasks Execution Metrics",
+  "total_tasks": "Total Tasks",
+  "avg_execution_time": "AVGs Execution Time",
+  "task_type_distribution": "Task Type Distribution",
+  "executions": "Executions",
+  "detailed_tasks": "Detailed Tasks",
+  "task": "Task"
 }

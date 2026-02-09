@@ -370,7 +370,7 @@ const EditExperimentTask = () => {
                 ScoreThreshold: ScoreThreshold,
                 ScoreThresholdmx: ScoreThresholdmx,
                 search_source: origin,
-                experiment: ExperimentId,
+                experiment_id: ExperimentId,
             };
 
             // Add LLM-specific data

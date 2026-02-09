@@ -403,5 +403,21 @@
   "error_loading_monitoring": "Erro ao carregar dados de monitoramento",
   "error_exporting_data": "Erro ao exportar dados",
   "no_metrics": "Nenhuma métrica disponível",
-  "select_llm_provider": "Selecionar Provedor de Chat"
+  "select_llm_provider": "Selecionar Provedor de Chat",
+  "summary": "Resumo",
+  "time_taken": "Tempo Gasto",
+  "multiple-choices": "Múltipla Escolha",
+  "multiple-selection": "Seleção Múltipla",
+  "tasks_execution_metrics": "Métricas de Execução de Tarefas",
+  "total_tasks": "Total de Tarefas",
+  "avg_execution_time": "Tempo Médio",
+  "resources_accessed": "Recursos Acessados",
+  "task_type_distribution": "Distribuição por Tipo de Tarefa",
+  "executions": "Execuções",
+  "avg_time_by_task": "Tempo Médio por Tarefa",
+  "avg_time": "Tempo Médio",
+  "resources_queries": "Recursos/Consultas",
+  "avg_time_seconds": "Tempo Médio (s)",
+  "detailed_tasks": "Detalhes por Tarefa",
+  "task": "Tarefas"
 }
