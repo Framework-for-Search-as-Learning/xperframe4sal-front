@@ -6,8 +6,8 @@ export class FunctionsToOptions {
 
     try {
       const [experimentResponse, userTasksResponse] = await Promise.all([
-        api.get(`/experiments/${params.experimentId}`, { 'headers': { Authorization: `Bearer ${params.user.accessToken}` } }),
-        api.get(`/user-tasks?userId=${params.user.id}`, { 'headers': { Authorization: `Bearer ${params.user.accessToken}` } })
+        api.get(`/experiment/${params.experimentId}`, { 'headers': { Authorization: `Bearer ${params.user.accessToken}` } }),
+        api.get(`/user-task?userId=${params.user.id}`, { 'headers': { Authorization: `Bearer ${params.user.accessToken}` } })
       ]);
 
       const experimentResult = experimentResponse?.data;

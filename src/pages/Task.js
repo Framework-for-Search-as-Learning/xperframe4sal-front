@@ -21,7 +21,7 @@ async function updateUserExperimentStatus(userExperiment, user, api) {
             { task: true }
         );
         await api.patch(
-            `user-experiments2/${userExperiment._id}`,
+            `user-experiment/${userExperiment._id}`,
             userExperiment,
             { headers: { Authorization: `Bearer ${user.accessToken}` } }
         );
@@ -60,12 +60,12 @@ const Task = () => {
         const fetchData = async () => {
             try {
                 const [taskResponse, userTaskResponse] = await Promise.all([
-                    api.get(`/task2/${taskId}`, {
+                    api.get(`/task/${taskId}`, {
                         headers: {
                             Authorization: `Bearer ${user.accessToken}`,
                         },
                     }),
-                    api.get(`/user-task2?taskId=${taskId}&userId=${user.id}`, {
+                    api.get(`/user-task?taskId=${taskId}&userId=${user.id}`, {
                         headers: {
                             Authorization: `Bearer ${user.accessToken}`,
                         },
@@ -101,7 +101,7 @@ const Task = () => {
     const handlePauseTask = async () => {
         try {
             const userTaskBackup = await api.patch(
-                `user-task2/${userTask._id}/pause`,
+                `user-task/${userTask._id}/pause`,
                 userTask,
                 { headers: { Authorization: `Bearer ${user.accessToken}` } }
             );
@@ -117,7 +117,7 @@ const Task = () => {
             if (!paused) {
                 try {
                     const userTaskBackup = await api.patch(
-                        `user-task2/${userTask._id}/pause`,
+                        `user-task/${userTask._id}/pause`,
                         userTask,
                         {
                             headers: {
@@ -141,7 +141,7 @@ const Task = () => {
     const handleResumeTask = async () => {
         try {
             const userTaskBackup = await api.patch(
-                `user-task2/${userTask._id}/resume`,
+                `user-task/${userTask._id}/resume`,
                 userTask,
                 { headers: { Authorization: `Bearer ${user.accessToken}` } }
             );
@@ -163,7 +163,7 @@ const Task = () => {
     const handleFinishTask = async () => {
         try {
             const userTaskBackup = await api.patch(
-                `user-task2/${userTask._id}/finish`,
+                `user-task/${userTask._id}/finish`,
                 {
                     ...userTask,
                     metadata: history.getCookie()
@@ -173,7 +173,7 @@ const Task = () => {
             history.clearCookie();
 
             const allUserTasksResponse = await api.get(
-                `user-task2/user/${user.id}/experiment/${experimentId}`,
+                `user-task/user/${user.id}/experiment/${experimentId}`,
                 { headers: { Authorization: `Bearer ${user.accessToken}` } }
             );
             const allUserTasks = allUserTasksResponse.data;
@@ -186,7 +186,7 @@ const Task = () => {
 
             if (otherUnfinishedTasks.length === 0) {
                 const userExperiment = await api.get(
-                    `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
+                    `user-experiment?experimentId=${experimentId}&userId=${user.id}`,
                     { headers: { Authorization: `Bearer ${user.accessToken}` } }
                 );
                 await updateUserExperimentStatus(userExperiment?.data, user, api);
@@ -228,7 +228,7 @@ const Task = () => {
         document.body.style.overflow = "auto";
 
         const response = await api.patch(
-            `/user-task-session2/${session._id}/close-page/${clickedResultRank}`,
+            `/user-task-session/${session._id}/close-page/${clickedResultRank}`,
             session,
             { headers: { Authorization: `Bearer ${user.accessToken}` } }
         );
@@ -246,7 +246,7 @@ const Task = () => {
                 document.body.style.overflow = "auto";
 
                 const sessionResult = await api.patch(
-                    `/user-task-session2/${session._id}/close-page/${clickedResultRank}`,
+                    `/user-task-session/${session._id}/close-page/${clickedResultRank}`,
                     session,
                     { headers: { Authorization: `Bearer ${user.accessToken}` } }
                 );

@@ -158,7 +158,7 @@ const NotResearcher = () => {
     setIsLoading(true);
     try {
       const { data: userExperimentsData } = await api.get(
-        `user-experiments2/user/${user.id}`,
+        `user-experiment/user/${user.id}`,
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         },
@@ -187,7 +187,7 @@ const NotResearcher = () => {
         experiments.map(async (exp) => {
           try {
             const { data } = await api.get(
-              `experiments2/${exp.experiment._id}`,
+              `experiment/${exp.experiment._id}`,
               {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
               },
@@ -230,7 +230,7 @@ const NotResearcher = () => {
   ) => {
     try {
       const { data: experimentData } = await api.get(
-        `experiments2/${experiment._id}`,
+        `experiment/${experiment._id}`,
         { headers: { Authorization: `Bearer ${user.accessToken}` } },
       );
 
@@ -240,12 +240,12 @@ const NotResearcher = () => {
           prev.map((exp) =>
             exp.experiment._id === experiment._id
               ? {
-                  ...exp,
-                  experiment: {
-                    ...exp.experiment,
-                    status: experimentData.status,
-                  },
-                }
+                ...exp,
+                experiment: {
+                  ...exp.experiment,
+                  status: experimentData.status,
+                },
+              }
               : exp,
           ),
         );
@@ -254,7 +254,7 @@ const NotResearcher = () => {
 
       if (userExperimentStatus === EXPERIMENT_STATUS.NOT_STARTED) {
         await api.patch(
-          `user-experiments2/${userExperimentId}`,
+          `user-experiment/${userExperimentId}`,
           { status: EXPERIMENT_STATUS.IN_PROGRESS, startDate: new Date() },
           {
             headers: { Authorization: `Bearer ${user.accessToken}` },

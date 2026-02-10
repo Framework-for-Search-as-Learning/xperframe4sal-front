@@ -34,14 +34,14 @@ const Researcher = () => {
 
     try {
       const { data: ownedExperiments } = await api.get(
-        `experiments2/owner/${user.id}`,
+        `experiment/owner/${user.id}`,
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         },
       );
 
       const { data: participatedExperiments } = await api.get(
-        `user-experiments2/user/${user.id}`,
+        `user-experiment/user/${user.id}`,
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         },
@@ -71,11 +71,11 @@ const Researcher = () => {
   const handleCreateExperiment = () => navigate("/CreateExperiment");
 
   const handleAccessExperiment = async (experiment, userExperimentId, userExperimentStatus) => {
-    if(userExperimentStatus === experimentStatus.NOT_STARTED) {
-      await api.patch(`user-experiments2/${userExperimentId}`, { status: experimentStatus.IN_PROGRESS, startDate: new Date()},
-      {
-        headers: { Authorization: `Bearer ${user.accessToken}` },
-      });
+    if (userExperimentStatus === experimentStatus.NOT_STARTED) {
+      await api.patch(`user-experiment/${userExperimentId}`, { status: experimentStatus.IN_PROGRESS, startDate: new Date() },
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        });
     }
     navigate(`/experiments/${experiment._id}/surveys`);
   };
@@ -86,7 +86,7 @@ const Researcher = () => {
 
   const handleExportExperiment = async (experimentId) => {
     try {
-      const response = await api.get(`experiments2/export/${experimentId}`, {
+      const response = await api.get(`experiment/export/${experimentId}`, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
         responseType: "blob",
       });
@@ -131,7 +131,7 @@ const Researcher = () => {
       setError(null);
 
       const response = await api.post(
-        `experiments2/import/${user.id}`,
+        `experiment/import/${user.id}`,
         formData,
         {
           headers: {
@@ -189,7 +189,7 @@ const Researcher = () => {
     if (experiment && experiment.status === experimentStatus.IN_PROGRESS) {
       setError(
         t("cannot_edit_active_experiment") ||
-          "Não é possível editar um experimento ativo. Desative-o primeiro.",
+        "Não é possível editar um experimento ativo. Desative-o primeiro.",
       );
       return;
     }
@@ -199,7 +199,7 @@ const Researcher = () => {
 
   const handleDeleteExperiment = async (experimentId) => {
     try {
-      await api.delete(`experiments2/${experimentId}`, {
+      await api.delete(`experiment/${experimentId}`, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       });
 
@@ -217,7 +217,7 @@ const Researcher = () => {
 
     try {
       await api.patch(
-        `experiments2/${experimentId}`,
+        `experiment/${experimentId}`,
         { status: newStatus },
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },

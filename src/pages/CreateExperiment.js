@@ -54,14 +54,14 @@ const CreateExperiment = () => {
                     closable: false,
                 });
             }
-            
+
             const experimentIcf = {
                 title: ExperimentTitleICF,
                 description: ExperimentDescICF,
             };
             console.log("tasks: ", ExperimentTasks)
             await api.post(
-                `/experiments2`,
+                `/experiment`,
                 {
                     ownerId: user.id,
                     name: ExperimentTitle,

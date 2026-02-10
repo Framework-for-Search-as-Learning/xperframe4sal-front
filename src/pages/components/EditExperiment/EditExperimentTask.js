@@ -206,7 +206,7 @@ const EditExperimentTask = () => {
      */
     const fetchTasks = async () => {
         try {
-            const response = await api.get(`task2/experiment/${ExperimentId}`, {
+            const response = await api.get(`task/experiment/${ExperimentId}`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             setTasks(response.data);
@@ -319,7 +319,7 @@ const EditExperimentTask = () => {
             }
 
             // Update task
-            await api.put(`task2/${taskid}`, taskData, {
+            await api.put(`task/${taskid}`, taskData, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
 
@@ -393,7 +393,7 @@ const EditExperimentTask = () => {
             }
 
             // Create task
-            const response = await api.post(`task2`, taskData, {
+            const response = await api.post(`task`, taskData, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
 
@@ -427,7 +427,7 @@ const EditExperimentTask = () => {
      */
     const handleDeleteTask = async () => {
         try {
-            await api.delete(`task2/${taskToDeleteIndex}`, {
+            await api.delete(`task/${taskToDeleteIndex}`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             await fetchTasks();

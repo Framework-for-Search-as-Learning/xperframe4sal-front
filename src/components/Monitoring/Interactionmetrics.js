@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import {
     Paper,
     Typography,
@@ -48,11 +48,11 @@ import {
     LineChart,
     Line,
 } from "recharts";
-import {api} from "../../config/axios";
+import { api } from "../../config/axios";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
-const InteractionMetrics = ({tasksExecution, participants, experimentId, accessToken, t,}) => {
+const InteractionMetrics = ({ tasksExecution, participants, experimentId, accessToken, t, }) => {
     const [activeTab, setActiveTab] = useState(0);
     const [exporting, setExporting] = useState(false);
     const [selectedTask, setSelectedTask] = useState("");
@@ -90,17 +90,17 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
     const loadUserTaskDetails = async (userId) => {
         if (userTaskDetails[userId]) return;
 
-        setLoadingDetails((prev) => ({...prev, [userId]: true}));
+        setLoadingDetails((prev) => ({ ...prev, [userId]: true }));
         try {
             const detailsPromises = tasksExecution.map(async (task) => {
                 try {
-                    const {data} = await api.get(`user-task2/execution-details/user/${userId}/task/${task.taskId}`, {
-                        headers: {Authorization: `Bearer ${accessToken}`},
+                    const { data } = await api.get(`user-task/execution-details/user/${userId}/task/${task.taskId}`, {
+                        headers: { Authorization: `Bearer ${accessToken}` },
                     });
-                    return {taskId: task.taskId, data};
+                    return { taskId: task.taskId, data };
                 } catch (error) {
                     console.error(`Error loading details for task ${task.taskId}:`, error);
-                    return {taskId: task.taskId, data: []};
+                    return { taskId: task.taskId, data: [] };
                 }
             });
 
@@ -110,11 +110,11 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
                 detailsByTask[result.taskId] = result.data;
             });
 
-            setUserTaskDetails((prev) => ({...prev, [userId]: detailsByTask}));
+            setUserTaskDetails((prev) => ({ ...prev, [userId]: detailsByTask }));
         } catch (error) {
             console.error("Error loading user task details:", error);
         } finally {
-            setLoadingDetails((prev) => ({...prev, [userId]: false}));
+            setLoadingDetails((prev) => ({ ...prev, [userId]: false }));
         }
     };
 
@@ -122,7 +122,7 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
         setExporting(true);
         try {
             const jsonData = JSON.stringify(tasksExecution, null, 2);
-            const blob = new Blob([jsonData], {type: "application/json"});
+            const blob = new Blob([jsonData], { type: "application/json" });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
@@ -226,7 +226,7 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
     };
 
     if (!tasksExecution || tasksExecution.length === 0) {
-        return (<Paper sx={{p: 3}}>
+        return (<Paper sx={{ p: 3 }}>
             <Typography color="textSecondary" align="center">
                 {t("no_tasks_execution") || "Nenhuma execução de tarefa disponível"}
             </Typography>
@@ -234,7 +234,7 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
     }
 
     return (<Box>
-        <Paper sx={{mb: 3}}>
+        <Paper sx={{ mb: 3 }}>
             <Tabs
                 value={activeTab}
                 onChange={handleTabChange}
@@ -242,9 +242,9 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
                 textColor="primary"
                 variant="fullWidth"
             >
-                <Tab label={t("summary") || "Resumo"}/>
-                <Tab label={t("by_task") || "Por Tarefa"}/>
-                <Tab label={t("by_participant") || "Por Participante"}/>
+                <Tab label={t("summary") || "Resumo"} />
+                <Tab label={t("by_task") || "Por Tarefa"} />
+                <Tab label={t("by_participant") || "Por Participante"} />
             </Tabs>
         </Paper>
 
@@ -279,11 +279,11 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
     </Box>);
 };
 
-const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, formatTime, t}) => {
+const ResumoTab = ({ stats, tasksExecution, handleExportMetrics, exporting, formatTime, t }) => {
     const prepareTaskTypeData = () => {
         return [{
             name: t("search_tasks") || "Tarefas de Busca", value: stats.searchTasks
-        }, {name: t("llm_tasks") || "Tarefas Chat", value: stats.llmTasks},];
+        }, { name: t("llm_tasks") || "Tarefas Chat", value: stats.llmTasks },];
     };
 
     const prepareExecutionTimeData = () => {
@@ -309,7 +309,7 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
             </Typography>
             <Button
                 variant="outlined"
-                startIcon={exporting ? <CircularProgress size={16}/> : <DownloadIcon/>}
+                startIcon={exporting ? <CircularProgress size={16} /> : <DownloadIcon />}
                 onClick={handleExportMetrics}
                 disabled={exporting}
             >
@@ -317,12 +317,12 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
             </Button>
         </Box>
 
-        <Grid container spacing={3} sx={{mb: 4}}>
+        <Grid container spacing={3} sx={{ mb: 4 }}>
             <Grid item xs={12} sm={6} md={3}>
                 <Card>
                     <CardContent>
-                        <Box sx={{display: "flex", alignItems: "center"}}>
-                            <AssignmentIcon sx={{fontSize: 40, color: "#1976d2", mr: 2}}/>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <AssignmentIcon sx={{ fontSize: 40, color: "#1976d2", mr: 2 }} />
                             <Box>
                                 <Typography variant="h5" color="primary">
                                     {stats.totalTasks}
@@ -339,8 +339,8 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
             <Grid item xs={12} sm={6} md={3}>
                 <Card>
                     <CardContent>
-                        <Box sx={{display: "flex", alignItems: "center"}}>
-                            <AccessTimeIcon sx={{fontSize: 40, color: "#2e7d32", mr: 2}}/>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <AccessTimeIcon sx={{ fontSize: 40, color: "#2e7d32", mr: 2 }} />
                             <Box>
                                 <Typography variant="h5" color="success.main">
                                     {formatTime(stats.averageExecutionTime)}
@@ -357,8 +357,8 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
             <Grid item xs={12} sm={6} md={3}>
                 <Card>
                     <CardContent>
-                        <Box sx={{display: "flex", alignItems: "center"}}>
-                            <SearchIcon sx={{fontSize: 40, color: "#ed6c02", mr: 2}}/>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <SearchIcon sx={{ fontSize: 40, color: "#ed6c02", mr: 2 }} />
                             <Box>
                                 <Typography variant="h5" color="warning.main">
                                     {stats.totalResourcesAccessed}
@@ -375,10 +375,10 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
             <Grid item xs={12} sm={6} md={3}>
                 <Card>
                     <CardContent>
-                        <Box sx={{display: "flex", alignItems: "center"}}>
-                            <ChatIcon sx={{fontSize: 40, color: "#9c27b0", mr: 2}}/>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <ChatIcon sx={{ fontSize: 40, color: "#9c27b0", mr: 2 }} />
                             <Box>
-                                <Typography variant="h5" sx={{color: "#9c27b0"}}>
+                                <Typography variant="h5" sx={{ color: "#9c27b0" }}>
                                     {stats.totalMessages}
                                 </Typography>
                                 <Typography variant="body2" color="textSecondary">
@@ -391,22 +391,22 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
             </Grid>
         </Grid>
 
-        <Divider sx={{mb: 4}}/>
+        <Divider sx={{ mb: 4 }} />
 
-        <Paper sx={{p: 3, mb: 4}}>
+        <Paper sx={{ p: 3, mb: 4 }}>
             <Typography variant="h6" gutterBottom>
                 {t("task_type_distribution") || "Distribuição por Tipo de Tarefa"}
             </Typography>
 
-            <Grid container spacing={3} sx={{mt: 2}}>
+            <Grid container spacing={3} sx={{ mt: 2 }}>
                 <Grid item xs={12} md={6}>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={prepareTaskTypeData()}>
-                            <CartesianGrid strokeDasharray="3 3"/>
-                            <XAxis dataKey="name"/>
-                            <YAxis/>
-                            <Tooltip/>
-                            <Legend/>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
                             <Bar
                                 dataKey="value"
                                 fill="#1976d2"
@@ -424,7 +424,7 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
-                                label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                                 outerRadius={100}
                                 fill="#8884d8"
                                 dataKey="value"
@@ -434,21 +434,21 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
                                     fill={COLORS[index % COLORS.length]}
                                 />))}
                             </Pie>
-                            <Tooltip/>
+                            <Tooltip />
                         </PieChart>
                     </ResponsiveContainer>
                 </Grid>
             </Grid>
         </Paper>
 
-        <Paper sx={{p: 3, mb: 4}}>
+        <Paper sx={{ p: 3, mb: 4 }}>
             <Typography variant="h6" gutterBottom>
                 {t("avg_time_by_task") || "Tempo Médio por Tarefa"}
             </Typography>
 
             <ResponsiveContainer width="100%" height={400}>
                 <BarChart data={prepareExecutionTimeData()}>
-                    <CartesianGrid strokeDasharray="3 3"/>
+                    <CartesianGrid strokeDasharray="3 3" />
                     <XAxis
                         dataKey="name"
                         angle={-45}
@@ -457,7 +457,7 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
                         interval={0}
                     />
                     <YAxis
-                        label={{value: "Segundos", angle: -90, position: "insideLeft"}}
+                        label={{ value: "Segundos", angle: -90, position: "insideLeft" }}
                     />
                     <Tooltip
                         formatter={(value, name) => {
@@ -465,7 +465,7 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
                             return [value, t("executions") || "Execuções"];
                         }}
                     />
-                    <Legend/>
+                    <Legend />
                     <Bar
                         dataKey="tempo"
                         fill="#2e7d32"
@@ -475,7 +475,7 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
             </ResponsiveContainer>
         </Paper>
 
-        <Paper sx={{p: 3}}>
+        <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
                 {t("detailed_tasks") || "Detalhes por Tarefa"}
             </Typography>
@@ -541,7 +541,7 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
     </Box>);
 };
 
-const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelectedTaskData, formatTime, t}) => {
+const PorTarefaTab = ({ tasksExecution, selectedTask, handleTaskChange, getSelectedTaskData, formatTime, t }) => {
     const taskData = getSelectedTaskData();
 
     if (!taskData) return null;
@@ -562,7 +562,7 @@ const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelect
     }));
 
     return (<Box>
-        <Box sx={{mb: 3}}>
+        <Box sx={{ mb: 3 }}>
             <FormControl fullWidth>
                 <InputLabel>{t("select_task") || "Selecione uma tarefa"}</InputLabel>
                 <Select
@@ -577,7 +577,7 @@ const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelect
             </FormControl>
         </Box>
 
-        <Card sx={{mb: 3}}>
+        <Card sx={{ mb: 3 }}>
             <CardContent>
                 <Typography variant="h6" gutterBottom>
                     {taskData.taskTitle}
@@ -586,12 +586,12 @@ const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelect
                     label={isSearchTask ? "Busca" : "Chat"}
                     color={isSearchTask ? "primary" : "secondary"}
                     size="small"
-                    sx={{mb: 2}}
+                    sx={{ mb: 2 }}
                 />
 
-                <Grid container spacing={2} sx={{mt: 1}}>
+                <Grid container spacing={2} sx={{ mt: 1 }}>
                     <Grid item xs={12} sm={6} md={3}>
-                        <Box sx={{p: 2, bgcolor: "grey.50", borderRadius: 1}}>
+                        <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
                             <Typography variant="body2" color="textSecondary">
                                 {t("executions") || "Execuções"}
                             </Typography>
@@ -601,7 +601,7 @@ const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelect
                         </Box>
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
-                        <Box sx={{p: 2, bgcolor: "grey.50", borderRadius: 1}}>
+                        <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
                             <Typography variant="body2" color="textSecondary">
                                 {t("avg_time") || "Tempo Médio"}
                             </Typography>
@@ -612,7 +612,7 @@ const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelect
                     </Grid>
                     {isSearchTask && (<>
                         <Grid item xs={12} sm={6} md={3}>
-                            <Box sx={{p: 2, bgcolor: "grey.50", borderRadius: 1}}>
+                            <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
                                 <Typography variant="body2" color="textSecondary">
                                     {t("total_resources") || "Total de Recursos"}
                                 </Typography>
@@ -622,7 +622,7 @@ const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelect
                             </Box>
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
-                            <Box sx={{p: 2, bgcolor: "grey.50", borderRadius: 1}}>
+                            <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
                                 <Typography variant="body2" color="textSecondary">
                                     {t("total_queries") || "Total de Consultas"}
                                 </Typography>
@@ -633,7 +633,7 @@ const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelect
                         </Grid>
                     </>)}
                     {!isSearchTask && (<Grid item xs={12} sm={6} md={3}>
-                        <Box sx={{p: 2, bgcolor: "grey.50", borderRadius: 1}}>
+                        <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
                             <Typography variant="body2" color="textSecondary">
                                 {t("total_messages") || "Total de Mensagens"}
                             </Typography>
@@ -646,17 +646,17 @@ const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelect
             </CardContent>
         </Card>
 
-        <Paper sx={{p: 3, mb: 3}}>
+        <Paper sx={{ p: 3, mb: 3 }}>
             <Typography variant="h6" gutterBottom>
                 {t("execution_times") || "Tempos de Execução"}
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={executionTimeData}>
-                    <CartesianGrid strokeDasharray="3 3"/>
-                    <XAxis dataKey="name"/>
-                    <YAxis label={{value: "Segundos", angle: -90, position: "insideLeft"}}/>
-                    <Tooltip formatter={(value) => [`${value}s`, t("time") || "Tempo"]}/>
-                    <Legend/>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis label={{ value: "Segundos", angle: -90, position: "insideLeft" }} />
+                    <Tooltip formatter={(value) => [`${value}s`, t("time") || "Tempo"]} />
+                    <Legend />
                     <Line
                         type="monotone"
                         dataKey="tempo"
@@ -667,7 +667,7 @@ const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelect
             </ResponsiveContainer>
         </Paper>
 
-        <Paper sx={{p: 3}}>
+        <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
                 {t("executions_list") || "Lista de Execuções"}
             </Typography>
@@ -718,7 +718,7 @@ const PorParticipanteTab = ({ participants, tasksExecution, selectedUser, handle
     const selectedParticipant = participants?.find((p) => p.id === selectedUser);
 
     return (<Box>
-        <Box sx={{mb: 3}}>
+        <Box sx={{ mb: 3 }}>
             <FormControl fullWidth>
                 <InputLabel>
                     {t("select_participant") || "Selecione um participante"}
@@ -735,10 +735,10 @@ const PorParticipanteTab = ({ participants, tasksExecution, selectedUser, handle
             </FormControl>
         </Box>
 
-        {isLoadingUserDetails() ? (<Box sx={{display: "flex", justifyContent: "center", py: 4}}>
-            <CircularProgress/>
+        {isLoadingUserDetails() ? (<Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+            <CircularProgress />
         </Box>) : userDetails ? (<Box>
-            <Card sx={{mb: 3}}>
+            <Card sx={{ mb: 3 }}>
                 <CardContent>
                     <Typography variant="h6" gutterBottom>
                         {selectedParticipant?.name}
@@ -754,8 +754,8 @@ const PorParticipanteTab = ({ participants, tasksExecution, selectedUser, handle
                 if (!taskDetails || taskDetails.length === 0) return null;
 
                 return (<Accordion key={task.taskId} defaultExpanded>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                        <Box sx={{width: "100%"}}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Box sx={{ width: "100%" }}>
                             <Typography variant="subtitle1" fontWeight="bold">
                                 {task.taskTitle}
                             </Typography>
@@ -763,13 +763,13 @@ const PorParticipanteTab = ({ participants, tasksExecution, selectedUser, handle
                                 label={taskDetails[0]?.taskType === "search-engine" ? "Busca" : "Chat"}
                                 color={taskDetails[0]?.taskType === "search-engine" ? "primary" : "secondary"}
                                 size="small"
-                                sx={{mt: 0.5}}
+                                sx={{ mt: 0.5 }}
                             />
                         </Box>
                     </AccordionSummary>
                     <AccordionDetails>
                         {taskDetails.map((detail, idx) => (
-                            <Card key={detail.userTaskId} sx={{mb: 2, bgcolor: "grey.50"}}>
+                            <Card key={detail.userTaskId} sx={{ mb: 2, bgcolor: "grey.50" }}>
                                 <CardContent>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={6}>
@@ -801,11 +801,11 @@ const PorParticipanteTab = ({ participants, tasksExecution, selectedUser, handle
 
                                             {detail.searchDetails.resources && detail.searchDetails.resources.length > 0 && (
                                                 <Grid item xs={12}>
-                                                    <Divider sx={{my: 1}}/>
+                                                    <Divider sx={{ my: 1 }} />
                                                     <Typography
                                                         variant="subtitle2"
                                                         gutterBottom
-                                                        sx={{mt: 2}}
+                                                        sx={{ mt: 2 }}
                                                     >
                                                         {t("browsing_history") || "Histórico de Navegação"}
                                                     </Typography>
@@ -888,7 +888,7 @@ const PorParticipanteTab = ({ participants, tasksExecution, selectedUser, handle
                     </AccordionDetails>
                 </Accordion>);
             })}
-        </Box>) : (<Paper sx={{p: 3}}>
+        </Box>) : (<Paper sx={{ p: 3 }}>
             <Typography color="textSecondary" align="center">
                 {t("no_task_details") || "Nenhum detalhe de tarefa encontrado para este participante"}
             </Typography>

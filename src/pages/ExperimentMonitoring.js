@@ -1,6 +1,6 @@
-import {useCallback, useEffect, useState} from "react";
-import {useParams, useNavigate} from "react-router-dom";
-import {api} from "../config/axios";
+import { useCallback, useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { api } from "../config/axios";
 import {
     Button,
     Typography,
@@ -15,7 +15,7 @@ import {
     Alert,
     Divider,
 } from "@mui/material";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -26,9 +26,9 @@ import InteractionLogs from "../components/Monitoring/Interactionlogs";
 import InteractionMetrics from "../components/Monitoring/Interactionmetrics";
 
 const ExperimentMonitoring = () => {
-    const {experimentId} = useParams();
+    const { experimentId } = useParams();
     const navigate = useNavigate();
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     const user = JSON.parse(localStorage.getItem("user"));
 
     const [activeTab, setActiveTab] = useState(0);
@@ -45,36 +45,36 @@ const ExperimentMonitoring = () => {
         setLoading(true);
         setError(null);
         try {
-            const { data: experiment } = await api.get(`experiments2/${experimentId}`, {
+            const { data: experiment } = await api.get(`experiment/${experimentId}`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` }
             });
             setExperimentData(experiment);
 
-            const { data: stats } = await api.get(`experiments2/${experimentId}/stats`, {
+            const { data: stats } = await api.get(`experiment/${experimentId}/stats`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` }
             });
             setStatsData(stats);
 
-            const {data: participants} = await api.get(
-                `experiments2/${experimentId}/participants`,
+            const { data: participants } = await api.get(
+                `experiment/${experimentId}/participants`,
                 {
-                    headers: {Authorization: `Bearer ${user.accessToken}`}
+                    headers: { Authorization: `Bearer ${user.accessToken}` }
                 }
             );
             setParticipantsData(participants);
 
-            const {data: surveysStats} = await api.get(
-                `experiments2/${experimentId}/surveys-stats`,
+            const { data: surveysStats } = await api.get(
+                `experiment/${experimentId}/surveys-stats`,
                 {
-                    headers: {Authorization: `Bearer ${user.accessToken}`}
+                    headers: { Authorization: `Bearer ${user.accessToken}` }
                 }
             );
             setSurveysStatsData(surveysStats);
 
-            const {data: tasksExecution} = await api.get(
-                `experiments2/${experimentId}/tasks-execution`,
+            const { data: tasksExecution } = await api.get(
+                `experiment/${experimentId}/tasks-execution`,
                 {
-                    headers: {Authorization: `Bearer ${user.accessToken}`}
+                    headers: { Authorization: `Bearer ${user.accessToken}` }
                 }
             );
             setTasksExecutionData(tasksExecution);
@@ -109,7 +109,7 @@ const ExperimentMonitoring = () => {
 
             await new Promise((resolve) => setTimeout(resolve, 1000));
             const jsonData = JSON.stringify(allData, null, 2);
-            const blob = new Blob([jsonData], {type: "application/json"});
+            const blob = new Blob([jsonData], { type: "application/json" });
             const url = window.URL.createObjectURL(blob);
 
             const link = document.createElement("a");
@@ -142,19 +142,19 @@ const ExperimentMonitoring = () => {
                     minHeight: "60vh",
                 }}
             >
-                <CircularProgress size={60}/>
+                <CircularProgress size={60} />
             </Box>
         );
     }
 
     if (error) {
         return (
-            <Box sx={{p: 3}}>
-                <Alert severity="error" sx={{mb: 2}}>
+            <Box sx={{ p: 3 }}>
+                <Alert severity="error" sx={{ mb: 2 }}>
                     {error}
                 </Alert>
                 <Button
-                    startIcon={<ArrowBackIcon/>}
+                    startIcon={<ArrowBackIcon />}
                     onClick={() => navigate("/experiments")}
                 >
                     {t("back") || "Voltar"}
@@ -164,12 +164,12 @@ const ExperimentMonitoring = () => {
     }
 
     return (
-        <Box sx={{p: 3, maxWidth: 1400, margin: "0 auto"}}>
-            <Box sx={{mb: 3}}>
+        <Box sx={{ p: 3, maxWidth: 1400, margin: "0 auto" }}>
+            <Box sx={{ mb: 3 }}>
                 <Button
-                    startIcon={<ArrowBackIcon/>}
+                    startIcon={<ArrowBackIcon />}
                     onClick={() => navigate("/experiments")}
-                    sx={{mb: 2}}
+                    sx={{ mb: 2 }}
                 >
                     {t("back") || "Voltar"}
                 </Button>
@@ -183,13 +183,13 @@ const ExperimentMonitoring = () => {
                 >
                     <Box>
                         <Typography variant="h4" gutterBottom>
-                            <AssessmentIcon sx={{mr: 1, verticalAlign: "middle"}}/>
+                            <AssessmentIcon sx={{ mr: 1, verticalAlign: "middle" }} />
                             {t("experiment_monitoring") || "Monitoramento do Experimento"}
                         </Typography>
                         <Typography variant="h6" color="textSecondary">
                             {experimentData?.name}
                         </Typography>
-                        <Typography variant="body2" color="textSecondary" sx={{mt: 1}}>
+                        <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
                             {experimentData?.summary?.replace(/<[^>]*>/g, '')}
                         </Typography>
                     </Box>
@@ -198,7 +198,7 @@ const ExperimentMonitoring = () => {
                         variant="contained"
                         color="primary"
                         startIcon={
-                            exportingData ? <CircularProgress size={20}/> : <DownloadIcon/>
+                            exportingData ? <CircularProgress size={20} /> : <DownloadIcon />
                         }
                         onClick={handleExportAllData}
                         disabled={exportingData}
@@ -210,13 +210,13 @@ const ExperimentMonitoring = () => {
                 </Box>
             </Box>
 
-            <Divider sx={{mb: 3}}/>
+            <Divider sx={{ mb: 3 }} />
 
-            <Grid container spacing={3} sx={{mb: 4}}>
+            <Grid container spacing={3} sx={{ mb: 4 }}>
                 <Grid item xs={12} sm={6} md={3}>
                     <Card>
                         <CardContent>
-                            <Box sx={{display: "flex", alignItems: "center"}}>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
                                 <Box>
                                     <Typography variant="h4" color="primary">
                                         {statsData?.totalParticipants || 0}
@@ -233,7 +233,7 @@ const ExperimentMonitoring = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <Card>
                         <CardContent>
-                            <Box sx={{display: "flex", alignItems: "center"}}>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
                                 <Box>
                                     <Typography variant="h4" color="primary">
                                         {statsData?.finishedParticipants || 0}
@@ -250,7 +250,7 @@ const ExperimentMonitoring = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <Card>
                         <CardContent>
-                            <Box sx={{display: "flex", alignItems: "center"}}>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
                                 <Box>
                                     <Typography variant="h4" color="primary">
                                         {statsData?.inProgressParticipants || 0}
@@ -267,7 +267,7 @@ const ExperimentMonitoring = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <Card>
                         <CardContent>
-                            <Box sx={{display: "flex", alignItems: "center"}}>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
                                 <Box>
                                     <Typography variant="h4" color="primary">
                                         {statsData?.completionPercentage?.toFixed(1) || 0}%
@@ -282,7 +282,7 @@ const ExperimentMonitoring = () => {
                 </Grid>
             </Grid>
 
-            <Paper sx={{mb: 3}}>
+            <Paper sx={{ mb: 3 }}>
                 <Tabs
                     value={activeTab}
                     onChange={handleTabChange}
@@ -290,9 +290,9 @@ const ExperimentMonitoring = () => {
                     textColor="primary"
                     variant="fullWidth"
                 >
-                    <Tab label={t("participants") || "Participantes"}/>
-                    <Tab label={t("questionnaires") || "Questionários"}/>
-                    <Tab label={t("interaction_metrics") || "Métricas de Interação"}/>
+                    <Tab label={t("participants") || "Participantes"} />
+                    <Tab label={t("questionnaires") || "Questionários"} />
+                    <Tab label={t("interaction_metrics") || "Métricas de Interação"} />
                     {/*<Tab label={t("interaction_logs") || "Logs de Interação"}/>*/}
                 </Tabs>
             </Paper>
