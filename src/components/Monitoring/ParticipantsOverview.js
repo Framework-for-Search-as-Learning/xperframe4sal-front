@@ -21,7 +21,6 @@ const ParticipantsOverview = ({participants, stats, experimentId, t}) => {
     const handleExportParticipants = async () => {
         setExporting(true);
         try {
-            // Cria CSV com dados dos participantes
             const csvContent = [
                 "ID,Nome,Email,Status,Data Início,Data Conclusão,Tempo Gasto (ms),Progresso (%)",
                 ...participants.map((p) => {
@@ -177,7 +176,6 @@ const ParticipantsOverview = ({participants, stats, experimentId, t}) => {
                 </Table>
             </TableContainer>
 
-            {/* Summary Stats */}
             {stats && (
                 <Box sx={{mt: 3, p: 2, bgcolor: "grey.50", borderRadius: 1}}>
                     <Typography variant="subtitle2" gutterBottom>
@@ -190,10 +188,6 @@ const ParticipantsOverview = ({participants, stats, experimentId, t}) => {
                         <Typography variant="body2" color="success.main">
                             <strong>{t("finished") || "Finalizados"}:</strong>{" "}
                             {stats.finishedParticipants}
-                        </Typography>
-                        <Typography variant="body2" color="warning.main">
-                            <strong>{t("in_progress") || "Em Andamento"}:</strong>{" "}
-                            {stats.inProgressParticipants}
                         </Typography>
                         <Typography variant="body2">
                             <strong>{t("completion_rate") || "Taxa de Conclusão"}:</strong>{" "}

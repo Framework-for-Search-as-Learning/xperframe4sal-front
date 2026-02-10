@@ -17,13 +17,9 @@ import {
 } from "@mui/material";
 import {useTranslation} from "react-i18next";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import PeopleIcon from "@mui/icons-material/People";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import DownloadIcon from "@mui/icons-material/Download";
 
-// Componentes de visualização
 import ParticipantsOverview from "../components/Monitoring/ParticipantsOverview";
 import QuestionnaireAnalysis from "../components/Monitoring/Questionnaireanalysis";
 import InteractionLogs from "../components/Monitoring/Interactionlogs";
@@ -67,14 +63,8 @@ const ExperimentMonitoring = () => {
             );
             setParticipantsData(participants);
 
-            // const {data: surveysStats} = await api.get(
-            //     `experiments2/${experimentId}/surveys-stats`,
-            //     {
-            //         headers: {Authorization: `Bearer ${user.accessToken}`}
-            //     }
-            // );
             const {data: surveysStats} = await api.get(
-                `survey2/c44a3f38-2e87-4389-b8af-1b8dbe44bce2/stats`,
+                `experiments2/${experimentId}/surveys-stats`,
                 {
                     headers: {Authorization: `Bearer ${user.accessToken}`}
                 }
@@ -88,12 +78,8 @@ const ExperimentMonitoring = () => {
                 }
             );
             setTasksExecutionData(tasksExecution);
+            console.log("tasksExecutionData", tasksExecution);
 
-            // const monitoringData = await fetchExperimentMonitoringData(
-            //     experimentId,
-            //     data,
-            // );
-            // setData(monitoringData);
         } catch (err) {
             console.error("Error loading monitoring data:", err);
             setError(
@@ -121,7 +107,6 @@ const ExperimentMonitoring = () => {
                 exportDate: new Date().toISOString(),
             };
 
-            // Mock export
             await new Promise((resolve) => setTimeout(resolve, 1000));
             const jsonData = JSON.stringify(allData, null, 2);
             const blob = new Blob([jsonData], {type: "application/json"});
@@ -180,7 +165,6 @@ const ExperimentMonitoring = () => {
 
     return (
         <Box sx={{p: 3, maxWidth: 1400, margin: "0 auto"}}>
-            {/* Header */}
             <Box sx={{mb: 3}}>
                 <Button
                     startIcon={<ArrowBackIcon/>}
@@ -228,13 +212,11 @@ const ExperimentMonitoring = () => {
 
             <Divider sx={{mb: 3}}/>
 
-            {/* Overview Cards */}
             <Grid container spacing={3} sx={{mb: 4}}>
                 <Grid item xs={12} sm={6} md={3}>
                     <Card>
                         <CardContent>
                             <Box sx={{display: "flex", alignItems: "center"}}>
-                                {/* <PeopleIcon sx={{ fontSize: 40, color: "#1976d2", mr: 2 }} /> */}
                                 <Box>
                                     <Typography variant="h4" color="primary">
                                         {statsData?.totalParticipants || 0}
@@ -252,9 +234,6 @@ const ExperimentMonitoring = () => {
                     <Card>
                         <CardContent>
                             <Box sx={{display: "flex", alignItems: "center"}}>
-                                {/* <CheckCircleIcon
-                  sx={{ fontSize: 40, color: "#2e7d32", mr: 2 }}
-                /> */}
                                 <Box>
                                     <Typography variant="h4" color="primary">
                                         {statsData?.finishedParticipants || 0}
@@ -272,9 +251,6 @@ const ExperimentMonitoring = () => {
                     <Card>
                         <CardContent>
                             <Box sx={{display: "flex", alignItems: "center"}}>
-                                {/* <HourglassEmptyIcon
-                  sx={{ fontSize: 40, color: "#ed6c02", mr: 2 }}
-                /> */}
                                 <Box>
                                     <Typography variant="h4" color="primary">
                                         {statsData?.inProgressParticipants || 0}
@@ -292,9 +268,6 @@ const ExperimentMonitoring = () => {
                     <Card>
                         <CardContent>
                             <Box sx={{display: "flex", alignItems: "center"}}>
-                                {/* <AssessmentIcon
-                  sx={{ fontSize: 40, color: "#1976d2", mr: 2 }}
-                /> */}
                                 <Box>
                                     <Typography variant="h4" color="primary">
                                         {statsData?.completionPercentage?.toFixed(1) || 0}%
@@ -309,7 +282,6 @@ const ExperimentMonitoring = () => {
                 </Grid>
             </Grid>
 
-            {/* Tabs for detailed views */}
             <Paper sx={{mb: 3}}>
                 <Tabs
                     value={activeTab}
@@ -321,11 +293,10 @@ const ExperimentMonitoring = () => {
                     <Tab label={t("participants") || "Participantes"}/>
                     <Tab label={t("questionnaires") || "Questionários"}/>
                     <Tab label={t("interaction_metrics") || "Métricas de Interação"}/>
-                    <Tab label={t("interaction_logs") || "Logs de Interação"}/>
+                    {/*<Tab label={t("interaction_logs") || "Logs de Interação"}/>*/}
                 </Tabs>
             </Paper>
 
-            {/* Tab Content */}
             <Box>
                 {activeTab === 0 && (
                     <ParticipantsOverview
@@ -340,7 +311,7 @@ const ExperimentMonitoring = () => {
                 {activeTab === 1 && (
                     <QuestionnaireAnalysis
                         surveysStats={surveysStatsData}
-                        experimentId={experimentId}
+                        participants={participantsData}
                         accessToken={user.accessToken}
                         t={t}
                     />
@@ -349,21 +320,22 @@ const ExperimentMonitoring = () => {
                 {activeTab === 2 && (
                     <InteractionMetrics
                         tasksExecution={tasksExecutionData}
-                        experimentId={experimentId}
-                        accessToken={user.accessToken}
-                        t={t}
-                    />
-                )}
-
-                {activeTab === 3 && (
-                    <InteractionLogs
-                        tasksExecution={tasksExecutionData}
                         participants={participantsData}
                         experimentId={experimentId}
                         accessToken={user.accessToken}
                         t={t}
                     />
                 )}
+
+                {/*{activeTab === 3 && (*/}
+                {/*    <InteractionLogs*/}
+                {/*        tasksExecution={tasksExecutionData}*/}
+                {/*        participants={participantsData}*/}
+                {/*        experimentId={experimentId}*/}
+                {/*        accessToken={user.accessToken}*/}
+                {/*        t={t}*/}
+                {/*    />*/}
+                {/*)}*/}
             </Box>
         </Box>
     );
