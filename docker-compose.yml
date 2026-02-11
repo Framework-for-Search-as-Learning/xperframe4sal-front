@@ -14,5 +14,3 @@ services:
     environment:
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
-    env_file:
-      - .env
