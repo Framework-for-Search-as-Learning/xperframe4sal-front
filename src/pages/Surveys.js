@@ -60,13 +60,13 @@ const Surveys = () => {
 
                 const [experimentResponse, userExperimentResponse] =
                     await Promise.all([
-                        api.get(`experiments2/${experimentId}`, {
+                        api.get(`experiments/${experimentId}`, {
                             headers: {
                                 Authorization: `Bearer ${user.accessToken}`,
                             },
                         }),
                         api.get(
-                            `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
+                            `user-experiments?experimentId=${experimentId}&userId=${user.id}`,
                             {
                                 headers: {
                                     Authorization: `Bearer ${user.accessToken}`,
@@ -98,7 +98,7 @@ const Surveys = () => {
                 let surveyList = [];
                 let localPre = [];
                 let localPost = [];
-                const surveys = await api.get(`survey2/experiment/${experimentId}`, {
+                const surveys = await api.get(`survey/experiment/${experimentId}`, {
                     headers: {
                         Authorization: `Bearer ${user.accessToken}`,
                     },
@@ -152,7 +152,7 @@ const Surveys = () => {
                 setShowWarning(!activate);
                 setShouldActivateTask(activate);
 
-                const steps = await api.get(`experiments2/${experimentId}/step`, {
+                const steps = await api.get(`experiments/${experimentId}/step`, {
                     headers: {
                         Authorization: `Bearer ${user.accessToken}`,
                     },

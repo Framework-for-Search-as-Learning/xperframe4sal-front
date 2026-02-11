@@ -65,7 +65,7 @@ const CreateExperiment = () => {
                 description: ExperimentDescICF,
             };
             await api.post(
-                `/experiments2`,
+                `/experiments`,
                 {
                     ownerId: user.id,
                     name: ExperimentTitle,

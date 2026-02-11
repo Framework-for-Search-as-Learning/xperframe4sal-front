@@ -27,7 +27,7 @@ const EditGroupArea = ({ExperimentId}) => {
     const fetchData = useCallback(async () => {
         const allUsersInTasks = [];
         try {
-            const response = await api.get(`task2/experiment/${ExperimentId.experimentId}/`, {
+            const response = await api.get(`task/experiment/${ExperimentId.experimentId}/`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
 
@@ -35,7 +35,7 @@ const EditGroupArea = ({ExperimentId}) => {
             const generatedGroups = [];
 
             for (const task of tasks) {
-                const response = await api.get(`user-task2/task/${task._id}/users`, {
+                const response = await api.get(`user-task/task/${task._id}/users`, {
                     headers: { Authorization: `Bearer ${user.accessToken}` },
                 });
 
@@ -54,7 +54,7 @@ const EditGroupArea = ({ExperimentId}) => {
         }
 
         try {
-            const response = await api.get(`user-experiments2/experiment/${ExperimentId.experimentId}/`, {
+            const response = await api.get(`user-experiments/experiment/${ExperimentId.experimentId}/`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             const usersInExperimentData = response.data;

@@ -35,7 +35,7 @@ const ExperimentTemplate = ({ steps, headerTitle, children }) => {
 
   const handleFinish = async () => {
     try {
-      const get_response = await api.get(`user-experiments2?experimentId=${experimentId}&userId=${user.id}`, {
+      const get_response = await api.get(`user-experiments?experimentId=${experimentId}&userId=${user.id}`, {
         headers: {
           Authorization: `Bearer ${user.accessToken}`,
         },
@@ -43,7 +43,7 @@ const ExperimentTemplate = ({ steps, headerTitle, children }) => {
 
       const user_experiment = get_response.data
 
-      const patch_responde = await api.patch(`user-experiments2/finish/${user_experiment._id}`, {
+      const patch_responde = await api.patch(`user-experiments/finish/${user_experiment._id}`, {
         headers: {
           Authorization: `Bearer ${user.accessToken}`,
         },

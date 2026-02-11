@@ -67,7 +67,7 @@ const EditExperimentSurvey = () => {
 
     const fetchSurvey = useCallback(async () => {
         try {
-            const response = await api.get(`survey2/experiment/${experimentId}`, {
+            const response = await api.get(`survey/experiment/${experimentId}`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             const filteredsurveys = response.data
@@ -103,7 +103,7 @@ const EditExperimentSurvey = () => {
 
     const handleDeleteSurvey = async () => {
         try {
-            await api.delete(`/survey2/${SurveyToDeleteId._id}`, {
+            await api.delete(`/survey/${SurveyToDeleteId._id}`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             handleCloseDeleteDialog();
@@ -283,7 +283,7 @@ const EditExperimentSurvey = () => {
                 return updatedSurveys;
             });
 
-            await api.patch(`/survey2/${editedSurvey._id}`, cleanSurveyData, {
+            await api.patch(`/survey/${editedSurvey._id}`, cleanSurveyData, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
 

@@ -93,7 +93,7 @@ const EditAccount = ({ t, isLoading, setIsLoading, alertMessage, messageType, se
     const userDataTemp = { name, lastName, email };
     setIsLoading(true);
     try {
-      let response = await api.patch(`/users2/${user.id}`, userDataTemp, {
+      let response = await api.patch(`/users/${user.id}`, userDataTemp, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       });
       setIsLoading(false);

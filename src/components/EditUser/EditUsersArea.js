@@ -23,12 +23,12 @@ const EditUserArea = ({ExperimentId}) => {
 
     const fetchData = useCallback(async () => {
         try {
-            const response = await api.get(`user-experiments2/experiment/${ExperimentId.experimentId}/`, {
+            const response = await api.get(`user-experiments/experiment/${ExperimentId.experimentId}/`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             const usersInExperimentData = response.data;
 
-            const allUsersResponse = await api.get(`users2`, {
+            const allUsersResponse = await api.get(`users`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             const allUsersData = allUsersResponse.data;
@@ -67,7 +67,7 @@ const EditUserArea = ({ExperimentId}) => {
     const saveChanges = async () => {
         try {
             await api.patch(
-                `user-experiments2/update-users/${ExperimentId.experimentId}`,
+                `user-experiments/update-users/${ExperimentId.experimentId}`,
                 { newUsersId: usersInExperiment.map((usr) => usr.id) },
                 { headers: { Authorization: `Bearer ${user.accessToken}` } }
             );

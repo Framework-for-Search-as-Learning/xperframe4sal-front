@@ -52,19 +52,15 @@ const Contact = () => {
         <AccordionDetails>
           <Box sx={{ display: 'flex' }}>
             <MailIcon />
-            <Typography noWrap sx={{ marginLeft: 1 }}>Marcelo Machado - marcelo.oc.machado@gmail.com</Typography>
+            <Typography noWrap sx={{ marginLeft: 1 }}>Marcelo Machado - marcelo.machado@ufjf.br</Typography>
           </Box>
           <Box sx={{ display: 'flex' }}>
             <MailIcon />
-            <Typography noWrap sx={{ marginLeft: 1 }}>Sean Wolfgand Matsui Siqueira - sean@uniriotec.br</Typography>
-          </Box>
-          <Box sx={{ display: 'flex' }}>
-            <MailIcon />
-            <Typography noWrap sx={{ marginLeft: 1 }}>Jairo Francisco de Souza - jairo.souza@ice.ufjf.br</Typography>
+            <Typography noWrap sx={{ marginLeft: 1 }}>Jairo Francisco de Souza - jairo.souza@ufjf.br</Typography>
           </Box>
         </AccordionDetails>
       </Accordion>
-      <Accordion
+      {/* <Accordion
         sx={{ marginBottom: '5px' }}
         elevation={3}
         expanded={expanded === `panel-1`}
@@ -95,7 +91,7 @@ const Contact = () => {
             <Typography noWrap sx={{ marginLeft: 1 }}>{t('cepPhone')}</Typography>
           </Box>
         </AccordionDetails>
-      </Accordion>
+      </Accordion> */}
     </>
   );
 };

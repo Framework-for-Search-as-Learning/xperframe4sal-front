@@ -43,9 +43,6 @@ const Router = () => {
         <Route index element={<Instructions />} />
       </Route>
 
-      <Route path='/new' element={<PrivateRoutes />}>
-        <Route index element={<CreateExperiment />} />
-      </Route>
 
       {/* <Route path='/EditExperiment' element={<PrivateRoutes />}>
         <Route path=':experimentId' element={<EditExperiment />} />
@@ -54,6 +51,7 @@ const Router = () => {
 
       <Route path='/experiments' element={<PrivateRoutes />}>
         <Route index element={<Experiments />} />
+        <Route path='new' element={<CreateExperiment />} />
         <Route path=':experimentId/edit' element={<EditExperiment />} />
         <Route path=':experimentId/icf' element={<ICF />} />
         <Route path=':experimentId/surveys' element={<Surveys />} />

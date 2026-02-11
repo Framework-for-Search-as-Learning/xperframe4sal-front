@@ -175,7 +175,7 @@ const EditExperimentTask = () => {
 
     const handleDeleteTask = async () => {
         try {
-            await api.delete(`/task2/${taskToDeleteIndex}`, {
+            await api.delete(`/task/${taskToDeleteIndex}`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             handleCloseDeleteDialog();
@@ -269,7 +269,7 @@ const EditExperimentTask = () => {
 
     const fetchTasks = async () => {
         try {
-            const response = await api.get(`task2/experiment/${ExperimentId}`, {
+            const response = await api.get(`task/experiment/${ExperimentId}`, {
                 //params: { Experimentid: experimentId },    talvez seja uma boa melhorar o get, podendo usar parametros
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
@@ -358,7 +358,7 @@ const EditExperimentTask = () => {
 
         try {
             const response = await api.patch(
-                `/task2/${editTaskIndex}`,
+                `/task/${editTaskIndex}`,
                 newTask,
                 {
                     headers: { Authorization: `Bearer ${user.accessToken}` },

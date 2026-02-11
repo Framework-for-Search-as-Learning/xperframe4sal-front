@@ -49,7 +49,7 @@ async function updateUserExperimentStatus(
                     { [stepName]: true }
                 );
                 await api.patch(
-                    `user-experiments2/${userExperiment._id}`,
+                    `user-experiments/${userExperiment._id}`,
                     userExperiment,
                     { headers: { Authorization: `Bearer ${user.accessToken}` } }
                 );
@@ -64,7 +64,7 @@ async function updateUserExperimentStatus(
                 }
                 if (finishedExperiment) {
                     await api.patch(
-                        `user-experiments2/${userExperiment._id}`,
+                        `user-experiments/${userExperiment._id}`,
                         { hasFinished: true },
                         {
                             headers: {
@@ -124,7 +124,7 @@ async function separateUsersInGroup(api, user, userScore, experiment) {
         );
 
         if (response?.data) {
-            await api.patch(`user-task2/${response.data._id}`, userTask, {
+            await api.patch(`user-task/${response.data._id}`, userTask, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
         } else {
@@ -170,7 +170,7 @@ const Survey = () => {
                     userSurveyResponse,
                 ] = await Promise.all([
                     api.get(
-                        `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
+                        `user-experiments?experimentId=${experimentId}&userId=${user.id}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${user.accessToken}`,
@@ -178,14 +178,14 @@ const Survey = () => {
                         }
                     ),
                     !experiment
-                        ? api.get(`experiments2/${experimentId}`, {
+                        ? api.get(`experiments/${experimentId}`, {
                               headers: {
                                   Authorization: `Bearer ${user.accessToken}`,
                               },
                           })
                         : null,
                     !survey
-                        ? api.get(`survey2/${surveyId}`, {
+                        ? api.get(`survey/${surveyId}`, {
                               headers: {
                                   Authorization: `Bearer ${user.accessToken}`,
                               },
@@ -330,7 +330,7 @@ const Survey = () => {
 
                 await handleSurveySubmit(() =>
                     api.patch(
-                        `survey-answer2/${surveyAnswer._id}`,
+                        `survey-answer/${surveyAnswer._id}`,
                         surveyAnswer,
                         {
                             headers: {

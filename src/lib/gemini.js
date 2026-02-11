@@ -5,7 +5,8 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.REACT_APP_GEMINI_API_KEY });
+const apiKey = process.env.REACT_APP_GEMINI_API_KEY? process.env.REACT_APP_GEMINI_API_KEY : "";
+const ai = new GoogleGenAI({ apiKey:apiKey });
 
 function createChat(history) {
     return ai.chats.create({ model: "gemini-2.5-flash", history: history });

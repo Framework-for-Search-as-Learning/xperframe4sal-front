@@ -85,7 +85,7 @@ const Register = () => {
     const userData = { name, lastName, email, password, researcher };
     setIsLoading(true);
     try {
-      let response = await api.post("/users2", userData);
+      let response = await api.post("/users", userData);
       if (response.data) {
         // Auto-login after successful registration
         try {

@@ -36,7 +36,7 @@ const NotResearcher = () => {
             setIsLoading(true);
             try {
                 let response = await api.get(
-                    `user-experiments2?userId=${user.id}`,
+                    `user-experiments?userId=${user.id}`,
                     { headers: { Authorization: `Bearer ${user.accessToken}` } }
                 );
                 const userExperimentsData = response.data;
@@ -46,7 +46,7 @@ const NotResearcher = () => {
                     for (let i = 0; i < userExperimentsData.length; i++) {
                         if (!userExperimentsData[i].hasFinished) {
                             response = await api.get(
-                                `experiments2/${userExperimentsData[i].experiment_id}`,
+                                `experiments/${userExperimentsData[i].experiment_id}`,
                                 {
                                     headers: {
                                         Authorization: `Bearer ${user.accessToken}`,

@@ -63,7 +63,7 @@ export function PrivateRoutes(props) {
     setAnchorEl(null);
   }
   const handleGoHome = () => {
-    navigate('/');
+    navigate('/experiments');
     setAnchorEl(null);
   }
 
@@ -78,11 +78,11 @@ export function PrivateRoutes(props) {
   }
 
   const handleGoCreateExperiment = () => {
-    navigate('/CreateExperiment');
+    navigate('/experiments/new');
     setAnchorEl(null);
   }
   const handleGoExperimentList= () => {
-    navigate('/ExperimentList');
+    navigate('/experiments');
     setAnchorEl(null);
   }
   const handleAccountButtonEnter = (event) => {

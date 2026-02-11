@@ -43,13 +43,13 @@ const Tasks = () => {
                 setIsLoading(true);
                 const [experimentResponse, userExperimentResponse] =
                     await Promise.all([
-                        api.get(`experiments2/${experimentId}`, {
+                        api.get(`experiments/${experimentId}`, {
                             headers: {
                                 Authorization: `Bearer ${user.accessToken}`,
                             },
                         }),
                         api.get(
-                            `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
+                            `user-experiments?experimentId=${experimentId}&userId=${user.id}`,
                             {
                                 headers: {
                                     Authorization: `Bearer ${user.accessToken}`,
@@ -62,7 +62,7 @@ const Tasks = () => {
                 let userExperimentResult = userExperimentResponse.data;
                 setExperiment(experimentResult);
 
-                let response = await api.get(`user-task2/user/${user.id}/experiment/${experimentId}`, {
+                let response = await api.get(`user-task/user/${user.id}/experiment/${experimentId}`, {
                     headers: { Authorization: `Bearer ${user.accessToken}` },
                 });
                 let userTasks = response?.data;
@@ -78,7 +78,7 @@ const Tasks = () => {
                         taskList.push(task);
                     }
                 }
-                const steps = await api.get(`experiments2/${experimentId}/step`, {
+                const steps = await api.get(`experiments/${experimentId}/step`, {
                         headers: {
                             Authorization: `Bearer ${user.accessToken}`,
                         },
@@ -104,7 +104,7 @@ const Tasks = () => {
             const userTask = userTasks.filter(
                 (userTask) => userTask['task_id'] === e
             )[0];
-            await api.patch(`user-task2/${userTask._id}/start`, userTask, {
+            await api.patch(`user-task/${userTask._id}/start`, userTask, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
 
@@ -124,7 +124,7 @@ const Tasks = () => {
             const userTask = userTasks.filter(
                 (userTask) => userTask.taskId === e
             )[0];
-            await api.patch(`user-task2/${userTask._id}/resume`, userTask, {
+            await api.patch(`user-task/${userTask._id}/resume`, userTask, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
 

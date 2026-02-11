@@ -31,20 +31,20 @@ const Researcher = () => {
 
         try {
             /*
-      const { data: allExperiments } = await api.get('experiments2', {
+      const { data: allExperiments } = await api.get('experiments', {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       });
       */
 
             const { data: ownedExperiments } = await api.get(
-                `experiments2/owner/${user.id}`,
+                `experiments/owner/${user.id}`,
                 {
                     headers: { Authorization: `Bearer ${user.accessToken}` },
                 }
             );
 
             const { data: participatedExperiments } = await api.get(
-                `user-experiments2/user/${user.id}`,
+                `user-experiments/user/${user.id}`,
                 {
                     headers: { Authorization: `Bearer ${user.accessToken}` },
                 }
@@ -83,7 +83,7 @@ const Researcher = () => {
         fetchAllExperiments();
     }, [fetchAllExperiments]);
 
-    const handleCreateExperiment = () => navigate("/CreateExperiment");
+    const handleCreateExperiment = () => navigate("/experiments/new");
 
     const handleAccessExperiment = (experimentId) => {
         navigate(`/experiments/${experimentId}/surveys`);
@@ -91,7 +91,7 @@ const Researcher = () => {
 
     const handleExportExperiment = async (experimentId) => {
         try {
-            const response = await api.get(`experiments2/export/${experimentId}`, {
+            const response = await api.get(`experiments/export/${experimentId}`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
                 responseType: 'blob'
             });
@@ -138,7 +138,7 @@ const Researcher = () => {
             setIsLoading(true);
             setError(null);
 
-            const response = await api.post(`experiments2/import/${user.id}`, formData, {
+            const response = await api.post(`experiments/import/${user.id}`, formData, {
                 headers: {
                     Authorization: `Bearer ${user.accessToken}`,
                     'Content-Type': 'multipart/form-data',
@@ -161,7 +161,7 @@ const Researcher = () => {
 
             // Navigate to the newly created experiment for editing
             if (response.data && response.data._id) {
-                navigate(`/EditExperiment/${response.data._id}`);
+                navigate(`/experiments/${response.data._id}/edit`);
             }
 
         } catch (error) {
@@ -180,12 +180,12 @@ const Researcher = () => {
     };
 
     const handleEditExperiment = (experimentId) => {
-        navigate(`/EditExperiment/${experimentId}`);
+        navigate(`/experiments/${experimentId}/edit`);
     };
 
     const handleDeleteExperiment = async (experimentId) => {
         try {
-            await api.delete(`experiments2/${experimentId}`, {
+            await api.delete(`experiments/${experimentId}`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
 
