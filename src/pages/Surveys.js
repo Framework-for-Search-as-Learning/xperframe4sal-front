@@ -55,13 +55,13 @@ const Surveys = () => {
 
                 const [experimentResponse, userExperimentResponse] =
                     await Promise.all([
-                        api.get(`experiments2/${experimentId}`, {
+                        api.get(`experiment/${experimentId}`, {
                             headers: {
                                 Authorization: `Bearer ${user.accessToken}`,
                             },
                         }),
                         api.get(
-                            `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
+                            `user-experiment?experimentId=${experimentId}&userId=${user.id}`,
                             {
                                 headers: {
                                     Authorization: `Bearer ${user.accessToken}`,
@@ -93,7 +93,7 @@ const Surveys = () => {
                 let surveyList = [];
                 let localPre = [];
                 let localPost = [];
-                const surveys = await api.get(`survey2/experiment/${experimentId}`, {
+                const surveys = await api.get(`survey/experiment/${experimentId}`, {
                     headers: {
                         Authorization: `Bearer ${user.accessToken}`,
                     },
@@ -105,7 +105,7 @@ const Surveys = () => {
                         surveyList.push(survey);
 
                         const response = await api.get(
-                            `survey-answer2?userId=${user.id}&surveyId=${survey._id}`,
+                            `survey-answer?userId=${user.id}&surveyId=${survey._id}`,
                             {
                                 headers: {
                                     Authorization: `Bearer ${user.accessToken}`,
@@ -147,7 +147,7 @@ const Surveys = () => {
                 setShowWarning(!activate);
                 setShouldActivateTask(activate);
 
-                const steps = await api.get(`experiments2/${experimentId}/step`, {
+                const steps = await api.get(`experiment/${experimentId}/step`, {
                     headers: {
                         Authorization: `Bearer ${user.accessToken}`,
                     },
@@ -251,165 +251,165 @@ const Surveys = () => {
                                 survey?.uniqueAnswer
                             }
                         >
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls={`panel-${index}bh-content`}
-                            id={`panel-${index}bh-header`}
-                            sx={{
-                                "&:hover": {
-                                    backgroundColor: "lightgray",
-                                },
-                            }}
-                        >
-                            <Typography>
-                                <span>{survey.title}</span>
-                                {answeredPreSurveys[survey._id] &&
-                                    survey?.uniqueAnswer ? (
-                                    <span
-                                        style={{
-                                            color: "red",
-                                            display: "flex",
-                                            justifyContent: "end",
-                                        }}
-                                    >
-                                        {" "}
-                                        Você já respondeu este questionário.
-                                    </span>
-                                ) : (
-                                    ""
-                                )}
-                            </Typography>
-                        </AccordionSummary>
-                        <Divider />
-                        <AccordionDetails>
-                            <Typography>{survey.description}</Typography>
-                            <div style={{ textAlign: "right" }}>
-                                {answeredPreSurveys[survey._id] &&
-                                    !survey?.uniqueAnswer && (
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            style={{ margin: "16px" }}
-                                            onClick={() =>
-                                                handleEnterSurvey(survey._id)
-                                            }
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls={`panel-${index}bh-content`}
+                                id={`panel-${index}bh-header`}
+                                sx={{
+                                    "&:hover": {
+                                        backgroundColor: "lightgray",
+                                    },
+                                }}
+                            >
+                                <Typography>
+                                    <span>{survey.title}</span>
+                                    {answeredPreSurveys[survey._id] &&
+                                        survey?.uniqueAnswer ? (
+                                        <span
+                                            style={{
+                                                color: "red",
+                                                display: "flex",
+                                                justifyContent: "end",
+                                            }}
                                         >
-                                            Editar
-                                        </Button>
+                                            {" "}
+                                            Você já respondeu este questionário.
+                                        </span>
+                                    ) : (
+                                        ""
                                     )}
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    style={{ margin: "16px" }}
-                                    onClick={() =>
-                                        handleEnterSurvey(survey._id)
-                                    }
-                                    disabled={answeredPreSurveys[survey._id]}
-                                >
-                                    {t('enter_label')}
-                                </Button>
-                            </div>
-                        </AccordionDetails>
-                    </Accordion>
-                ))}
-            </div>
-
-            {hasFinishedTasks && (
-                <div>
-                    {postSurveys?.map((survey, index) =>
-                            (!answeredPostSurveys[survey._id] ||
-                                (answeredPostSurveys[survey._id] &&
-                                        !experiment?.surveysProps?.[survey._id]
-                                            ?.uniqueAnswer)) && (
-                                <Accordion
-                                    sx={{ marginBottom: "5px" }}
-                                    key={survey._id}
-                                    elevation={3}
-                                    expanded={expanded === `panel-${index}`}
-                                    onChange={handleChange(`panel-${index}`)}
-                                    disabled={
-                                        answeredPostSurveys[survey._id] &&
-                                        experiment?.surveysProps?.[survey._id]
-                                            ?.uniqueAnswer
-                                    }
-                                >
-                                    <AccordionSummary
-                                        expandIcon={<ExpandMoreIcon />}
-                                        aria-controls={`panel-${index}bh-content`}
-                                        id={`panel-${index}bh-header`}
-                                        csx={{
-                                            "&:hover": {
-                                                backgroundColor: "lightgray",
-                                            },
-                                        }}
-                                    >
-                                        <Typography>
-                                            <span>{survey.title}</span>
-                                            {answeredPostSurveys[survey._id] &&
-                                                experiment?.surveysProps?.[survey._id]
-                                                    ?.uniqueAnswer ? (
-                                                <span
-                                                    style={{
-                                                        color: "red",
-                                                        display: "flex",
-                                                        justifyContent: "end",
-                                                    }}
-                                                >
-                                                    {" "}
-                                                    Você já respondeu este
-                                                    questionário.
-                                                </span>
-                                            ) : (
-                                                ""
-                                            )}
-                                        </Typography>
-                                    </AccordionSummary>
-                                    <Divider />
-                                    <AccordionDetails>
-                                        <Typography>
-                                            {survey.description}
-                                        </Typography>
-                                        <div style={{ textAlign: "right" }}>
-                                            {answeredPostSurveys[survey._id] &&
-                                                !experiment?.surveysProps?.[
-                                                    survey._id
-                                                ]?.uniqueAnswer && (
-                                                    <Button
-                                                        variant="contained"
-                                                        color="primary"
-                                                        style={{
-                                                            margin: "16px",
-                                                        }}
-                                                        onClick={() =>
-                                                            handleEnterSurvey(
-                                                                survey._id
-                                                            )
-                                                        }
-                                                    >
-                                                        Editar
-                                                    </Button>
-                                                )}
+                                </Typography>
+                            </AccordionSummary>
+                            <Divider />
+                            <AccordionDetails>
+                                <Typography>{survey.description}</Typography>
+                                <div style={{ textAlign: "right" }}>
+                                    {answeredPreSurveys[survey._id] &&
+                                        !survey?.uniqueAnswer && (
                                             <Button
                                                 variant="contained"
                                                 color="primary"
                                                 style={{ margin: "16px" }}
                                                 onClick={() =>
-                                                    handleEnterSurvey(
-                                                        survey._id
-                                                    )
-                                                }
-                                                disabled={
-                                                    answeredPostSurveys[
-                                                    survey._id
-                                                    ]
+                                                    handleEnterSurvey(survey._id)
                                                 }
                                             >
-                                                Entrar
+                                                Editar
                                             </Button>
-                                        </div>
-                                    </AccordionDetails>
-                                </Accordion>
-                            )
+                                        )}
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        style={{ margin: "16px" }}
+                                        onClick={() =>
+                                            handleEnterSurvey(survey._id)
+                                        }
+                                        disabled={answeredPreSurveys[survey._id]}
+                                    >
+                                        {t('enter_label')}
+                                    </Button>
+                                </div>
+                            </AccordionDetails>
+                        </Accordion>
+                    ))}
+            </div>
+
+            {hasFinishedTasks && (
+                <div>
+                    {postSurveys?.map((survey, index) =>
+                        (!answeredPostSurveys[survey._id] ||
+                            (answeredPostSurveys[survey._id] &&
+                                !experiment?.surveysProps?.[survey._id]
+                                    ?.uniqueAnswer)) && (
+                            <Accordion
+                                sx={{ marginBottom: "5px" }}
+                                key={survey._id}
+                                elevation={3}
+                                expanded={expanded === `panel-${index}`}
+                                onChange={handleChange(`panel-${index}`)}
+                                disabled={
+                                    answeredPostSurveys[survey._id] &&
+                                    experiment?.surveysProps?.[survey._id]
+                                        ?.uniqueAnswer
+                                }
+                            >
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls={`panel-${index}bh-content`}
+                                    id={`panel-${index}bh-header`}
+                                    csx={{
+                                        "&:hover": {
+                                            backgroundColor: "lightgray",
+                                        },
+                                    }}
+                                >
+                                    <Typography>
+                                        <span>{survey.title}</span>
+                                        {answeredPostSurveys[survey._id] &&
+                                            experiment?.surveysProps?.[survey._id]
+                                                ?.uniqueAnswer ? (
+                                            <span
+                                                style={{
+                                                    color: "red",
+                                                    display: "flex",
+                                                    justifyContent: "end",
+                                                }}
+                                            >
+                                                {" "}
+                                                Você já respondeu este
+                                                questionário.
+                                            </span>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </Typography>
+                                </AccordionSummary>
+                                <Divider />
+                                <AccordionDetails>
+                                    <Typography>
+                                        {survey.description}
+                                    </Typography>
+                                    <div style={{ textAlign: "right" }}>
+                                        {answeredPostSurveys[survey._id] &&
+                                            !experiment?.surveysProps?.[
+                                                survey._id
+                                            ]?.uniqueAnswer && (
+                                                <Button
+                                                    variant="contained"
+                                                    color="primary"
+                                                    style={{
+                                                        margin: "16px",
+                                                    }}
+                                                    onClick={() =>
+                                                        handleEnterSurvey(
+                                                            survey._id
+                                                        )
+                                                    }
+                                                >
+                                                    Editar
+                                                </Button>
+                                            )}
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            style={{ margin: "16px" }}
+                                            onClick={() =>
+                                                handleEnterSurvey(
+                                                    survey._id
+                                                )
+                                            }
+                                            disabled={
+                                                answeredPostSurveys[
+                                                survey._id
+                                                ]
+                                            }
+                                        >
+                                            Entrar
+                                        </Button>
+                                    </div>
+                                </AccordionDetails>
+                            </Accordion>
+                        )
                     )}
                 </div>
             )}

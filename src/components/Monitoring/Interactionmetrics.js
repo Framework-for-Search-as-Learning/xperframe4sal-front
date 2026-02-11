@@ -94,8 +94,8 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
         try {
             const detailsPromises = tasksExecution.map(async (task) => {
                 try {
-                    const {data} = await api.get(`user-task2/execution-details/user/${userId}/task/${task.taskId}`, {
-                        headers: {Authorization: `Bearer ${accessToken}`},
+                    const { data } = await api.get(`user-task/execution-details/user/${userId}/task/${task.taskId}`, {
+                        headers: { Authorization: `Bearer ${accessToken}` },
                     });
                     return {taskId: task.taskId, data};
                 } catch (error) {
@@ -234,7 +234,7 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
     }
 
     return (<Box>
-        <Paper elevation={0} sx={{mb: 3, mt: 4}}>
+        <Paper sx={{mb: 3}}>
             <Tabs
                 value={activeTab}
                 onChange={handleTabChange}
@@ -283,7 +283,7 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
     const prepareTaskTypeData = () => {
         return [{
             name: t("search_tasks") || "Tarefas de Busca", value: stats.searchTasks
-        }, {name: t("chat_tasks") || "Tarefas Chat", value: stats.llmTasks},];
+        }, {name: t("llm_tasks") || "Tarefas Chat", value: stats.llmTasks},];
     };
 
     const prepareExecutionTimeData = () => {

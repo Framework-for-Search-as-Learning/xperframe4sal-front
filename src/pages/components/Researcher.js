@@ -82,14 +82,14 @@ const Researcher = () => {
 
         try {
             const {data: ownedExperiments} = await api.get(
-                `experiments2/owner/${user.id}`,
+                `experiment/owner/${user.id}`,
                 {
                     headers: {Authorization: `Bearer ${user.accessToken}`},
                 },
             );
 
             const {data: participatedExperiments} = await api.get(
-                `user-experiments2/user/${user.id}`,
+                `user-experiment/user/${user.id}`,
                 {
                     headers: {Authorization: `Bearer ${user.accessToken}`},
                 },
@@ -157,7 +157,7 @@ const Researcher = () => {
     const handleAccessExperiment = async (experiment, userExperimentId, userExperimentStatus) => {
         try {
             const {data: experimentData} = await api.get(
-                `experiments2/${experiment._id}`,
+                `experiment/${experiment._id}`,
                 {headers: {Authorization: `Bearer ${user.accessToken}`}},
             );
 
@@ -195,9 +195,9 @@ const Researcher = () => {
         }
     };
 
-    const handleViewStats = (experimentId) => {
-        navigate(`/experiments/${experimentId}/monitoring`);
-    };
+  const handleViewStats = (experimentId) => {
+    navigate(`/experiments/${experimentId}/monitoring`);
+  };
 
     const handleExportExperiment = async (experimentId) => {
         try {
@@ -246,7 +246,7 @@ const Researcher = () => {
             setError(null);
 
             const response = await api.post(
-                `experiments2/import/${user.id}`,
+                `experiment/import/${user.id}`,
                 formData,
                 {
                     headers: {
@@ -333,7 +333,7 @@ const Researcher = () => {
         if (!experimentToDelete) return;
 
         try {
-            await api.delete(`experiments2/${experimentToDelete._id}`, {
+            await api.delete(`experiment/${experimentToDelete._id}`, {
                 headers: {Authorization: `Bearer ${user.accessToken}`},
             });
 
@@ -362,7 +362,7 @@ const Researcher = () => {
 
         try {
             await api.patch(
-                `experiments2/${experimentId}`,
+                `experiment/${experimentId}`,
                 {status: newStatus},
                 {
                     headers: {Authorization: `Bearer ${user.accessToken}`},

@@ -1,16 +1,15 @@
-import React, {useEffect, useState, useCallback} from "react";
-import {useNavigate} from "react-router-dom";
-import {api} from "../../config/axios";
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { api } from "../../config/axios";
 import styles from "../../style/researcher.module.css";
 import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
-    Button,
-    Typography,
-    Divider,
-    Box,
-    Tooltip,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Button,
+  Typography,
+  Divider,
+  Box,
 } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -168,15 +167,15 @@ const NotResearcher = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [user] = useState(JSON.parse(localStorage.getItem("user")));
 
-    const fetchExperiments = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const {data: userExperimentsData} = await api.get(
-                `user-experiments2/user/${user.id}`,
-                {
-                    headers: {Authorization: `Bearer ${user.accessToken}`},
-                },
-            );
+  const fetchExperiments = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { data: userExperimentsData } = await api.get(
+        `user-experiment/user/${user.id}`,
+        {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        },
+      );
 
             if (!userExperimentsData?.length) {
                 setExperiments([]);
@@ -200,7 +199,7 @@ const NotResearcher = () => {
                 experiments.map(async (exp) => {
                     try {
                         const {data} = await api.get(
-                            `experiments2/${exp.experiment._id}`,
+                            `experiment/${exp.experiment._id}`,
                             {
                                 headers: {Authorization: `Bearer ${user.accessToken}`},
                             },
@@ -244,7 +243,7 @@ const NotResearcher = () => {
     ) => {
         try {
             const {data: experimentData} = await api.get(
-                `experiments2/${experiment._id}`,
+                `experiment/${experiment._id}`,
                 {headers: {Authorization: `Bearer ${user.accessToken}`}},
             );
 
@@ -267,7 +266,7 @@ const NotResearcher = () => {
 
             if (userExperimentStatus === EXPERIMENT_STATUS.NOT_STARTED) {
                 await api.patch(
-                    `user-experiments2/${userExperimentId}`,
+                    `user-experiment/${userExperimentId}`,
                     {status: EXPERIMENT_STATUS.IN_PROGRESS, startDate: new Date()},
                     {
                         headers: {Authorization: `Bearer ${user.accessToken}`},

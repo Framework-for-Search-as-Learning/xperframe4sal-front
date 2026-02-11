@@ -87,9 +87,8 @@ const QuestionnaireAnalysis = ({ surveysStats, participants, experimentId, acces
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `survey_${survey.surveyId || "data"}_${
-                new Date().toISOString().split("T")[0]
-            }.csv`;
+            link.download = `survey_${survey.surveyId || "data"}_${new Date().toISOString().split("T")[0]
+                }.csv`;
             link.click();
             window.URL.revokeObjectURL(url);
         } catch (error) {
@@ -106,7 +105,7 @@ const QuestionnaireAnalysis = ({ surveysStats, participants, experimentId, acces
         setLoadingAnswers((prev) => ({ ...prev, [key]: true }));
         try {
             const { data } = await api.get(
-                `survey-answer2/user/${userId}/survey/${surveyId}`,
+                `survey-answer/user/${userId}/survey/${surveyId}`,
                 {
                     headers: { Authorization: `Bearer ${accessToken}` },
                 }
@@ -232,19 +231,19 @@ const QuestionnaireAnalysis = ({ surveysStats, participants, experimentId, acces
 };
 
 const SurveyAccordion = ({
-                             survey,
-                             sIdx,
-                             expanded,
-                             handleChange,
-                             handleExportCSV,
-                             exporting,
-                             renderQuestionChart,
-                             participants,
-                             surveyAnswers,
-                             loadingAnswers,
-                             loadUserSurveyAnswers,
-                             t,
-                         }) => {
+    survey,
+    sIdx,
+    expanded,
+    handleChange,
+    handleExportCSV,
+    exporting,
+    renderQuestionChart,
+    participants,
+    surveyAnswers,
+    loadingAnswers,
+    loadUserSurveyAnswers,
+    t,
+}) => {
     const [activeTab, setActiveTab] = useState(0);
     const [selectedQuestion, setSelectedQuestion] = useState("");
     const [selectedUser, setSelectedUser] = useState("");
@@ -374,12 +373,12 @@ const SurveyAccordion = ({
 };
 
 const ResumoTab = ({
-                       survey,
-                       handleExportCSV,
-                       exporting,
-                       renderQuestionChart,
-                       t,
-                   }) => {
+    survey,
+    handleExportCSV,
+    exporting,
+    renderQuestionChart,
+    t,
+}) => {
     return (
         <Box>
             <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end" }}>
@@ -417,13 +416,13 @@ const ResumoTab = ({
 };
 
 const PerguntaTab = ({
-                         survey,
-                         selectedQuestion,
-                         handleQuestionChange,
-                         getSelectedQuestionData,
-                         renderQuestionChart,
-                         t,
-                     }) => {
+    survey,
+    selectedQuestion,
+    handleQuestionChange,
+    getSelectedQuestionData,
+    renderQuestionChart,
+    t,
+}) => {
     const questionData = getSelectedQuestionData();
 
     return (
@@ -499,14 +498,14 @@ const PerguntaTab = ({
 };
 
 const IndividualTab = ({
-                           survey,
-                           participants,
-                           selectedUser,
-                           handleUserChange,
-                           getUserAnswers,
-                           isLoadingUserAnswers,
-                           t,
-                       }) => {
+    survey,
+    participants,
+    selectedUser,
+    handleUserChange,
+    getUserAnswers,
+    isLoadingUserAnswers,
+    t,
+}) => {
     const userAnswersData = getUserAnswers();
     const selectedParticipant = participants?.find((p) => p.id === selectedUser);
 
@@ -583,7 +582,7 @@ const IndividualTab = ({
                                     )}
 
                                     {(answer.questionType === "multiple-choices" ||
-                                            answer.questionType === "multiple-selection") &&
+                                        answer.questionType === "multiple-selection") &&
                                         answer.selectedOptions && (
                                             <Box sx={{ mt: 1 }}>
                                                 {answer.selectedOptions.map((option, optIdx) => (

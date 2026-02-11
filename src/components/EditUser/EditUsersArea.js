@@ -9,7 +9,7 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import UserList from './UserList';
 
-const EditUserArea = ({ExperimentId}) => {
+const EditUserArea = ({ ExperimentId }) => {
     const msgs = useRef(null);
     const [user] = useState(JSON.parse(localStorage.getItem('user')));
     const { t } = useTranslation();
@@ -18,12 +18,12 @@ const EditUserArea = ({ExperimentId}) => {
 
     const fetchData = useCallback(async () => {
         try {
-            const response = await api.get(`user-experiments2/experiment/${ExperimentId.experimentId}/`, {
+            const response = await api.get(`user-experiment/experiment/${ExperimentId.experimentId}/`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             const usersInExperimentData = response.data;
 
-            const allUsersResponse = await api.get(`users2`, {
+            const allUsersResponse = await api.get(`user`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             const allUsersData = allUsersResponse.data;
@@ -37,11 +37,11 @@ const EditUserArea = ({ExperimentId}) => {
         } catch (error) {
             console.error('Erro ao buscar dados dos usuários:', error);
         }
-    },[user.accessToken, ExperimentId.experimentId]);
+    }, [user.accessToken, ExperimentId.experimentId]);
 
     useEffect(() => {
         fetchData();
-    },[fetchData]);
+    }, [fetchData]);
 
     const addUserToExperiment = (userId) => {
         const userToAdd = allUsers.find((user) => user.id === userId);
@@ -62,7 +62,7 @@ const EditUserArea = ({ExperimentId}) => {
     const saveChanges = async () => {
         try {
             await api.patch(
-                `user-experiments2/update-users/${ExperimentId.experimentId}`,
+                `user-experiment/update-users/${ExperimentId.experimentId}`,
                 { newUsersId: usersInExperiment.map((usr) => usr.id) },
                 { headers: { Authorization: `Bearer ${user.accessToken}` } }
             );
@@ -91,7 +91,7 @@ const EditUserArea = ({ExperimentId}) => {
 
     return (
         <>
-            <div style={{justifyContent: 'center', display: 'flex', flexDirection: "row", width: "100%", marginTop: '20px', }}>
+            <div style={{ justifyContent: 'center', display: 'flex', flexDirection: "row", width: "100%", marginTop: '20px', }}>
                 <div className={styles.container}>
                     <div className={styles.userListContainer}>
                         <UserList

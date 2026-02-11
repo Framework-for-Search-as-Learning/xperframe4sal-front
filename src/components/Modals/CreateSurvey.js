@@ -103,7 +103,7 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
         if (fetch) {
             const body = { ...payload, experimentId: experimentId }
             try {
-                await api.post('/survey2', body)
+                await api.post('/survey', body)
             } catch (error) {
 
                 console.error("Erro ao criar Questionario: ", body)
