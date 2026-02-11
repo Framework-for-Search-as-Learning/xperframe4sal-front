@@ -34,7 +34,7 @@ const Researcher = () => {
     const checkExperimentParticipants = useCallback(async (experimentId) => {
         try {
             const {data: participants} = await api.get(
-                `experiments2/${experimentId}/participants`,
+                `experiment/${experimentId}/participants`,
                 {
                     headers: {Authorization: `Bearer ${user.accessToken}`},
                 },
@@ -127,7 +127,7 @@ const Researcher = () => {
                     experiments.map(async (exp) => {
                         try {
                             const {data} = await api.get(
-                                `experiments2/${exp.experiment._id}`,
+                                `experiment/${exp.experiment._id}`,
                                 {
                                     headers: {Authorization: `Bearer ${user.accessToken}`},
                                 },
@@ -180,7 +180,7 @@ const Researcher = () => {
 
             if (userExperimentStatus === experimentStatus.NOT_STARTED) {
                 await api.patch(
-                    `user-experiments2/${userExperimentId}`,
+                    `user-experiment/${userExperimentId}`,
                     {status: experimentStatus.IN_PROGRESS, startDate: new Date()},
                     {
                         headers: {Authorization: `Bearer ${user.accessToken}`},
@@ -201,7 +201,7 @@ const Researcher = () => {
 
     const handleExportExperiment = async (experimentId) => {
         try {
-            const response = await api.get(`experiments2/export/${experimentId}`, {
+            const response = await api.get(`experiment/export/${experimentId}`, {
                 headers: {Authorization: `Bearer ${user.accessToken}`},
                 responseType: "blob",
             });
