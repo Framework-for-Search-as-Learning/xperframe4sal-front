@@ -234,7 +234,7 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
     }
 
     return (<Box>
-        <Paper sx={{mb: 3}}>
+        <Paper elevation={0} sx={{mb: 3, mt: 4}}>
             <Tabs
                 value={activeTab}
                 onChange={handleTabChange}
@@ -283,7 +283,7 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
     const prepareTaskTypeData = () => {
         return [{
             name: t("search_tasks") || "Tarefas de Busca", value: stats.searchTasks
-        }, {name: t("llm_tasks") || "Tarefas Chat", value: stats.llmTasks},];
+        }, {name: t("chat_tasks") || "Tarefas Chat", value: stats.llmTasks},];
     };
 
     const prepareExecutionTimeData = () => {
