@@ -78,8 +78,6 @@ const ExperimentMonitoring = () => {
                 }
             );
             setTasksExecutionData(tasksExecution);
-            console.log("tasksExecutionData", tasksExecution);
-
         } catch (err) {
             console.error("Error loading monitoring data:", err);
             setError(

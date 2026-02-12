@@ -320,20 +320,39 @@ const SurveyAccordion = ({
             </AccordionSummary>
             <AccordionDetails>
                 <Box>
-                    <Paper sx={{ mb: 2 }}>
+                    <Paper sx={{ mb: 3, borderRadius: 2, bgcolor: '#f5f5f5', p: 0.5 }}>
                         <Tabs
                             value={activeTab}
                             onChange={handleTabChange}
                             indicatorColor="primary"
                             textColor="primary"
                             variant="fullWidth"
+                            sx={{
+                                '& .MuiTabs-indicator': {
+                                    height: '100%',
+                                    borderRadius: 1.5,
+                                    opacity: 0.1,
+                                },
+                                '& .MuiTab-root': {
+                                    minHeight: 48,
+                                    fontWeight: 'bold',
+                                    textTransform: 'none',
+                                    borderRadius: 1.5,
+                                    mx: 0.5,
+                                    transition: '0.2s',
+                                    '&.Mui-selected': {
+                                        color: 'primary.main',
+                                        bgcolor: 'white',
+                                        boxShadow: '0px 2px 4px rgba(0,0,0,0.05)'
+                                    }
+                                }
+                            }}
                         >
                             <Tab label={t("summary") || "Resumo"} />
                             <Tab label={t("question") || "Pergunta"} />
                             <Tab label={t("individual") || "Individual"} />
                         </Tabs>
                     </Paper>
-
                     {activeTab === 0 && (
                         <ResumoTab
                             survey={survey}

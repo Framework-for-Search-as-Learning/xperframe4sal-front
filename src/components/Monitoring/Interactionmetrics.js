@@ -94,8 +94,8 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
         try {
             const detailsPromises = tasksExecution.map(async (task) => {
                 try {
-                    const { data } = await api.get(`user-task/execution-details/user/${userId}/task/${task.taskId}`, {
-                        headers: { Authorization: `Bearer ${accessToken}` },
+                    const {data} = await api.get(`user-task/execution-details/user/${userId}/task/${task.taskId}`, {
+                        headers: {Authorization: `Bearer ${accessToken}`},
                     });
                     return {taskId: task.taskId, data};
                 } catch (error) {
@@ -234,21 +234,41 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
     }
 
     return (<Box>
-        <Paper sx={{mb: 3}}>
+        <Paper sx={{ mb: 3, borderRadius: 2, bgcolor: '#f5f5f5', p: 0.5 }}>
             <Tabs
                 value={activeTab}
                 onChange={handleTabChange}
                 indicatorColor="primary"
                 textColor="primary"
                 variant="fullWidth"
+                sx={{
+                    '& .MuiTabs-indicator': {
+                        height: '100%',
+                        borderRadius: 1.5,
+                        opacity: 0.1,
+                    },
+                    '& .MuiTab-root': {
+                        minHeight: 48,
+                        fontWeight: 'bold',
+                        textTransform: 'none',
+                        borderRadius: 1.5,
+                        mx: 0.5,
+                        transition: '0.2s',
+                        '&.Mui-selected': {
+                            color: 'primary.main',
+                            bgcolor: 'white',
+                            boxShadow: '0px 2px 4px rgba(0,0,0,0.05)'
+                        }
+                    }
+                }}
             >
-                <Tab label={t("summary") || "Resumo"}/>
-                <Tab label={t("by_task") || "Por Tarefa"}/>
-                <Tab label={t("by_participant") || "Por Participante"}/>
+                <Tab label={t("summary") || "Resumo"} />
+                <Tab label={t("by_task") || "Por Tarefa"} />
+                <Tab label={t("by_participant") || "Por Participante"} />
             </Tabs>
         </Paper>
 
-        {activeTab === 0 && (<ResumoTab
+        {activeTab === 0 && (<SummaryTab
             stats={stats}
             tasksExecution={tasksExecution}
             handleExportMetrics={handleExportMetrics}
@@ -257,7 +277,7 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
             t={t}
         />)}
 
-        {activeTab === 1 && (<PorTarefaTab
+        {activeTab === 1 && (<ByTaskTab
             tasksExecution={tasksExecution}
             selectedTask={selectedTask}
             handleTaskChange={handleTaskChange}
@@ -266,7 +286,7 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
             t={t}
         />)}
 
-        {activeTab === 2 && (<PorParticipanteTab
+        {activeTab === 2 && (<ByParticipantTab
             participants={participants}
             tasksExecution={tasksExecution}
             selectedUser={selectedUser}
@@ -279,7 +299,7 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
     </Box>);
 };
 
-const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, formatTime, t}) => {
+const SummaryTab = ({stats, tasksExecution, handleExportMetrics, exporting, formatTime, t}) => {
     const prepareTaskTypeData = () => {
         return [{
             name: t("search_tasks") || "Tarefas de Busca", value: stats.searchTasks
@@ -541,7 +561,7 @@ const ResumoTab = ({stats, tasksExecution, handleExportMetrics, exporting, forma
     </Box>);
 };
 
-const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelectedTaskData, formatTime, t}) => {
+const ByTaskTab = ({tasksExecution, selectedTask, handleTaskChange, getSelectedTaskData, formatTime, t}) => {
     const taskData = getSelectedTaskData();
 
     if (!taskData) return null;
@@ -713,187 +733,247 @@ const PorTarefaTab = ({tasksExecution, selectedTask, handleTaskChange, getSelect
     </Box>);
 };
 
-const PorParticipanteTab = ({ participants, tasksExecution, selectedUser, handleUserChange, getUserDetails, isLoadingUserDetails, formatTime, t }) => {
+const ByParticipantTab = ({
+                              participants,
+                              tasksExecution,
+                              selectedUser,
+                              handleUserChange,
+                              getUserDetails,
+                              isLoadingUserDetails,
+                              formatTime,
+                              t
+                          }) => {
     const userDetails = getUserDetails();
     const selectedParticipant = participants?.find((p) => p.id === selectedUser);
 
-    return (<Box>
-        <Box sx={{mb: 3}}>
-            <FormControl fullWidth>
-                <InputLabel>
-                    {t("select_participant") || "Selecione um participante"}
-                </InputLabel>
-                <Select
-                    value={selectedUser}
-                    label={t("select_participant") || "Selecione um participante"}
-                    onChange={handleUserChange}
-                >
-                    {participants?.map((participant) => (<MenuItem key={participant.id} value={participant.id}>
-                        {participant.name} ({participant.email})
-                    </MenuItem>))}
-                </Select>
-            </FormControl>
-        </Box>
+    return (
+        <Box>
+            <Box sx={{mb: 3}}>
+                <FormControl fullWidth>
+                    <InputLabel>{t("select_participant") || "Selecione um participante"}</InputLabel>
+                    <Select value={selectedUser} label={t("select_participant") || "Selecione um participante"}
+                            onChange={handleUserChange}>
+                        {participants?.map((participant) => (
+                            <MenuItem key={participant.id} value={participant.id}>
+                                {participant.name} ({participant.email})
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </Box>
 
-        {isLoadingUserDetails() ? (<Box sx={{display: "flex", justifyContent: "center", py: 4}}>
-            <CircularProgress/>
-        </Box>) : userDetails ? (<Box>
-            <Card sx={{mb: 3}}>
-                <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                        {selectedParticipant?.name}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                        {selectedParticipant?.email}
-                    </Typography>
-                </CardContent>
-            </Card>
+            {isLoadingUserDetails() ? (
+                <Box sx={{display: "flex", justifyContent: "center", py: 4}}> <CircularProgress/> </Box>
+            ) : userDetails ? (
+                <Box>
+                    <Card sx={{mb: 3, bgcolor: 'primary.main', color: 'primary.contrastText'}}>
+                        <CardContent>
+                            <Typography variant="h6">{selectedParticipant?.name}</Typography>
+                            <Typography variant="body2">{selectedParticipant?.email}</Typography>
+                        </CardContent>
+                    </Card>
 
-            {tasksExecution.map((task) => {
-                const taskDetails = userDetails[task.taskId];
-                if (!taskDetails || taskDetails.length === 0) return null;
+                    {tasksExecution.map((task) => {
+                        const taskDetails = userDetails[task.taskId];
+                        if (!taskDetails || taskDetails.length === 0) return null;
 
-                return (<Accordion key={task.taskId} defaultExpanded>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                        <Box sx={{width: "100%"}}>
-                            <Typography variant="subtitle1" fontWeight="bold">
-                                {task.taskTitle}
-                            </Typography>
-                            <Chip
-                                label={taskDetails[0]?.taskType === "search-engine" ? "Busca" : "Chat"}
-                                color={taskDetails[0]?.taskType === "search-engine" ? "primary" : "secondary"}
-                                size="small"
-                                sx={{mt: 0.5}}
-                            />
-                        </Box>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        {taskDetails.map((detail, idx) => (
-                            <Card key={detail.userTaskId} sx={{mb: 2, bgcolor: "grey.50"}}>
-                                <CardContent>
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={6}>
-                                            <Typography variant="body2" color="textSecondary">
-                                                {t("execution_time") || "Tempo de Execução"}
-                                            </Typography>
-                                            <Typography variant="body1">
-                                                {formatTime(detail.executionTime)}
-                                            </Typography>
-                                        </Grid>
+                        return (
+                            <Accordion key={task.taskId} defaultExpanded sx={{mb: 2, boxShadow: 2}}>
+                                <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                                    <Box>
+                                        <Typography variant="subtitle1"
+                                                    sx={{fontWeight: 'bold'}}>{task.taskTitle}</Typography>
+                                        <Chip
+                                            label={taskDetails[0]?.taskType === "search-engine" ? "Busca" : "Chat"}
+                                            color={taskDetails[0]?.taskType === "search-engine" ? "primary" : "secondary"}
+                                            size="small"
+                                        />
+                                    </Box>
+                                </AccordionSummary>
+                                <AccordionDetails sx={{bgcolor: '#f8f9fa'}}>
+                                    {taskDetails.map((detail) => (
+                                        <Box key={detail.userTaskId} sx={{mb: 3}}>
+                                            <Grid container spacing={2} sx={{mb: 2}}>
+                                                <Grid item xs={12} sm={4}>
+                                                    <Paper variant="outlined"
+                                                           sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
+                                                        <Typography variant="caption" color="textSecondary"
+                                                                    display="block" sx={{fontWeight: 'bold'}}>TEMPO DE
+                                                            EXECUÇÃO</Typography>
+                                                        <Typography variant="body1"
+                                                                    sx={{fontWeight: 'bold'}}>{formatTime(detail.executionTime)}</Typography>
+                                                    </Paper>
+                                                </Grid>
 
-                                        {detail.taskType === "search-engine" && detail.searchDetails && (<>
-                                            <Grid item xs={12} sm={6}>
-                                                <Typography variant="body2" color="textSecondary">
-                                                    {t("resources_accessed") || "Recursos Acessados"}
-                                                </Typography>
-                                                <Typography variant="body1">
-                                                    {detail.searchDetails.resourcesAccessedDepth}
-                                                </Typography>
+                                                {detail.taskType === "search-engine" && (
+                                                    <>
+                                                        <Grid item xs={6} sm={4}>
+                                                            <Paper variant="outlined"
+                                                                   sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
+                                                                <Typography variant="caption" color="textSecondary"
+                                                                            display="block"
+                                                                            sx={{fontWeight: 'bold'}}>RECURSOS</Typography>
+                                                                <Typography variant="body1"
+                                                                            sx={{fontWeight: 'bold'}}>{detail.searchDetails?.resourcesAccessedTotal || 0}</Typography>
+                                                            </Paper>
+                                                        </Grid>
+                                                        <Grid item xs={6} sm={4}>
+                                                            <Paper variant="outlined"
+                                                                   sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
+                                                                <Typography variant="caption" color="textSecondary"
+                                                                            display="block"
+                                                                            sx={{fontWeight: 'bold'}}>CONSULTAS</Typography>
+                                                                <Typography variant="body1"
+                                                                            sx={{fontWeight: 'bold'}}>{detail.searchDetails?.queriesCount || 0}</Typography>
+                                                            </Paper>
+                                                        </Grid>
+                                                    </>
+                                                )}
+
+                                                {detail.taskType === "llm" && detail.llmDetails && (
+                                                    <>
+                                                        <Grid item xs={6} sm={4}>
+                                                            <Paper variant="outlined"
+                                                                   sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
+                                                                <Typography variant="caption" color="textSecondary"
+                                                                            display="block" sx={{fontWeight: 'bold'}}>TOTAL
+                                                                    DE MENSAGENS</Typography>
+                                                                <Typography variant="body1"
+                                                                            sx={{fontWeight: 'bold'}}>{detail.llmDetails.totalMessages || 0}</Typography>
+                                                            </Paper>
+                                                        </Grid>
+                                                        <Grid item xs={6} sm={4}>
+                                                            <Paper variant="outlined"
+                                                                   sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
+                                                                <Typography variant="caption" color="textSecondary"
+                                                                            display="block" sx={{fontWeight: 'bold'}}>PROMPTS
+                                                                    DO USUÁRIO</Typography>
+                                                                <Typography variant="body1"
+                                                                            sx={{fontWeight: 'bold'}}>{detail.llmDetails.promptsCount || 0}</Typography>
+                                                            </Paper>
+                                                        </Grid>
+                                                    </>
+                                                )}
                                             </Grid>
-                                            <Grid item xs={12} sm={6}>
-                                                <Typography variant="body2" color="textSecondary">
-                                                    {t("queries_made") || "Consultas Realizadas"}
-                                                </Typography>
-                                                <Typography variant="body1">
-                                                    {detail.searchDetails.queriesCount}
-                                                </Typography>
-                                            </Grid>
 
-                                            {detail.searchDetails.resources && detail.searchDetails.resources.length > 0 && (
-                                                <Grid item xs={12}>
-                                                    <Divider sx={{my: 1}}/>
-                                                    <Typography
-                                                        variant="subtitle2"
-                                                        gutterBottom
-                                                        sx={{mt: 2}}
-                                                    >
-                                                        {t("browsing_history") || "Histórico de Navegação"}
+                                            {detail.taskType === "search-engine" && detail.searchDetails?.queries && (
+                                                <Box sx={{mt: 2}}>
+                                                    <Typography variant="subtitle2" sx={{
+                                                        mb: 1,
+                                                        color: 'text.secondary',
+                                                        textTransform: 'uppercase',
+                                                        letterSpacing: 1
+                                                    }}>
+                                                        {t("queries_and_results") || "Consultas e Resultados"}
                                                     </Typography>
-                                                    <TableContainer>
-                                                        <Table size="small">
-                                                            <TableHead>
-                                                                <TableRow>
-                                                                    <TableCell>
-                                                                        {t("title") || "Título"}
-                                                                    </TableCell>
-                                                                    <TableCell>
-                                                                        {t("time_spent") || "Tempo Gasto"}
-                                                                    </TableCell>
-                                                                    <TableCell>
-                                                                        {t("visit_time") || "Hora da Visita"}
-                                                                    </TableCell>
-                                                                </TableRow>
-                                                            </TableHead>
-                                                            <TableBody>
-                                                                {detail.searchDetails.resources.map((resource, rIdx) => (
-                                                                    <TableRow key={rIdx}>
-                                                                        <TableCell>
-                                                                            <Box
-                                                                                sx={{
-                                                                                    display: "flex",
-                                                                                    alignItems: "center",
-                                                                                    gap: 1,
-                                                                                }}
-                                                                            >
-                                                                                <Typography
-                                                                                    variant="body2">
-                                                                                    {resource.title}
-                                                                                </Typography>
-                                                                                <a
-                                                                                    href={resource.url}
-                                                                                    target="_blank"
-                                                                                    rel="noopener noreferrer"
-                                                                                >
-                                                                                    <OpenInNewIcon
-                                                                                        fontSize="small"
-                                                                                        color="primary"
-                                                                                    />
-                                                                                </a>
-                                                                            </Box>
-                                                                        </TableCell>
-                                                                        <TableCell>
-                                                                            {formatTime(resource.timeSpent)}
-                                                                        </TableCell>
-                                                                        <TableCell>
-                                                                            {new Date(resource.visitTime).toLocaleString("pt-BR")}
-                                                                        </TableCell>
-                                                                    </TableRow>))}
-                                                            </TableBody>
-                                                        </Table>
-                                                    </TableContainer>
-                                                </Grid>)}
-                                        </>)}
-
-                                        {detail.taskType === "llm" && detail.llmDetails && (<>
-                                            <Grid item xs={12} sm={6}>
-                                                <Typography variant="body2" color="textSecondary">
-                                                    {t("total_messages") || "Total de Mensagens"}
-                                                </Typography>
-                                                <Typography variant="body1">
-                                                    {detail.llmDetails.totalMessages}
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs={12} sm={6}>
-                                                <Typography variant="body2" color="textSecondary">
-                                                    {t("prompts_count") || "Prompts do Usuário"}
-                                                </Typography>
-                                                <Typography variant="body1">
-                                                    {detail.llmDetails.promptsCount}
-                                                </Typography>
-                                            </Grid>
-                                        </>)}
-                                    </Grid>
-                                </CardContent>
-                            </Card>))}
-                    </AccordionDetails>
-                </Accordion>);
-            })}
-        </Box>) : (<Paper sx={{p: 3}}>
-            <Typography color="textSecondary" align="center">
-                {t("no_task_details") || "Nenhum detalhe de tarefa encontrado para este participante"}
-            </Typography>
-        </Paper>)}
-    </Box>);
+                                                    <Box sx={{display: 'flex', flexDirection: 'column', gap: 1}}>
+                                                        {detail.searchDetails.queries.map((q, qIdx) => (
+                                                            <Accordion key={qIdx} variant="outlined"
+                                                                       sx={{borderRadius: '8px !important'}}>
+                                                                <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                                                                    <Box sx={{
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'space-between',
+                                                                        width: '100%',
+                                                                        pr: 1
+                                                                    }}>
+                                                                        <Box sx={{
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            gap: 1
+                                                                        }}>
+                                                                            <SearchIcon color="action"
+                                                                                        fontSize="small"/>
+                                                                            <Typography variant="body2"
+                                                                                        sx={{fontWeight: 600}}>{q.query}</Typography>
+                                                                        </Box>
+                                                                        <Chip
+                                                                            label={`${q.resourcesAccessedCount || 0} links`}
+                                                                            size="small" variant="outlined"/>
+                                                                    </Box>
+                                                                </AccordionSummary>
+                                                                <AccordionDetails sx={{p: 0}}>
+                                                                    <TableContainer>
+                                                                        <Table size="small">
+                                                                            <TableHead sx={{bgcolor: '#fafafa'}}>
+                                                                                <TableRow>
+                                                                                    <TableCell sx={{
+                                                                                        fontSize: '0.75rem',
+                                                                                        fontWeight: 'bold'
+                                                                                    }}>TÍTULO</TableCell>
+                                                                                    <TableCell align="right" sx={{
+                                                                                        fontSize: '0.75rem',
+                                                                                        fontWeight: 'bold'
+                                                                                    }}>PERMANÊNCIA</TableCell>
+                                                                                    <TableCell align="right" sx={{
+                                                                                        fontSize: '0.75rem',
+                                                                                        fontWeight: 'bold'
+                                                                                    }}>HORA</TableCell>
+                                                                                </TableRow>
+                                                                            </TableHead>
+                                                                            <TableBody>
+                                                                                {q.resources?.map((resource, rIdx) => (
+                                                                                    <TableRow key={rIdx} hover>
+                                                                                        <TableCell>
+                                                                                            <Box sx={{
+                                                                                                display: "flex",
+                                                                                                alignItems: "center",
+                                                                                                gap: 1
+                                                                                            }}>
+                                                                                                <Typography
+                                                                                                    variant="caption"
+                                                                                                    sx={{
+                                                                                                        maxWidth: {
+                                                                                                            xs: 150,
+                                                                                                            md: 350
+                                                                                                        }
+                                                                                                    }} noWrap>
+                                                                                                    {resource.title}
+                                                                                                </Typography>
+                                                                                                <a href={resource.url}
+                                                                                                   target="_blank"
+                                                                                                   rel="noopener noreferrer">
+                                                                                                    <OpenInNewIcon
+                                                                                                        sx={{fontSize: 14}}
+                                                                                                        color="primary"/>
+                                                                                                </a>
+                                                                                            </Box>
+                                                                                        </TableCell>
+                                                                                        <TableCell align="right"
+                                                                                                   sx={{fontSize: '0.75rem'}}>{formatTime(resource.timeSpent)}</TableCell>
+                                                                                        <TableCell align="right"
+                                                                                                   sx={{fontSize: '0.75rem'}}>
+                                                                                            {new Date(resource.visitTime).toLocaleTimeString("pt-BR", {
+                                                                                                hour: '2-digit',
+                                                                                                minute: '2-digit'
+                                                                                            })}
+                                                                                        </TableCell>
+                                                                                    </TableRow>
+                                                                                ))}
+                                                                            </TableBody>
+                                                                        </Table>
+                                                                    </TableContainer>
+                                                                </AccordionDetails>
+                                                            </Accordion>
+                                                        ))}
+                                                    </Box>
+                                                </Box>
+                                            )}
+                                            <Divider sx={{mt: 3}}/>
+                                        </Box>
+                                    ))}
+                                </AccordionDetails>
+                            </Accordion>
+                        );
+                    })}
+                </Box>
+            ) : (
+                <Paper sx={{p: 3, textAlign: 'center'}}>
+                    <Typography color="textSecondary">{t("no_task_details") || "Nenhum detalhe encontrado"}</Typography>
+                </Paper>
+            )}
+        </Box>
+    );
 };
-
 export default InteractionMetrics;

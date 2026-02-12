@@ -2,6 +2,7 @@
   "Access": "Access",
   "AddSubq": "Add Subquestion",
   "Apagar todos meus dados": "Delete all my data",
+  "answered_at": "Answered at",
   "by_task": "By Task",
   "by_participant": "By Participant",
   "cannot_edit_active_experiment": "Cannot edit an active experiment. Deactivate it first.",
@@ -286,6 +287,8 @@
   "title": "Create Survey",
   "titleExperiment_required": "Experiment Title (required)",
   "total_tasks": "Total Tasks",
+  "total_score": "Total score",
+  "open": "Open",
   "typeExperiment1": "Type of Experiment",
   "unic": "Unique Value",
   "unique_answer": "Unique answer",
@@ -359,5 +362,7 @@
   "yaml_template_title": "Basic Template to Get Started",
   "yaml_type_experiment_description": "Experiment type - 'within-subject' or 'between-subject'",
   "yes": "Yes",
-  "youtube_video_title": "YouTube video player"
+  "youtube_video_title": "YouTube video player",
+  "queries_and_results": "Queries and Results",
+  "individual": "individual"
 }

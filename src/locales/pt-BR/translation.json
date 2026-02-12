@@ -13,6 +13,7 @@
   "already_answered": "Você já respondeu este questionário.",
   "answer_post_survey": "Responder Pos-Questionarios",
   "answer_pre_survey": "Responder Pre-Questionarios",
+  "answered_at": "Respondido em",
   "Apagar todos meus dados": "Apagar todos meus dados",
   "attention_message": "Atenção: responda todos os questionários antes de ir para as tarefas.",
   "available_experiments_title": "Experimentos Disponíveis",
@@ -345,6 +346,8 @@
   "total_participants": "Total de Participantes",
   "total_responses": "Total de respostas",
   "total_sessions": "Total de Sessões",
+  "total_score": "Pontuação total",
+  "open": "Aberta",
   "total_tasks": "Total de Tarefas",
   "type": "Tipo",
   "typeExperiment1": "Tipo de Experimento",
@@ -420,5 +423,7 @@
   "yaml_template_title": "Template Básico para Começar",
   "yaml_type_experiment_description": "Tipo do experimento - 'within-subject' ou 'between-subject'",
   "yes": "Sim",
-  "youtube_video_title": "Player de vídeo do YouTube"
+  "youtube_video_title": "Player de vídeo do YouTube",
+  "queries_and_results": "Consultas e Resultados",
+  "individual": "Individual"
 }
