@@ -152,7 +152,7 @@ const Researcher = () => {
         return () => clearInterval(refreshInterval);
     }, [experiments, user.accessToken]);
 
-    const handleCreateExperiment = () => navigate("/CreateExperiment");
+    const handleCreateExperiment = () => navigate("/new");
 
     const handleAccessExperiment = async (experiment, userExperimentId, userExperimentStatus) => {
         try {
@@ -273,7 +273,7 @@ const Researcher = () => {
             await fetchAllExperiments();
 
             if (response.data && response.data._id) {
-                navigate(`/EditExperiment/${response.data._id}`);
+                navigate(`/experiments/${response.data._id}/edit`);
             }
         } catch (error) {
             console.error("Import error:", error);
@@ -308,7 +308,7 @@ const Researcher = () => {
             return;
         }
 
-        navigate(`/EditExperiment/${experimentId}`);
+        navigate(`/experiments/${experimentId}/edit`);
     };
 
     const handleDeleteExperiment = (experimentId) => {
