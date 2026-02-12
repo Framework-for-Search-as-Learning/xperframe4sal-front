@@ -31,10 +31,10 @@ const useStyles = makeStyles((theme) => ({
 const BOT_NAME = "XF4 Bot";
 
 // Adicionei taskId como prop, pois precisamos saber qual experimento iniciar
-const Chatbot = ({ taskId, user }) => { 
+const Chatbot = ({ taskId, user }) => {
     const { t } = useTranslation();
     const style = useStyles();
-    
+
     // Estado para guardar o ID da sessão atual criado pelo backend
     const [sessionId, setSessionId] = useState(null);
     const [isTyping, setIsTyping] = useState(false);
@@ -42,7 +42,7 @@ const Chatbot = ({ taskId, user }) => {
 
     const sessionInitialized = useRef(false); // Trava para não duplicar sessão
     const abortControllerRef = useRef(null);  // Para cancelar requisição se necessário
-    
+
     // Mensagem inicial estática (apenas visual)
     const [messages, setMessages] = useState([
         {
@@ -58,7 +58,7 @@ const Chatbot = ({ taskId, user }) => {
     // 1. Ao montar o componente, cria a sessão no Backend
     useEffect(() => {
 
-        if(sessionInitialized.current || !taskId || !user || !user.accessToken) return;
+        if (sessionInitialized.current || !taskId || !user || !user.accessToken) return;
 
         const initSession = async () => {
             sessionInitialized.current = true;
@@ -67,7 +67,7 @@ const Chatbot = ({ taskId, user }) => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${user.accessToken}` 
+                        'Authorization': `Bearer ${user.accessToken}`
                     },
                     body: JSON.stringify({ taskId: taskId, userId: user.id })
                 });
@@ -75,8 +75,8 @@ const Chatbot = ({ taskId, user }) => {
                 if (response.ok) {
                     const data = await response.json();
                     setSessionId(data.id);
-                    if(data.messages && data.messages.length > 0){
-                       const history = data.messages.map(msg => ({
+                    if (data.messages && data.messages.length > 0) {
+                        const history = data.messages.map(msg => ({
                             id: msg.id,
                             text: msg.role === 'model' ? marked(msg.content) : msg.content,
                             sender: msg.role === 'user' ? 'user' : 'bot',
@@ -90,7 +90,7 @@ const Chatbot = ({ taskId, user }) => {
                             return [initialMsg, ...history];
                         });
                     }
-                    
+
                 } else {
                     console.error("Falha ao iniciar sessão");
                     sessionInitialized.current = false;
@@ -133,7 +133,7 @@ const Chatbot = ({ taskId, user }) => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ content: messageText, userId: user.id}),
+                body: JSON.stringify({ content: messageText, userId: user.id }),
                 signal: abortControllerRef.current.signal
             });
 
@@ -143,6 +143,7 @@ const Chatbot = ({ taskId, user }) => {
             const decoder = new TextDecoder("utf-8");
 
             let fullResponse = "";
+            let hasReceivedFirstChunk = false;
             const botMessageId = Date.now() + 1;
 
             setMessages(prev => [...prev, {
@@ -163,7 +164,8 @@ const Chatbot = ({ taskId, user }) => {
                 const chunk = decoder.decode(value, { stream: true });
                 fullResponse += chunk;
 
-                if (fullResponse.length > 0 && isTyping) {
+                if (!hasReceivedFirstChunk && fullResponse.length > 0) {
+                    hasReceivedFirstChunk = true;
                     setIsTyping(false);
                 }
 
