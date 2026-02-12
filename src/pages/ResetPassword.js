@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';  
+import { useTranslation } from 'react-i18next';
 
 import { api } from "../config/axios.js";
 import { Container, Paper, TextField, Button, InputAdornment, IconButton, Box } from '@mui/material';
@@ -14,7 +14,7 @@ import { ErrorMessage } from '../components/ErrorMessage.js';
 import { LoadingIndicator } from '../components/LoadIndicator.js';
 
 const ResetPassword = () => {
-  const { t } = useTranslation();  
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -48,13 +48,13 @@ const ResetPassword = () => {
 
   const handleEdit = async () => {
     if (!isValidPassword) {
-      setAlertMessage(t('invalid_password_message'));  
+      setAlertMessage(t('invalid_password_message'));
       setMessageType('fail');
       return;
     }
 
     if (differentPasswords) {
-      setAlertMessage(t('passwords_dont_match'));  
+      setAlertMessage(t('passwords_dont_match'));
       setMessageType('fail');
     }
 
@@ -62,9 +62,9 @@ const ResetPassword = () => {
 
     setIsLoading(true);
     try {
-      await api.post(`/users/reset-password`, userData);
+      await api.post(`/user/reset-password`, userData);
       setIsLoading(false);
-      setAlertMessage(t('loading_message'));  
+      setAlertMessage(t('loading_message'));
       setMessageType('success');
     } catch (error) {
       setIsLoading(false);
@@ -88,9 +88,9 @@ const ResetPassword = () => {
           {alertMessage && <ErrorMessage message={alertMessage} messageType={messageType} onClose={() => setAlertMessage(null)} />}
           <Box component="form" disabled={isLoading}>
             <TextField
-              label={t('password')}  
+              label={t('password')}
               error={!isValidPassword}
-              helperText={!isValidPassword ? t('password_helper') : ''}  
+              helperText={!isValidPassword ? t('password_helper') : ''}
               fullWidth
               margin="normal"
               autoComplete="current-password"
@@ -108,9 +108,9 @@ const ResetPassword = () => {
               }}
             />
             <TextField
-              label={t('repeat_password')}  
+              label={t('repeat_password')}
               error={differentPasswords}
-              helperText={differentPasswords ? t('different_passwords') : ''}  
+              helperText={differentPasswords ? t('different_passwords') : ''}
               fullWidth
               margin="normal"
               type="password"
@@ -136,7 +136,7 @@ const ResetPassword = () => {
             }}
               sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}
             >
-              {t('login_with_account')}  
+              {t('login_with_account')}
             </Button>
           </Box>
         </Paper>

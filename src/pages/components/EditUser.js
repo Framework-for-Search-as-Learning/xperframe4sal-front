@@ -3,41 +3,41 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { api } from '../../config/axios';
-import { Typography, Box } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import React, {useState, useEffect, useCallback} from 'react';
+import {api} from '../../config/axios';
+import {Typography, Box} from '@mui/material';
+import {useTranslation} from 'react-i18next';
 import styles from "../../style/editUser.module.css"
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
-import EditUserArea  from '../../components/EditUser/EditUsersArea';
+import EditUserArea from '../../components/EditUser/EditUsersArea';
 import EditGroupArea from '../../components/EditUser/EditGroupArea';
-import { People, Person } from '@mui/icons-material';
+import {People, Person} from '@mui/icons-material';
 
 
 const EditUser = (ExperimentId) => {
     const [user] = useState(JSON.parse(localStorage.getItem('user')));
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     const [actualStep, setActualStep] = useState(null);
 
     const fetchData = useCallback(async () => {
         try {
-            const { data } = await api.get(`/experiments/${ExperimentId.experimentId}`, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
+            const {data} = await api.get(`/experiment/${ExperimentId.experimentId}`, {
+                headers: {Authorization: `Bearer ${user.accessToken}`},
             });
 
-            if(data.typeExperiment === "between-subject" && data.betweenExperimentType === "manual"){
+            if (data.typeExperiment === "between-subject" && data.betweenExperimentType === "manual") {
                 setActualStep(0);
             }
         } catch (error) {
             console.error('Erro ao buscar dados do experimento:', error);
         }
-    },[ExperimentId.experimentId, user.accessToken]);
+    }, [ExperimentId.experimentId, user.accessToken]);
 
     useEffect(() => {
         fetchData();
-    },[fetchData]);
+    }, [fetchData]);
 
     const STEPS = [
         {label: 'edit_users', icon: (<Person/>)},
@@ -50,7 +50,7 @@ const EditUser = (ExperimentId) => {
 
     const displayStep = () => {
         if (actualStep === 0)
-            return <EditUserArea ExperimentId={ExperimentId} />
+            return <EditUserArea ExperimentId={ExperimentId}/>
         if (actualStep === 1)
             return <EditGroupArea ExperimentId={ExperimentId}/>
 
@@ -69,18 +69,18 @@ const EditUser = (ExperimentId) => {
                         {STEPS.map((step, index) => (
                             <div key={index} className={styles.stepSelector} onClick={() => handleSwitchStep(index)}>
                                 <Box
-                                sx={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    width: 40,
-                                    height: 40,
-                                    borderRadius: '50%',
-                                    backgroundColor: index === actualStep ? 'primary.main' : 'grey.300',
-                                    color: index === actualStep ? 'white' : 'black',
-                                    fontSize: '1.5rem',
-                                    marginBottom: 1,
-                                }}
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        width: 40,
+                                        height: 40,
+                                        borderRadius: '50%',
+                                        backgroundColor: index === actualStep ? 'primary.main' : 'grey.300',
+                                        color: index === actualStep ? 'white' : 'black',
+                                        fontSize: '1.5rem',
+                                        marginBottom: 1,
+                                    }}
                                 >
                                     {step.icon}
                                 </Box>
@@ -91,8 +91,8 @@ const EditUser = (ExperimentId) => {
 
                     {displayStep()}
                 </>
-            ) : <EditUserArea ExperimentId={ExperimentId} />}
-        </div >
+            ) : <EditUserArea ExperimentId={ExperimentId}/>}
+        </div>
     );
 };
 

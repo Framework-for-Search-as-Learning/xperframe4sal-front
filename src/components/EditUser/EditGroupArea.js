@@ -13,9 +13,9 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import UserList from './UserList';
-import GroupSelector from './GroupSelector';
+import GroupSelector from './groupSelector';
 
-const EditGroupArea = ({ExperimentId}) => {
+const EditGroupArea = ({ ExperimentId }) => {
     const { t } = useTranslation();
     const msgs = useRef(null);
     const [user] = useState(JSON.parse(localStorage.getItem('user')));
@@ -49,12 +49,12 @@ const EditGroupArea = ({ExperimentId}) => {
                 })
             }
             setGroups(generatedGroups)
-        }catch (error){
+        } catch (error) {
             console.error('Erro ao buscar dados das Tarefas: ', error)
         }
 
         try {
-            const response = await api.get(`user-experiments/experiment/${ExperimentId.experimentId}/`, {
+            const response = await api.get(`user-experiment/experiment/${ExperimentId.experimentId}/`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             const usersInExperimentData = response.data;
@@ -68,26 +68,26 @@ const EditGroupArea = ({ExperimentId}) => {
 
     useEffect(() => {
         fetchData();
-    },[fetchData]);
+    }, [fetchData]);
 
-   const openModal = (userId) => {
+    const openModal = (userId) => {
         modalUserId.current = userId;
         setIsVisible(true);
-   }
+    }
 
-   const closeModal = () =>{
+    const closeModal = () => {
         setIsVisible(false);
-   }
+    }
 
-   const addUserToGroup = async (userId, groupId) =>{
+    const addUserToGroup = async (userId, groupId) => {
         try {
             await api.post(
-                '/user-task2',
+                '/user-task',
                 {
                     userId: userId,
                     taskId: groupId
                 },
-                {headers: { Authorization: `Bearer ${user.accessToken}` }}
+                { headers: { Authorization: `Bearer ${user.accessToken}` } }
             )
 
             fetchData();
@@ -95,26 +95,26 @@ const EditGroupArea = ({ExperimentId}) => {
             console.error('Erro ao alocar usuário na tarefa: ', error)
         }
         closeModal()
-   }
+    }
 
-   const removeUserFromGroup = async (userId) => {
+    const removeUserFromGroup = async (userId) => {
         try {
             const group = groups.find(group =>
                 group.users.some(user => user._id === userId)
             );
 
             await api.delete(
-                `/user-task2?userId=${userId}&taskId=${group.id}`,
-                {headers: { Authorization: `Bearer ${user.accessToken}` }}
+                `/user-task?userId=${userId}&taskId=${group.id}`,
+                { headers: { Authorization: `Bearer ${user.accessToken}` } }
             )
 
             fetchData();
         } catch (error) {
             console.error('Erro ao remover usuário na tarefa: ', error)
         }
-   }
+    }
 
-    return(
+    return (
         <>
             <div style={{ justifyContent: 'center', display: 'flex', flexDirection: "row", width: "100%", marginTop: '20px', }}>
                 <div className={styles.container}>
@@ -148,8 +148,8 @@ const EditGroupArea = ({ExperimentId}) => {
                 <Messages ref={msgs} />
             </Box>
 
-            <GroupSelector 
-                userId={modalUserId.current} 
+            <GroupSelector
+                userId={modalUserId.current}
                 isVisible={isVisible}
                 groups={groups}
                 addUserToGroup={addUserToGroup}

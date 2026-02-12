@@ -89,11 +89,10 @@ const EditAccount = ({ t, isLoading, setIsLoading, alertMessage, messageType, se
 
     userData = Object.assign(userData, user);
 
-    //Correcao temporal
     const userDataTemp = { name, lastName, email };
     setIsLoading(true);
     try {
-      let response = await api.patch(`/users/${user.id}`, userDataTemp, {
+      let response = await api.patch(`/user/${user.id}`, userDataTemp, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       });
       setIsLoading(false);

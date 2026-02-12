@@ -18,7 +18,7 @@ import ConfirmCreateExperiment from "./components/CreateExperiment/ConfirmCreate
 import CreateExperimentICF from "./components/CreateExperiment/CreateExperimentICF";
 
 const CreateExperiment = () => {
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     const [user] = useState(JSON.parse(localStorage.getItem("user")));
     const [ExperimentTitle, setExperimentTitle] = useState("");
     const [ExperimentTitleICF, setExperimentTitleICF] = useState("");
@@ -33,11 +33,11 @@ const CreateExperiment = () => {
     const toast = useRef(null);
 
     const STEPS = [
-        { index: 0, title: t("step_1") },
-        { index: 1, title: t("ICF") },
-        { index: 2, title: t("step_3") },
-        { index: 3, title: t("step_2") },
-        { index: 4, title: t("step_5") },
+        {index: 0, title: t("step_1")},
+        {index: 1, title: t("ICF")},
+        {index: 2, title: t("step_3")},
+        {index: 3, title: t("step_2")},
+        {index: 4, title: t("step_5")},
     ]
 
     const handleCreateExperiment = async () => {
@@ -48,10 +48,10 @@ const CreateExperiment = () => {
                     severity: "info",
                     summary: t("Creating experiment..."),
                     detail: (
-                        <div style={{ width: "100%", paddingTop: "10px" }}>
+                        <div style={{width: "100%", paddingTop: "10px"}}>
                             <ProgressBar
                                 mode="indeterminate"
-                                style={{ height: "6px" }}
+                                style={{height: "6px"}}
                             />
                         </div>
                     ),
@@ -59,13 +59,13 @@ const CreateExperiment = () => {
                     closable: false,
                 });
             }
-            
+
             const experimentIcf = {
                 title: ExperimentTitleICF,
                 description: ExperimentDescICF,
             };
             await api.post(
-                `/experiments`,
+                `/experiment`,
                 {
                     ownerId: user.id,
                     name: ExperimentTitle,
@@ -76,7 +76,7 @@ const CreateExperiment = () => {
                     tasksProps: ExperimentTasks,
                     icf: experimentIcf,
                 },
-                { headers: { Authorization: `Bearer ${user.accessToken}` } }
+                {headers: {Authorization: `Bearer ${user.accessToken}`}}
             );
 
             if (toast.current) {
@@ -145,25 +145,25 @@ const CreateExperiment = () => {
 
     return (
         <>
-            <Toast ref={toast} position="bottom-right" />
+            <Toast ref={toast} position="bottom-right"/>
 
             <Typography variant="h4" component="h1" gutterBottom align="center">
                 {t("Experiment_create")}
             </Typography>
 
-            <Stepper sx={{ display: { xs: 'none', sm: 'flex' } }} activeStep={step} alternativeLabel>
+            <Stepper sx={{display: {xs: 'none', sm: 'flex'}}} activeStep={step} alternativeLabel>
                 {STEPS.map((step) => (
                     <Step key={step.index}>
                         <StepLabel>{step.title}</StepLabel>
                     </Step>
                 ))}
             </Stepper>
-            <Stepper sx={{ display: { xs: 'flex', sm: 'none' } }} activeStep={step == 0 ? 0 : 1} alternativeLabel nonLinear>
+            <Stepper sx={{display: {xs: 'flex', sm: 'none'}}} activeStep={step == 0 ? 0 : 1} alternativeLabel nonLinear>
                 {STEPS.map((s) => {
                     if (s.index >= (step - 1) && s.index <= (step + 1)) {
                         return (
                             <Step key={s.index}>
-                                <StepLabel StepIconComponent={CustomStepIcon} >{s.title}</StepLabel>
+                                <StepLabel StepIconComponent={CustomStepIcon}>{s.title}</StepLabel>
                             </Step>
                         )
                     }
@@ -191,14 +191,14 @@ const CreateExperiment = () => {
                     setExperimentDescICF,
                 }}
             >
-                {step === 0 && <CreateExperimentForm />}
-                {step === 1 && <CreateExperimentICF />}
-                {step === 2 && <CreateExperimentSurvey />}
-                {step === 3 && <CreateExperimentTask />}
-                {step === 4 && <ConfirmCreateExperiment />}
+                {step === 0 && <CreateExperimentForm/>}
+                {step === 1 && <CreateExperimentICF/>}
+                {step === 2 && <CreateExperimentSurvey/>}
+                {step === 3 && <CreateExperimentTask/>}
+                {step === 4 && <ConfirmCreateExperiment/>}
             </StepContext.Provider>
         </>
     );
 };
 
-export { CreateExperiment };
+export {CreateExperiment};

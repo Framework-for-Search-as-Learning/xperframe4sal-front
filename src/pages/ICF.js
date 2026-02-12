@@ -48,14 +48,13 @@ const ICF = () => {
         async function fetchData() {
             try {
                 let experiment = (
-                    await api.get(`experiments/${experimentId}`, {
+                    await api.get(`experiment/${experimentId}`, {
                         headers: {
                             Authorization: `Bearer ${user.accessToken}`,
                         },
                     })
                 ).data;
 
-                // Buscar ICF pelo experimentId, não icf_id
                 const icfResponse = (
                     await api.get(`icf/experiment/${experimentId}`, {
                         headers: {
@@ -68,7 +67,7 @@ const ICF = () => {
 
                 if (!userExperiment) {
                     let response = await api.get(
-                        `user-experiments?userId=${user.id}&experimentId=${experimentId}`,
+                        `user-experiment?userId=${user.id}&experimentId=${experimentId}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${user.accessToken}`,
@@ -109,7 +108,7 @@ const ICF = () => {
             }
             userExperiment.stepsCompleted["icf"] = true;
             await api.patch(
-                `user-experiments/${userExperiment._id}`,
+                `user-experiment/${userExperiment._id}`,
                 userExperiment,
                 { headers: { Authorization: `Bearer ${user.accessToken}` } }
             );

@@ -26,7 +26,7 @@ async function updateUserExperimentStatus(userExperiment, user, api) {
             { task: true }
         );
         await api.patch(
-            `user-experiments/${userExperiment._id}`,
+            `user-experiment/${userExperiment._id}`,
             userExperiment,
             { headers: { Authorization: `Bearer ${user.accessToken}` } }
         );
@@ -70,7 +70,7 @@ const Task = () => {
                             Authorization: `Bearer ${user.accessToken}`,
                         },
                     }),
-                    api.get(`/user-task2?taskId=${taskId}&userId=${user.id}`, {
+                    api.get(`/user-task?taskId=${taskId}&userId=${user.id}`, {
                         headers: {
                             Authorization: `Bearer ${user.accessToken}`,
                         },
@@ -191,7 +191,7 @@ const Task = () => {
 
             if (otherUnfinishedTasks.length === 0) {
                 const userExperiment = await api.get(
-                    `user-experiments?experimentId=${experimentId}&userId=${user.id}`,
+                    `user-experiment?experimentId=${experimentId}&userId=${user.id}`,
                     { headers: { Authorization: `Bearer ${user.accessToken}` } }
                 );
                 await updateUserExperimentStatus(userExperiment?.data, user, api);
@@ -369,7 +369,7 @@ const Task = () => {
                 />
             )}
             {task.search_source == 'llm' && (
-                <Chatbot />
+                <Chatbot taskId={taskId} user={user} />
             )}
 
             {isShowingResultModal && (

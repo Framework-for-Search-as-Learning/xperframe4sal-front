@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { api } from "../config/axios.js";
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; 
+import { useTranslation } from 'react-i18next';
 
 import {
   Container,
@@ -23,7 +23,7 @@ import { LoadingIndicator } from '../components/LoadIndicator';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation(); 
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState('');
   const [isValid, setIsValid] = useState(false);
@@ -45,10 +45,10 @@ const ForgotPassword = () => {
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
-      const response = await api.post(`users/forgot-password`, { email: email });
+      const response = await api.post(`user/forgot-password`, { email: email });
       setIsLoading(false);
       setMessageType('success');
-      setAlertMessage(t('reset_success_message')); 
+      setAlertMessage(t('reset_success_message'));
     } catch (error) {
       setIsLoading(false);
       setMessageType('fail');
@@ -81,7 +81,7 @@ const ForgotPassword = () => {
             fontWeight: 500,
             color: 'rgb(103,99,99)'
           }}>
-          {t('forgot_password_title')} 
+          {t('forgot_password_title')}
         </Typography>
         {isLoading && <LoadingIndicator size={50} />}
         {alertMessage && <ErrorMessage
@@ -92,7 +92,7 @@ const ForgotPassword = () => {
         <Divider style={{ margin: '16px 0' }} />
         <Box component="form">
           <TextField
-            label={t('email_label')} 
+            label={t('email_label')}
             variant="outlined"
             type="email"
             autoComplete="email"
@@ -101,7 +101,7 @@ const ForgotPassword = () => {
             required
             onChange={handleEmailChange}
             error={!isValid && (email.length > 0)}
-            helperText={!isValid && email ? t('invalid_email') : ''} 
+            helperText={!isValid && email ? t('invalid_email') : ''}
             margin="normal"
           />
           <Button
@@ -112,7 +112,7 @@ const ForgotPassword = () => {
             style={{ margin: '16px 0' }}
             disabled={!isValid}
           >
-            {t('recover_button')} 
+            {t('recover_button')}
           </Button>
           <Button onClick={() => navigate('/')} style={{
             cursor: 'pointer',
@@ -123,7 +123,7 @@ const ForgotPassword = () => {
           }}
             sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}
           >
-            {t('login_link')} 
+            {t('login_link')}
           </Button>
         </Box>
       </Paper>

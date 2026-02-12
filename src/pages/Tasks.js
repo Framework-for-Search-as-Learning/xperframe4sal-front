@@ -43,13 +43,13 @@ const Tasks = () => {
                 setIsLoading(true);
                 const [experimentResponse, userExperimentResponse] =
                     await Promise.all([
-                        api.get(`experiments/${experimentId}`, {
+                        api.get(`experiment/${experimentId}`, {
                             headers: {
                                 Authorization: `Bearer ${user.accessToken}`,
                             },
                         }),
                         api.get(
-                            `user-experiments?experimentId=${experimentId}&userId=${user.id}`,
+                            `user-experiment?experimentId=${experimentId}&userId=${user.id}`,
                             {
                                 headers: {
                                     Authorization: `Bearer ${user.accessToken}`,
@@ -78,15 +78,15 @@ const Tasks = () => {
                         taskList.push(task);
                     }
                 }
-                const steps = await api.get(`experiments/${experimentId}/step`, {
-                        headers: {
-                            Authorization: `Bearer ${user.accessToken}`,
-                        },
-                    });
+                const steps = await api.get(`experiment/${experimentId}/step`, {
+                    headers: {
+                        Authorization: `Bearer ${user.accessToken}`,
+                    },
+                });
                 const experimentSteps = mountSteps(
                     steps.data,
                     userExperimentResult.stepsCompleted
-                 );
+                );
                 setSteps(experimentSteps);
 
                 setTasks(taskList);

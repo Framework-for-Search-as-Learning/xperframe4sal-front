@@ -53,7 +53,7 @@ const EditExperiment = () => {
 
   const fetchExperiment = useCallback(async () => {
     try {
-      const { data } = await api.get(`/experiments/${experimentId}`, {
+      const { data } = await api.get(`/experiment/${experimentId}`, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       });
       setExperimentId(experimentId);

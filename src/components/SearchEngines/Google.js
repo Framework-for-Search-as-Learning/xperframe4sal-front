@@ -52,7 +52,7 @@ const Google = ({
                     /** TODO: should get the search engine from the task. Remove `google` as hardcoded */
                     const [searchResults, userTaskSession] = await Promise.all([
                         api.get(
-                            `/search-engine/google?query=${query}&start=${start}&num=${num}`,
+                            `/search-engine/google?query=${query}&start=${start}&num=${num}&taskId=${taskId}`,
                             {
                                 headers: {
                                     Authorization: `Bearer ${user.accessToken}`,

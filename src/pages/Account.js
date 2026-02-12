@@ -31,7 +31,7 @@ const Account = () => {
   const handleDeleteAllData = async () => {
     try {
       setConfirmDialogOpen(false);
-      await api.patch(`users/${user.id}/delete-data`);
+      await api.patch(`user/${user.id}/delete-data`);
       setShowSnackBar(true);
       setIsSuccess(true);
       setSeverity('success');

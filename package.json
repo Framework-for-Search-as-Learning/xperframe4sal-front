@@ -3,18 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@emotion/react": "^11.13.3",
-    "@emotion/styled": "^11.13.0",
+    "@craco/craco": "^7.1.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@fontsource/roboto": "^5.1.0",
     "@google/genai": "^1.10.0",
     "@material/web": "^2.2.0",
     "@mui/icons-material": "^6.4.11",
-    "@mui/material": "^6.1.1",
+    "@mui/material": "^6.5.0",
     "@mui/styles": "^6.1.1",
+    "@mui/x-date-pickers": "^8.27.0",
     "ajv": "^8.17.1",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
     "bootstrap": "^5.3.3",
+    "date-fns": "^4.1.0",
     "dompurify": "^3.1.7",
     "i18next": "^23.15.1",
     "i18next-browser-languagedetector": "^7.2.1",
@@ -37,6 +40,7 @@
     "react-scripts": "^5.0.1",
     "react-serp-preview": "^1.1.0",
     "react-tracking": "^9.3.2",
+    "recharts": "^3.7.0",
     "styled-components": "^6.1.14",
     "uuid": "^11.1.0"
   },
@@ -44,9 +48,9 @@
     "node": "20"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "react-scripts eject"
   },
   "browserslist": {
