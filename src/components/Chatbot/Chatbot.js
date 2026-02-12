@@ -110,11 +110,9 @@ const Chatbot = ({ taskId, user }) => {
     const handleSendMessage = async (messageText) => {
         if (!messageText.trim() || !sessionId) return;
 
-        // Cancela requisição anterior se houver (evita bugs de digitação rápida)
         if (abortControllerRef.current) abortControllerRef.current.abort();
         abortControllerRef.current = new AbortController();
 
-        // Adiciona mensagem do usuário na tela imediatamente
         const userMessage = {
             id: Date.now(),
             text: messageText,
@@ -129,7 +127,6 @@ const Chatbot = ({ taskId, user }) => {
         try {
             const token = user.accessToken;
 
-            // 2. Faz a requisição para o endpoint de Stream do seu Backend
             const response = await fetch(`${API_URL}/llm-session/${sessionId}/message`, {
                 method: 'POST',
                 headers: {
@@ -142,45 +139,48 @@ const Chatbot = ({ taskId, user }) => {
 
             if (!response.body) throw new Error('ReadableStream not supported.');
 
-            // 3. Configura a leitura do Stream
             const reader = response.body.getReader();
             const decoder = new TextDecoder("utf-8");
-            
+
             let fullResponse = "";
             const botMessageId = Date.now() + 1;
 
-            // Cria o balão vazio do bot para começar a preencher
             setMessages(prev => [...prev, {
                 id: botMessageId,
-                text: "", 
+                text: "",
                 sender: "bot",
                 role: "model",
                 timestamp: new Date(),
             }]);
 
-            // 4. Loop de leitura (enquanto houver dados chegando)
             while (true) {
                 const { done, value } = await reader.read();
-                if (done) break;
+                if (done) {
+                    setIsTyping(false);
+                    break;
+                }
 
                 const chunk = decoder.decode(value, { stream: true });
                 fullResponse += chunk;
 
+                if (fullResponse.length > 0 && isTyping) {
+                    setIsTyping(false);
+                }
 
-                setMessages(prev => 
-                    prev.map(msg => 
-                        msg.id === botMessageId 
-                            ? { ...msg, text: marked(fullResponse) } 
+                setMessages(prev =>
+                    prev.map(msg =>
+                        msg.id === botMessageId
+                            ? { ...msg, text: marked(fullResponse) }
                             : msg
                     )
                 );
-
             }
 
         } catch (error) {
-            if (error.name === 'AbortError') return; // Ignora se foi cancelado
+            setIsTyping(false);
+            if (error.name === 'AbortError') return;
             console.error('Erro:', error);
-            
+
             setMessages(prev => [...prev, {
                 id: Date.now() + 2,
                 text: "Erro de conexão ou resposta interrompida.",
