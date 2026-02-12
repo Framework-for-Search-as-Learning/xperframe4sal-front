@@ -1,66 +1,25 @@
-import React, { useState, useContext, useEffect, useMemo } from "react";
-import {
-    Box,
-    TextField,
-    Button,
-    FormControl,
-    IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    CircularProgress,
-    ListItemText,
-    styled,
-    Typography,
-    Grid,
-    InputLabel,
-    Select,
-    MenuItem,
-    Checkbox,
-} from "@mui/material";
-import { useTranslation } from "react-i18next";
-import ReactQuill from "react-quill";
+import React, {useState, useContext, useEffect} from "react";
+import {Box, CircularProgress, IconButton, Typography, TextField} from "@mui/material";
+import {useTranslation} from "react-i18next";
 import StepContext from "./context/StepContext";
-import { api } from "../../../config/axios";
-import "react-quill/dist/quill.snow.css";
 import NotFound from "../../../components/NotFound";
+import {api} from "../../../config/axios";
 import {
     ExpandMore as ExpandMoreIcon,
     ExpandLess as ExpandLessIcon,
     Edit as EditIcon,
     Delete as DeleteIcon,
 } from "@mui/icons-material";
-import {
-    LLM_PROVIDERS,
-    LLM_MODELS_BY_PROVIDER,
-    SEARCH_ENGINES,
-    RULES_EXPERIMENT_TYPES,
-    SCORE_TYPES,
-} from "../CreateExperiment/constants/experimentConstants";
 
-// Estilização personalizada para o editor ReactQuill
-const CustomContainer = styled("div")(({ theme }) => ({
-    backgroundColor: "#fafafa",
-    borderRadius: "8px",
-    padding: "0px",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-    "& .ql-toolbar": {
-        backgroundColor: "#f5f5f5",
-        borderRadius: "8px 8px 0 0",
-    },
-    "& .ql-container": {
-        minHeight: "200px",
-        borderRadius: "0 0 8px 8px",
-    },
-    "& .ql-editor": {
-        fontFamily: theme.typography.fontFamily,
-        lineHeight: 1.6,
-        color: "#444",
-    },
-}));
+import TaskDialog from "../CreateExperiment/components/TaskDialog";
+import DeleteConfirmDialog from "../CreateExperiment/components/DeleteConfirmDialog";
+
+import {useTaskForm} from "../CreateExperiment/hooks/useTaskForm";
+import {filterTasks} from "../CreateExperiment/utils/formHelpers";
 
 const EditExperimentTask = () => {
-    // Contexto compartilhado com o fluxo de criação/edição do experimento
+    const {t} = useTranslation();
+
     const [
         ExperimentTitle,
         setExperimentTitle,
@@ -76,359 +35,79 @@ const EditExperimentTask = () => {
         setExperimentSurveys,
     ] = useContext(StepContext);
 
-    // Dados do usuário autenticado
     const [user] = useState(JSON.parse(localStorage.getItem("user")));
-    const { t } = useTranslation();
 
-    // Estados para gerenciamento de tarefas
     const [isLoadingTask, setIsLoadingTask] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [ExperimentTasks, setExperimentTasks] = useState([]);
-    const [openTaskIds, setOpenTaskIds] = useState([]);
     const [tasks, setTasks] = useState([]);
-
-    // Estados para controle de modais
+    const [openTaskIds, setOpenTaskIds] = useState([]);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [taskToDeleteId, setTaskToDeleteId] = useState(null);
     const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
     const [isEditTaskOpen, setIsEditTaskOpen] = useState(false);
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [taskToDeleteIndex, setTaskToDeleteIndex] = useState(null);
+    const [editTaskId, setEditTaskId] = useState(null);
 
-    // Estados para formulário de criação/edição de tarefas
-    const [taskTitle, setTaskTitle] = useState("");
-    const [taskid, settaskid] = useState("");
-    const [taskSummary, setTaskSummary] = useState("");
-    const [taskDescription, setTaskDescription] = useState("");
-    const [editTaskIndex, setEditTaskIndex] = useState(null);
-
-    // Estados para regras do experimento (score-based ou question-based)
-    const [RulesExperiment, setRulesExperiment] = useState("score");
-    const [ScoreThresholdmx, setScoreThresholdmx] = useState("");
-    const [ScoreThreshold, setScoreThreshold] = useState("");
     const [scoreType, setscoreType] = useState("");
 
-    // Estados para seleção de survey e questões
-    const [SelectedSurvey, setSelectedSurvey] = useState("");
-    const [SelectedSurveyids, setSelectedSurveyids] = useState("");
-    const [selectedQuestionIds, setSelectedQuestionIds] = useState([]);
-    const [SelectedQuestion, setSelectedQuestion] = useState(null);
+    const createForm = useTaskForm("create");
+    const editForm = useTaskForm("edit");
 
-    // Estados para configuração de fonte de pesquisa (LLM ou Search Engine)
-    const [origin, setOrigin] = useState("");
-    const [llmProvider, setLlmProvider] = useState(""); // NOVO
-    const [llm, setLlm] = useState("");
-    const [searchEngine, setSearchEngine] = useState("google");
-
-    // Estados para armazenamento de múltiplas chaves de API
-    const [openaiKey, setOpenaiKey] = useState("");
-    const [anthropicKey, setAnthropicKey] = useState("");
-    const [googleAiKey, setGoogleAiKey] = useState("");
-    const [cohereKey, setCohereKey] = useState("");
-    const [mistralKey, setMistralKey] = useState("");
-
-    // Compatibilidade com código antigo
-    const [geminiApiKey, setGeminiApiKey] = useState("");
-    const [googleApiKey, setGoogleApiKey] = useState("");
-    const [googleCx, setGoogleCx] = useState("");
-
-    // Validação de formulário
-    const [isValidTitleTask, setIsValidTitleTask] = React.useState(true);
-    const [isValidSumaryTask, setIsValidSumaryTask] = React.useState(true);
-    const isValidFormTask = isValidTitleTask && taskTitle && isValidSumaryTask && taskSummary;
-
-    // Get available models based on selected provider
-    const availableModels = useMemo(() => {
-        if (!llmProvider) return [];
-        return LLM_MODELS_BY_PROVIDER[llmProvider] || [];
-    }, [llmProvider]);
-
-    // Reset model when provider changes
-    useEffect(() => {
-        if (llmProvider && llm) {
-            const isValidModel = availableModels.some(model => model.value === llm);
-            if (!isValidModel) {
-                setLlm("");
-            }
-        }
-    }, [llmProvider]);
-
-    // Get API key config based on provider
-    const getApiKeyConfig = () => {
-        if (origin !== "llm" || !llmProvider) return null;
-
-        const apiKeyConfigs = {
-            openai: {
-                label: "OpenAI API Key",
-                placeholder: "sk-...",
-                value: openaiKey,
-                setter: setOpenaiKey,
-            },
-            anthropic: {
-                label: "Anthropic API Key",
-                placeholder: "sk-ant-...",
-                value: anthropicKey,
-                setter: setAnthropicKey,
-            },
-            google: {
-                label: "Google AI API Key",
-                placeholder: "AIza...",
-                value: googleAiKey || geminiApiKey,
-                setter: (value) => {
-                    setGoogleAiKey(value);
-                    setGeminiApiKey(value); // Sync for compatibility
-                },
-            },
-            cohere: {
-                label: "Cohere API Key",
-                placeholder: "...",
-                value: cohereKey,
-                setter: setCohereKey,
-            },
-            mistral: {
-                label: "Mistral API Key",
-                placeholder: "...",
-                value: mistralKey,
-                setter: setMistralKey,
-            },
-        };
-
-        return apiKeyConfigs[llmProvider] || null;
-    };
-
-    const apiKeyConfig = getApiKeyConfig();
-
-    // Carrega as tarefas do experimento ao montar o componente
     useEffect(() => {
         fetchTasks();
-    }, [user, t]);
+    }, [ExperimentId]);
 
-    /**
-     * Busca todas as tarefas associadas ao experimento atual
-     */
     const fetchTasks = async () => {
+        if (!ExperimentId) return;
+
+        setIsLoadingTask(true);
         try {
             const response = await api.get(`task/experiment/${ExperimentId}`, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
+                headers: {Authorization: `Bearer ${user.accessToken}`},
             });
             setTasks(response.data);
         } catch (error) {
             console.error(t("Error in Search"), error);
-        }
-    };
-
-    /**
-     * Preenche o formulário de edição com dados da tarefa selecionada
-     */
-    const handleEditTask = async (index) => {
-        setEditTaskIndex(index);
-        const task = tasks.find((t) => t._id === index);
-
-        if (task) {
-            // Busca as questões associadas à tarefa
-            const response = await api.get(`task-question-map/task/${task._id}`, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
-            });
-            const filteredTasks = response.data;
-            setSelectedQuestionIds(filteredTasks);
-
-            // Preenche os campos do formulário
-            settaskid(task._id);
-            setTaskTitle(task.title);
-            setTaskSummary(task.summary);
-            setTaskDescription(task.description);
-            setRulesExperiment(task.RulesExperiment);
-            setScoreThreshold(task.ScoreThreshold);
-            setScoreThresholdmx(task.ScoreThresholdmx);
-
-            // Set score type
-            if (task.ScoreThreshold !== "" && task.ScoreThresholdmx !== "0") {
-                setscoreType("min_max");
-            } else {
-                setscoreType("unic");
-            }
-
-            // Populate Survey
-            const surveyEx = ExperimentSurveys.find((survey) => survey.uuid === task.survey);
-            if (surveyEx) {
-                setSelectedSurvey(surveyEx);
-                setSelectedSurveyids(surveyEx.uuid);
-            }
-
-            // Populate Source
-            setOrigin(task.search_source || "");
-            setLlmProvider(task.llmProvider || ""); // NOVO
-
-            if (task.search_source === "llm") {
-                setLlm(task.search_model || "");
-            } else if (task.search_source === "search-engine") {
-                setSearchEngine(task.search_model || "google");
-            }
-
-            // Populate API Keys
-            setOpenaiKey(task.openaiKey || "");
-            setAnthropicKey(task.anthropicKey || "");
-            setGoogleAiKey(task.googleAiKey || task.geminiApiKey || "");
-            setCohereKey(task.cohereKey || "");
-            setMistralKey(task.mistralKey || "");
-
-            // Compatibility
-            setGeminiApiKey(task.geminiApiKey || task.googleAiKey || "");
-            setGoogleApiKey(task.googleApiKey || "");
-            setGoogleCx(task.googleCx || "");
-
-            toggleEditTask();
-        }
-    };
-
-    /**
-     * Submete as alterações da tarefa editada
-     */
-    const handleEditTaskSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoadingTask(true);
-
-        try {
-            // Prepare task object
-            const taskData = {
-                title: taskTitle,
-                summary: taskSummary,
-                description: taskDescription,
-                RulesExperiment: RulesExperiment,
-                survey: SelectedSurveyids,
-                ScoreThreshold: ScoreThreshold,
-                ScoreThresholdmx: ScoreThresholdmx,
-                search_source: origin,
-            };
-
-            // Add LLM-specific data
-            if (origin === "llm") {
-                taskData.llmProvider = llmProvider;
-                taskData.search_model = llm;
-
-                // Add appropriate API key
-                if (llmProvider === "openai") taskData.openaiKey = openaiKey;
-                if (llmProvider === "anthropic") taskData.anthropicKey = anthropicKey;
-                if (llmProvider === "google") taskData.googleAiKey = googleAiKey;
-                if (llmProvider === "cohere") taskData.cohereKey = cohereKey;
-                if (llmProvider === "mistral") taskData.mistralKey = mistralKey;
-            }
-            // Add Search Engine-specific data
-            else if (origin === "search-engine") {
-                taskData.search_model = searchEngine;
-                taskData.googleApiKey = googleApiKey;
-                taskData.googleCx = googleCx;
-            }
-
-            // Update task
-            await api.put(`task/${taskid}`, taskData, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
-            });
-
-            // Update question mappings if needed
-            if (RulesExperiment === "question" && selectedQuestionIds.length > 0) {
-                // Delete old mappings
-                await api.delete(`task-question-map/task/${taskid}`, {
-                    headers: { Authorization: `Bearer ${user.accessToken}` },
-                });
-
-                // Create new mappings
-                const mappingPromises = selectedQuestionIds.map((questionId) =>
-                    api.post(
-                        `task-question-map`,
-                        { task: taskid, question: questionId },
-                        { headers: { Authorization: `Bearer ${user.accessToken}` } }
-                    )
-                );
-                await Promise.all(mappingPromises);
-            }
-
-            // Refresh tasks
-            await fetchTasks();
-            resetForm();
-            toggleEditTask();
-        } catch (error) {
-            console.error(t("Error updating task"), error);
         } finally {
             setIsLoadingTask(false);
         }
     };
 
-    /**
-     * Cria uma nova tarefa
-     */
-    const handleCreateTaskSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoadingTask(true);
-
-        try {
-            // Prepare task object
-            const taskData = {
-                title: taskTitle,
-                summary: taskSummary,
-                description: taskDescription,
-                RulesExperiment: RulesExperiment,
-                survey: SelectedSurveyids,
-                ScoreThreshold: ScoreThreshold,
-                ScoreThresholdmx: ScoreThresholdmx,
-                search_source: origin,
-                experiment_id: ExperimentId,
-            };
-
-            // Add LLM-specific data
-            if (origin === "llm") {
-                taskData.llmProvider = llmProvider;
-                taskData.search_model = llm;
-
-                // Add appropriate API key
-                if (llmProvider === "openai") taskData.openaiKey = openaiKey;
-                if (llmProvider === "anthropic") taskData.anthropicKey = anthropicKey;
-                if (llmProvider === "google") taskData.googleAiKey = googleAiKey;
-                if (llmProvider === "cohere") taskData.cohereKey = cohereKey;
-                if (llmProvider === "mistral") taskData.mistralKey = mistralKey;
-            }
-            // Add Search Engine-specific data
-            else if (origin === "search-engine") {
-                taskData.search_model = searchEngine;
-                taskData.googleApiKey = googleApiKey;
-                taskData.googleCx = googleCx;
-            }
-
-            // Create task
-            const response = await api.post(`task`, taskData, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
-            });
-
-            const newTaskId = response.data._id;
-
-            // Create question mappings if needed
-            if (RulesExperiment === "question" && selectedQuestionIds.length > 0) {
-                const mappingPromises = selectedQuestionIds.map((questionId) =>
-                    api.post(
-                        `task-question-map`,
-                        { task: newTaskId, question: questionId },
-                        { headers: { Authorization: `Bearer ${user.accessToken}` } }
-                    )
-                );
-                await Promise.all(mappingPromises);
-            }
-
-            // Refresh tasks
-            await fetchTasks();
-            resetForm();
-            toggleCreateTask();
-        } catch (error) {
-            console.error(t("Error creating task"), error);
-        } finally {
-            setIsLoadingTask(false);
+    const toggleCreateTask = () => {
+        if (isCreateTaskOpen) {
+            createForm.resetForm();
         }
+        setIsCreateTaskOpen((prev) => !prev);
     };
 
-    /**
-     * Deleta uma tarefa
-     */
+    const toggleEditTask = () => {
+        if (isEditTaskOpen) {
+            editForm.resetForm();
+        }
+        setIsEditTaskOpen((prev) => !prev);
+    };
+
+    const toggleTaskDescription = (taskId) => {
+        setOpenTaskIds((prev) =>
+            prev.includes(taskId)
+                ? prev.filter((id) => id !== taskId)
+                : [...prev, taskId]
+        );
+    };
+
+    const handleOpenDeleteDialog = (taskId) => {
+        setTaskToDeleteId(taskId);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const handleCloseDeleteDialog = () => {
+        setIsDeleteDialogOpen(false);
+        setTaskToDeleteId(null);
+    };
+
     const handleDeleteTask = async () => {
         try {
-            await api.delete(`task/${taskToDeleteIndex}`, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
+            await api.delete(`task/${taskToDeleteId}`, {
+                headers: {Authorization: `Bearer ${user.accessToken}`},
             });
             await fetchTasks();
             handleCloseDeleteDialog();
@@ -437,473 +116,218 @@ const EditExperimentTask = () => {
         }
     };
 
-    // Toggle handlers
-    const toggleTaskDescription = (taskId) => {
-        setOpenTaskIds((prev) =>
-            prev.includes(taskId) ? prev.filter((id) => id !== taskId) : [...prev, taskId]
-        );
+    const handleSurveyChangeGeneric = (event, isEdit) => {
+        const newSurvey = event.target.value;
+        if (isEdit) {
+            editForm.setSelectedSurvey(newSurvey);
+            editForm.setQuestionsId([]);
+        } else {
+            createForm.setSelectedSurvey(newSurvey);
+            createForm.setSelectedQuestion(null);
+        }
     };
 
-    const toggleCreateTask = () => {
-        if (isCreateTaskOpen) resetForm();
-        setIsCreateTaskOpen((prev) => !prev);
+    const handleQuestionChangeGeneric = (event, isEdit) => {
+        const selectedIds = event.target.value;
+        if (isEdit) {
+            editForm.setQuestionsId(selectedIds);
+        } else {
+            createForm.setQuestionsId(selectedIds);
+            const selectedQuestions = createForm.formState.SelectedSurvey.questions?.filter(
+                (q) => selectedIds.includes(q.statement)
+            );
+            createForm.setSelectedQuestion(selectedQuestions);
+        }
     };
 
-    const toggleEditTask = () => {
-        if (isEditTaskOpen) resetForm();
-        setIsEditTaskOpen((prev) => !prev);
+    const handleCreateTask = async (e) => {
+        e.preventDefault();
+        setIsLoadingTask(true);
+
+        try {
+            const newTask = createForm.buildTaskObject();
+            newTask.experiment_id = ExperimentId;
+
+            await api.post(`task`, newTask, {
+                headers: {Authorization: `Bearer ${user.accessToken}`},
+            });
+
+            await fetchTasks();
+            createForm.resetForm();
+            toggleCreateTask();
+        } catch (error) {
+            console.error(t("Error creating task"), error);
+        } finally {
+            setIsLoadingTask(false);
+        }
     };
 
-    const handleOpenDeleteDialog = (taskId) => {
-        setTaskToDeleteIndex(taskId);
-        setIsDeleteDialogOpen(true);
+    const handleEditTask = async (taskId) => {
+        try {
+            setIsLoadingTask(true);
+            const response = await api.get(`task/${taskId}`, {
+                headers: { Authorization: `Bearer ${user.accessToken}` },
+            });
+            const task = response.data;
+            const config = task.provider_config || {};
+            const masked = task.provider_config_masked?.masked || {};
+
+            setEditTaskId(taskId);
+
+            editForm.setTaskTitle(task.title);
+            editForm.setTaskSummary(task.summary);
+            editForm.setTaskDescription(task.description);
+
+            editForm.setRulesExperiment(task.rule_type || "score");
+            editForm.setScoreThreshold(task.min_score || 0);
+            editForm.setScoreThresholdmx(task.max_score || 0);
+            setscoreType(task.min_score !== task.max_score ? "min_max" : "unic");
+
+            editForm.setOrigin(task.search_source || "");
+            if (task.search_source === "llm") {
+                editForm.setLlmProvider(config.modelProvider || "");
+                editForm.setLlm(config.model || "");
+                editForm.setGeminiApiKey(masked.apiKey || "");
+            } else {
+                editForm.setSearchEngine(config.searchProvider || "google");
+                editForm.setGoogleApikey(masked.apiKey || "");
+                editForm.setGoogleCx(masked.cx || "");
+            }
+
+            toggleEditTask();
+        } catch (error) {
+            console.error("Erro ao carregar tarefa:", error);
+        } finally {
+            setIsLoadingTask(false);
+        }
     };
 
-    const handleCloseDeleteDialog = () => {
-        setIsDeleteDialogOpen(false);
-        setTaskToDeleteIndex(null);
+    const handleEditTaskSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoadingTask(true);
+
+        try {
+            const updatedTask = editForm.buildTaskObject();
+
+            const taskDataToSend = {
+                title: updatedTask.title,
+                summary: updatedTask.summary,
+                description: updatedTask.description,
+                search_source: updatedTask.search_source,
+                provider_config: updatedTask.provider_config,
+                rule_type: updatedTask.RulesExperiment,
+                survey_id: updatedTask.SelectedSurvey,
+                min_score: Number(updatedTask.ScoreThreshold) || 0,
+                max_score: Number(updatedTask.ScoreThresholdmx) || 0,
+                questionsId: editForm.formState.RulesExperiment === "question"
+                    ? (editForm.formState.questionsId?.map(q => q.id) || [])
+                    : []
+            };
+
+            await api.patch(`task/${editTaskId}`, taskDataToSend, {
+                headers: { Authorization: `Bearer ${user.accessToken}` },
+            });
+
+            if (editForm.formState.RulesExperiment === "question") {
+                try {
+                    await api.delete(`task-question-map/task/${editTaskId}`, {
+                        headers: { Authorization: `Bearer ${user.accessToken}` },
+                    });
+                } catch (err) {
+                    console.log("Nenhum mapeamento prévio para deletar");
+                }
+
+                if (editForm.formState.questionsId?.length > 0) {
+                    const mappingPromises = editForm.formState.questionsId.map((question) =>
+                        api.post(
+                            `task-question-map`,
+                            { task: editTaskId, question: question.id },
+                            { headers: { Authorization: `Bearer ${user.accessToken}` } }
+                        )
+                    );
+                    await Promise.all(mappingPromises);
+                }
+            }
+
+            await fetchTasks();
+            toggleEditTask();
+        } catch (error) {
+            console.error(t("Error updating task"), error);
+        } finally {
+            setIsLoadingTask(false);
+        }
     };
 
-    const handleCancelEditTask = () => {
-        resetForm();
-        toggleEditTask();
+    const getFormConfig = (mode) => {
+        const isEdit = mode === "edit";
+        const form = isEdit ? editForm : createForm;
+
+        return {
+            mode,
+            title: form.formState.taskTitle,
+            setTitle: (e) => {
+                const value = e.target.value;
+                form.setTaskTitle(value);
+                form.setIsValidTitleTask(value.trim().length > 0);
+            },
+            isTitleValid: form.formState.isValidTitleTask,
+
+            summary: form.formState.taskSummary,
+            setSummary: (e) => {
+                const value = e.target.value;
+                form.setTaskSummary(value);
+                form.setIsValidSumaryTask(value.trim().length > 0);
+            },
+            isSummaryValid: form.formState.isValidSumaryTask,
+
+            description: form.formState.taskDescription,
+            setDescription: form.setTaskDescription,
+
+            rulesExp: form.formState.RulesExperiment,
+            setRulesExp: form.setRulesExperiment,
+
+            survey: form.formState.SelectedSurvey,
+            setSurvey: (e) => handleSurveyChangeGeneric(e, isEdit),
+
+            questions: form.formState.questionsId,
+            setQuestions: (e) => handleQuestionChangeGeneric(e, isEdit),
+
+            threshold: form.formState.ScoreThreshold,
+            setThreshold: form.setScoreThreshold,
+
+            thresholdMx: form.formState.ScoreThresholdmx,
+            setThresholdMx: form.setScoreThresholdmx,
+
+            origin: form.formState.origin,
+            setOrigin: form.setOrigin,
+            llmProvider: form.formState.llmProvider,
+            setLlmProvider: form.setLlmProvider,
+            llm: form.formState.llm,
+            setLlm: form.setLlm,
+            searchEngine: form.formState.searchEngine,
+            setSearchEngine: form.setSearchEngine,
+
+            geminiKey: form.formState.geminiApiKey,
+            setGeminiKey: form.setGeminiApiKey,
+
+            googleKey: form.formState.googleApiKey,
+            setGoogleKey: form.setGoogleApikey,
+
+            cx: form.formState.googleCx,
+            setCx: form.setGoogleCx,
+
+            isValidForm:
+                form.formState.isValidTitleTask &&
+                form.formState.taskTitle &&
+                form.formState.isValidSumaryTask &&
+                form.formState.taskSummary,
+        };
     };
 
-    const handleCancelCreateTask = () => {
-        resetForm();
-        toggleCreateTask();
-    };
-
-    // Reset form
-    const resetForm = () => {
-        setTaskTitle("");
-        setTaskSummary("");
-        setTaskDescription("");
-        setRulesExperiment("score");
-        setScoreThreshold("");
-        setScoreThresholdmx("");
-        setscoreType("");
-        setSelectedSurvey("");
-        setSelectedSurveyids("");
-        setSelectedQuestionIds([]);
-        setSelectedQuestion(null);
-        setOrigin("");
-        setLlmProvider("");
-        setLlm("");
-        setSearchEngine("google");
-        setOpenaiKey("");
-        setAnthropicKey("");
-        setGoogleAiKey("");
-        setCohereKey("");
-        setMistralKey("");
-        setGeminiApiKey("");
-        setGoogleApiKey("");
-        setGoogleCx("");
-        settaskid("");
-        setIsValidTitleTask(true);
-        setIsValidSumaryTask(true);
-    };
-
-    // Handle survey change
-    const handleSurveyChange = (event) => {
-        const selectedSurvey = event.target.value;
-        setSelectedSurvey(selectedSurvey);
-        setSelectedSurveyids(selectedSurvey.uuid);
-        setSelectedQuestionIds([]);
-    };
-
-    // Handle question change
-    const handleQuestionChange = (event) => {
-        setSelectedQuestionIds(event.target.value);
-    };
-
-    // Filter tasks based on search term
-    const filteredTasks = tasks.filter((task) =>
-        task.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    // Render Task Form (reusable for both create and edit)
-    const renderTaskForm = (isEditMode) => (
-        <form onSubmit={isEditMode ? handleEditTaskSubmit : handleCreateTaskSubmit}>
-            {/* Task Title */}
-            <TextField
-                label={t("task_title")}
-                error={!isValidTitleTask}
-                helperText={!isValidTitleTask ? t("invalid_name_message") : ""}
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                value={taskTitle}
-                onChange={(e) => {
-                    const value = e.target.value;
-                    setTaskTitle(value);
-                    setIsValidTitleTask(value.trim().length > 0);
-                }}
-                required
-            />
-
-            {/* SOURCE & PROVIDER SECTION */}
-            <Grid container spacing={2} alignItems="flex-start">
-                {/* Source Selection */}
-                <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel>{t("select_source")}</InputLabel>
-                        <Select
-                            value={origin}
-                            onChange={(e) => {
-                                setOrigin(e.target.value);
-                                setLlmProvider("");
-                                setLlm("");
-                            }}
-                            label={t("select_source")}
-                            required
-                        >
-                            <MenuItem value="llm">Chat</MenuItem>
-                            <MenuItem value="search-engine">{t("search_engine")}</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Grid>
-
-                {/* LLM Provider OR Search Engine */}
-                {origin === "llm" ? (
-                    <Grid item xs={12} sm={6}>
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel>{t("select_llm_provider")}</InputLabel>
-                            <Select
-                                value={llmProvider}
-                                onChange={(e) => {
-                                    setLlmProvider(e.target.value);
-                                    setLlm("");
-                                }}
-                                label={t("select_llm_provider")}
-                                required
-                            >
-                                {LLM_PROVIDERS.map((provider) => (
-                                    <MenuItem key={provider.value} value={provider.value}>
-                                        {provider.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                ) : origin === "search-engine" ? (
-                    <Grid item xs={12} sm={6}>
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel>{t("select_search_engine")}</InputLabel>
-                            <Select
-                                value={searchEngine}
-                                onChange={(e) => setSearchEngine(e.target.value)}
-                                label={t("select_search_engine")}
-                                required
-                            >
-                                {SEARCH_ENGINES.map((engine) => (
-                                    <MenuItem key={engine.value} value={engine.value}>
-                                        {engine.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                ) : null}
-
-                {/* LLM Model (Dynamic based on provider) */}
-                {origin === "llm" && llmProvider && (
-                    <Grid item xs={12} sm={6}>
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel>{t("select_llm")}</InputLabel>
-                            <Select
-                                value={llm}
-                                onChange={(e) => setLlm(e.target.value)}
-                                label={t("select_llm")}
-                                required
-                            >
-                                {availableModels.length > 0 ? (
-                                    availableModels.map((model) => (
-                                        <MenuItem key={model.value} value={model.value}>
-                                            {model.label}
-                                        </MenuItem>
-                                    ))
-                                ) : (
-                                    <MenuItem disabled>
-                                        {t("no_models_available") || "Nenhum modelo disponível"}
-                                    </MenuItem>
-                                )}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                )}
-
-                {/* API Key (Dynamic based on provider) */}
-                {origin === "llm" && llmProvider && apiKeyConfig && (
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            label={apiKeyConfig.label}
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={apiKeyConfig.value}
-                            onChange={(e) => apiKeyConfig.setter(e.target.value)}
-                            placeholder={apiKeyConfig.placeholder}
-                            required
-                        />
-                    </Grid>
-                )}
-
-                {/* Google Search API Keys */}
-                {origin === "search-engine" && searchEngine === "google" && (
-                    <>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                label="Google API Key"
-                                variant="outlined"
-                                fullWidth
-                                margin="normal"
-                                value={googleApiKey}
-                                onChange={(e) => setGoogleApiKey(e.target.value)}
-                                placeholder="Enter Google API Key"
-                                required
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                label="Google CX (Search Engine ID)"
-                                variant="outlined"
-                                fullWidth
-                                margin="normal"
-                                value={googleCx}
-                                onChange={(e) => setGoogleCx(e.target.value)}
-                                placeholder="Enter Google CX"
-                                required
-                            />
-                        </Grid>
-                    </>
-                )}
-            </Grid>
-
-            {/* Rules Section (for between-subject experiments) */}
-            {ExperimentType === "between-subject" && BtypeExperiment === "rules_based" && (
-                <>
-                    <Grid container spacing={2} alignItems="center">
-                        {/* Rule Type */}
-                        <Grid item xs={12} sm={4}>
-                            <FormControl fullWidth margin="normal">
-                                <InputLabel>{t("Separation_rule")}</InputLabel>
-                                <Select
-                                    value={RulesExperiment}
-                                    onChange={(e) => setRulesExperiment(e.target.value)}
-                                    label={t("Separation_rule")}
-                                >
-                                    {RULES_EXPERIMENT_TYPES.map((type) => (
-                                        <MenuItem key={type.value} value={type.value}>
-                                            {type.label}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-
-                        {/* Survey Selection */}
-                        <Grid item xs={12} sm={4}>
-                            <FormControl fullWidth margin="normal">
-                                <InputLabel>{t("select_survey")}</InputLabel>
-                                <Select
-                                    value={SelectedSurvey}
-                                    onChange={handleSurveyChange}
-                                    label={t("select_survey")}
-                                >
-                                    {ExperimentSurveys?.length > 0 ? (
-                                        ExperimentSurveys.map((survey) => (
-                                            <MenuItem key={survey.id} value={survey}>
-                                                {survey.title}
-                                            </MenuItem>
-                                        ))
-                                    ) : (
-                                        <MenuItem disabled>{t("no_survey_available")}</MenuItem>
-                                    )}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-
-                        {/* Question Selection (only for question-based rules) */}
-                        {RulesExperiment === "question" && (
-                            <Grid item xs={12} sm={4}>
-                                <FormControl fullWidth margin="normal">
-                                    <InputLabel>{t("select_question")}</InputLabel>
-                                    <Select
-                                        multiple
-                                        value={selectedQuestionIds}
-                                        onChange={handleQuestionChange}
-                                        label={t("select_question")}
-                                        renderValue={(selected) =>
-                                            SelectedSurvey?.questions
-                                                ?.filter((q) => selected.includes(q.id))
-                                                .map((q) => q.statement || "Sem enunciado")
-                                                .join(", ")
-                                        }
-                                    >
-                                        {SelectedSurvey?.questions?.length > 0 ? (
-                                            SelectedSurvey.questions
-                                                .filter(
-                                                    (q) =>
-                                                        (q.type === "multiple-selection" ||
-                                                            q.type === "multiple-choices") &&
-                                                        q.hasscore
-                                                )
-                                                .map((question) => (
-                                                    <MenuItem key={question.id} value={question.id}>
-                                                        <Checkbox
-                                                            checked={selectedQuestionIds.includes(
-                                                                question.id
-                                                            )}
-                                                        />
-                                                        {question.statement || "Sem enunciado"}
-                                                    </MenuItem>
-                                                ))
-                                        ) : (
-                                            <MenuItem disabled>
-                                                {t("no_questions_available")}
-                                            </MenuItem>
-                                        )}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                        )}
-
-                        {/* Score Type */}
-                        <Grid item xs={12} sm={4}>
-                            <FormControl fullWidth margin="normal">
-                                <InputLabel>{t("select_survey_th")}</InputLabel>
-                                <Select
-                                    value={scoreType}
-                                    onChange={(e) => setscoreType(e.target.value)}
-                                    label={t("select_survey_th")}
-                                >
-                                    {SCORE_TYPES.map((type) => (
-                                        <MenuItem key={type.value} value={type.value}>
-                                            {t(type.label)}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-
-                        {/* Score Thresholds */}
-                        {scoreType === "unic" ? (
-                            <Grid item xs={12} sm={2}>
-                                <TextField
-                                    fullWidth
-                                    margin="normal"
-                                    type="number"
-                                    label={t("score_Threshold_unic")}
-                                    value={ScoreThreshold}
-                                    onChange={(e) => {
-                                        const value = Number(e.target.value);
-                                        setScoreThreshold(value);
-                                        setScoreThresholdmx(value);
-                                    }}
-                                />
-                            </Grid>
-                        ) : (
-                            <>
-                                <Grid item xs={12} sm={RulesExperiment === "score" ? 4 : 2}>
-                                    <TextField
-                                        fullWidth
-                                        margin="normal"
-                                        type="number"
-                                        label={t("score_Threshold_min")}
-                                        value={ScoreThreshold}
-                                        onChange={(e) => {
-                                            const minValue = Number(e.target.value);
-                                            if (minValue <= ScoreThresholdmx) {
-                                                setScoreThreshold(minValue);
-                                            }
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={RulesExperiment === "score" ? 4 : 2}>
-                                    <TextField
-                                        fullWidth
-                                        margin="normal"
-                                        type="number"
-                                        label={t("score_Threshold_max")}
-                                        value={ScoreThresholdmx}
-                                        onChange={(e) => {
-                                            const maxValue = Number(e.target.value);
-                                            if (maxValue >= ScoreThreshold) {
-                                                setScoreThresholdmx(maxValue);
-                                            }
-                                        }}
-                                        inputProps={{ min: ScoreThreshold }}
-                                    />
-                                </Grid>
-                            </>
-                        )}
-                    </Grid>
-                </>
-            )}
-
-            {/* Task Summary */}
-            <TextField
-                label={t("task_summary")}
-                error={!isValidSumaryTask}
-                helperText={!isValidSumaryTask ? t("invalid_name_message") : ""}
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                multiline
-                rows={4}
-                value={taskSummary}
-                onChange={(e) => {
-                    const value = e.target.value;
-                    setTaskSummary(value);
-                    setIsValidSumaryTask(value.trim().length > 0);
-                }}
-                required
-            />
-
-            {/* Task Description */}
-            <div style={{ width: "100%", marginTop: "16.5px", marginBottom: "16px" }}>
-                <CustomContainer>
-                    <ReactQuill
-                        value={taskDescription}
-                        onChange={(content) => setTaskDescription(content)}
-                        placeholder={t("task_Desc1")}
-                    />
-                </CustomContainer>
-            </div>
-
-            {/* Action Buttons */}
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: "auto",
-                    width: "100%",
-                    mt: 2,
-                }}
-            >
-                <Button
-                    variant="contained"
-                    onClick={isEditMode ? handleCancelEditTask : handleCancelCreateTask}
-                    color="primary"
-                >
-                    {t("cancel") || "Cancelar"}
-                </Button>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    disabled={!isValidFormTask || isLoadingTask}
-                >
-                    {isEditMode ? t("edit") || "Editar" : t("create") || "Criar"}
-                </Button>
-            </Box>
-        </form>
-    );
+    const filteredTasks = filterTasks(tasks, searchTerm);
 
     return (
         <Box>
-            {/* Main Content Area */}
             <Box
                 sx={{
                     alignItems: "center",
@@ -923,11 +347,10 @@ const EditExperimentTask = () => {
                         backgroundColor: "#f9f9f9",
                         borderRadius: "8px",
                         boxShadow: 4,
-                        width: { xs: "95%", sm: "60%" },
+                        width: {xs: "95%", sm: "60%"},
                         marginX: "auto",
                     }}
                 >
-                    {/* Search Bar */}
                     <TextField
                         label={t("search_task")}
                         variant="outlined"
@@ -937,9 +360,8 @@ const EditExperimentTask = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
 
-                    {/* Task List */}
                     {isLoadingTask ? (
-                        <CircularProgress />
+                        <CircularProgress/>
                     ) : filteredTasks.length > 0 ? (
                         filteredTasks.map((task) => (
                             <Box
@@ -964,105 +386,92 @@ const EditExperimentTask = () => {
                                     <Box>
                                         <IconButton onClick={() => toggleTaskDescription(task._id)}>
                                             {openTaskIds.includes(task._id) ? (
-                                                <ExpandLessIcon />
+                                                <ExpandLessIcon/>
                                             ) : (
-                                                <ExpandMoreIcon />
+                                                <ExpandMoreIcon/>
                                             )}
                                         </IconButton>
                                         <IconButton
                                             onClick={() => handleEditTask(task._id)}
                                             color="primary"
                                         >
-                                            <EditIcon />
+                                            <EditIcon/>
                                         </IconButton>
                                         <IconButton
                                             onClick={() => handleOpenDeleteDialog(task._id)}
                                             color="error"
                                         >
-                                            <DeleteIcon />
+                                            <DeleteIcon/>
                                         </IconButton>
                                     </Box>
                                 </Box>
                                 {openTaskIds.includes(task._id) && (
-                                    <Box sx={{ marginTop: 2 }}>
+                                    <Box sx={{marginTop: 2}}>
                                         <Typography variant="body2">{task.summary}</Typography>
-                                        <div dangerouslySetInnerHTML={{ __html: task.description }} />
+                                        <div dangerouslySetInnerHTML={{__html: task.description}}/>
                                     </Box>
                                 )}
                             </Box>
                         ))
                     ) : (
-                        <NotFound
-                            title={t("NTaskFound")}
-                            subTitle={t("NoTaskcreated")}
-                        />
+                        <NotFound title={t("NTaskFound")} subTitle={t("NoTaskcreated")}/>
                     )}
 
-                    {/* Create Task Button */}
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={toggleCreateTask}
-                        sx={{ marginTop: 2 }}
-                    >
-                        {t("create_task") || "Criar Tarefa"}
-                    </Button>
+                    <Box sx={{marginTop: 2, width: "100%", textAlign: "center"}}>
+                        <button
+                            onClick={toggleCreateTask}
+                            style={{
+                                padding: "10px 20px",
+                                backgroundColor: "#1976d2",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: "pointer",
+                                fontSize: "16px",
+                            }}
+                        >
+                            {t("create_task") || "Criar Tarefa"}
+                        </button>
+                    </Box>
                 </Box>
             </Box>
 
-            {/* Edit Task Dialog */}
-            <Dialog
+            <DeleteConfirmDialog
+                open={isDeleteDialogOpen}
+                onClose={handleCloseDeleteDialog}
+                onConfirm={handleDeleteTask}
+                t={t}
+            />
+
+            <TaskDialog
                 open={isEditTaskOpen}
                 onClose={toggleEditTask}
-                fullWidth
-                maxWidth="lg"
-                sx={{
-                    "& .MuiDialog-paper": {
-                        backgroundColor: "#ffffff",
-                        borderRadius: "8px",
-                        boxShadow: 3,
-                        padding: 4,
-                    },
-                }}
-            >
-                <DialogTitle>{t("edit_task")}</DialogTitle>
-                <DialogContent>{renderTaskForm(true)}</DialogContent>
-            </Dialog>
+                mode="edit"
+                config={getFormConfig("edit")}
+                onSubmit={handleEditTaskSubmit}
+                isLoading={isLoadingTask}
+                experimentType={ExperimentType}
+                btypeExperiment={BtypeExperiment}
+                experimentSurveys={ExperimentSurveys}
+                scoreType={scoreType}
+                setScoreType={setscoreType}
+                t={t}
+            />
 
-            {/* Create Task Dialog */}
-            <Dialog
+            <TaskDialog
                 open={isCreateTaskOpen}
                 onClose={toggleCreateTask}
-                fullWidth
-                maxWidth="lg"
-                sx={{
-                    "& .MuiDialog-paper": {
-                        backgroundColor: "#ffffff",
-                        borderRadius: "8px",
-                        boxShadow: 3,
-                        padding: 4,
-                    },
-                }}
-            >
-                <DialogTitle>{t("task_creation")}</DialogTitle>
-                <DialogContent>{renderTaskForm(false)}</DialogContent>
-            </Dialog>
-
-            {/* Delete Confirmation Dialog */}
-            <Dialog open={isDeleteDialogOpen} onClose={handleCloseDeleteDialog}>
-                <DialogTitle>{t("confirm_delete")}</DialogTitle>
-                <DialogContent>
-                    <Typography>{t("confirm_delete_message")}</Typography>
-                </DialogContent>
-                <Box sx={{ padding: 2, display: "flex", justifyContent: "flex-end", gap: 1 }}>
-                    <Button onClick={handleCloseDeleteDialog} color="primary">
-                        {t("cancel") || "Cancelar"}
-                    </Button>
-                    <Button onClick={handleDeleteTask} color="error" variant="contained">
-                        {t("delete") || "Deletar"}
-                    </Button>
-                </Box>
-            </Dialog>
+                mode="create"
+                config={getFormConfig("create")}
+                onSubmit={handleCreateTask}
+                isLoading={isLoadingTask}
+                experimentType={ExperimentType}
+                btypeExperiment={BtypeExperiment}
+                experimentSurveys={ExperimentSurveys}
+                scoreType={scoreType}
+                setScoreType={setscoreType}
+                t={t}
+            />
         </Box>
     );
 };
