@@ -1,15 +1,16 @@
-import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { api } from "../../config/axios";
+import {useEffect, useState, useCallback} from "react";
+import {useNavigate} from "react-router-dom";
+import {api} from "../../config/axios";
 import styles from "../../style/researcher.module.css";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-  Typography,
-  Divider,
-  Box,
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    Button,
+    Typography,
+    Divider,
+    Box,
+    Tooltip,
 } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -167,15 +168,15 @@ const NotResearcher = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [user] = useState(JSON.parse(localStorage.getItem("user")));
 
-  const fetchExperiments = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const { data: userExperimentsData } = await api.get(
-        `user-experiment/user/${user.id}`,
-        {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        },
-      );
+    const fetchExperiments = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const {data: userExperimentsData} = await api.get(
+                `user-experiment/user/${user.id}`,
+                {
+                    headers: {Authorization: `Bearer ${user.accessToken}`},
+                },
+            );
 
             if (!userExperimentsData?.length) {
                 setExperiments([]);
