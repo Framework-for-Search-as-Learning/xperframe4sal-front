@@ -178,13 +178,10 @@ const ActionButton = ({onClick, variant = 'outlined', color, desktopText, Icon, 
 };
 
 const OwnerActions = ({experiment, status, hasActiveParticipants, onEdit, onEdituser, onAccess, onDelete, onViewStats, t}) => {
-    const isActive = isStatusActive(status);
-    const cannotEdit = isActive || hasActiveParticipants;
-    const editTooltip = isActive
-        ? (t?.('cannot_edit_active_experiment') ?? 'Não é possível editar um experimento ativo. Desative-o primeiro.')
-        : hasActiveParticipants
-            ? (t?.('cannot_edit_experiment_with_participants') ?? 'Não é possível editar este experimento pois há participantes que já iniciaram.')
-            : '';
+    const cannotEdit = hasActiveParticipants;
+    const editTooltip = hasActiveParticipants
+        ? (t?.('cannot_edit_experiment_with_participants') ?? 'Não é possível editar este experimento pois há participantes que já iniciaram.')
+        : '';
 
     return (
         <>

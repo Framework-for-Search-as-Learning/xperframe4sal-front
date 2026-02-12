@@ -425,5 +425,7 @@
   "yes": "Sim",
   "youtube_video_title": "Player de vídeo do YouTube",
   "queries_and_results": "Consultas e Resultados",
-  "individual": "Individual"
+  "individual": "Individual",
+  "experiments_empty_title": "Nenhum experimento encontrado",
+  "experiments_empty_call_to_action": "Comece agora criando ou importando um experimento no botão acima."
 }

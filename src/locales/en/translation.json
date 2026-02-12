@@ -364,5 +364,7 @@
   "yes": "Yes",
   "youtube_video_title": "YouTube video player",
   "queries_and_results": "Queries and Results",
-  "individual": "individual"
+  "individual": "individual",
+  "experiments_empty_description": "It looks like you haven't started yet. You can set up a new research protocol or import existing data to analyze interaction metrics.",
+  "experiments_empty_call_to_action": "Get started by creating or importing an experiment using the buttons above."
 }

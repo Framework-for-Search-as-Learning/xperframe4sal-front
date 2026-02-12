@@ -302,21 +302,9 @@ const Researcher = () => {
 
         if (!experiment) return;
 
-        if (experiment.status === experimentStatus.IN_PROGRESS) {
-            setError(
-                t("cannot_edit_active_experiment") ||
-                "Não é possível editar um experimento ativo. Desative-o primeiro.",
-            );
-            return;
-        }
-
         const hasActiveParticipants = await checkExperimentParticipants(experimentId);
 
         if (hasActiveParticipants) {
-            setError(
-                t("cannot_edit_experiment_with_participants") ||
-                "Não é possível editar este experimento pois há participantes que já iniciaram.",
-            );
             return;
         }
 
@@ -503,6 +491,7 @@ const Researcher = () => {
                                     key={experiment._id}
                                     experiment={experiment}
                                     status={experiment.status}
+                                    hasActiveParticipants={experimentsWithParticipants.has(experiment._id)}
                                     expanded={expanded === `panel-owner-${index}`}
                                     onChange={handleChange(`panel-owner-${index}`)}
                                     onAccess={handleExportExperiment}
@@ -517,9 +506,11 @@ const Researcher = () => {
                             ))
                         ) : (
                             <div className={styles.emptyState}>
-                                <Typography variant="h6">{t("no_experiments")}</Typography>
+                                <Typography variant="h6" gutterBottom >
+                                    {t("experiments_empty_title")}
+                                </Typography>
                                 <Typography variant="body2">
-                                    Crie seu primeiro experimento no botão acima.
+                                    {t("experiments_empty_call_to_action")}
                                 </Typography>
                             </div>
                         )}
@@ -535,7 +526,6 @@ const Researcher = () => {
                                 userExperimentStatus={experiment?.status}
                                 experiment={experiment.experiment}
                                 status={experiment.experiment?.status}
-                                hasActiveParticipants={experimentsWithParticipants.has(experiment._id)}
                                 expanded={expanded === `panel-${index}`}
                                 onChange={handleChange(`panel-${index}`)}
                                 onAccess={handleAccessExperiment}
