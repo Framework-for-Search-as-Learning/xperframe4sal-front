@@ -30,7 +30,7 @@ async function updateUserExperimentStatus(
                 (accumulator, answeredSurvey) => {
                     //Removi a verificação do length pois o data é objeto, não array
                     if (answeredSurvey.data /*&& answeredSurvey.data.length > 0*/) {
-                        
+
                         return accumulator.concat(answeredSurvey.data);
                     }
                     return accumulator;
@@ -44,7 +44,7 @@ async function updateUserExperimentStatus(
                     { [stepName]: true }
                 );
                 await api.patch(
-                    `user-experiments2/${userExperiment._id}`,
+                    `user-experiment/${userExperiment._id}`,
                     userExperiment,
                     { headers: { Authorization: `Bearer ${user.accessToken}` } }
                 );
@@ -59,7 +59,7 @@ async function updateUserExperimentStatus(
                 }
                 if (finishedExperiment) {
                     await api.patch(
-                        `user-experiments2/${userExperiment._id}`,
+                        `user-experiment/${userExperiment._id}`,
                         { hasFinished: true },
                         {
                             headers: {
@@ -114,16 +114,16 @@ async function separateUsersInGroup(api, user, userScore, experiment) {
         };
 
         const response = await api.get(
-            `user-task2?userId=${user.id}&taskId=${taskId}`,
+            `user-task?userId=${user.id}&taskId=${taskId}`,
             { headers: { Authorization: `Bearer ${user.accessToken}` } }
         );
 
         if (response?.data) {
-            await api.patch(`user-task2/${response.data._id}`, userTask, {
+            await api.patch(`user-task/${response.data._id}`, userTask, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
         } else {
-            await api.post(`user-task2`, userTask, {
+            await api.post(`user-task`, userTask, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
         }
@@ -165,7 +165,7 @@ const Survey = () => {
                     userSurveyResponse,
                 ] = await Promise.all([
                     api.get(
-                        `user-experiments2?experimentId=${experimentId}&userId=${user.id}`,
+                        `user-experiment?experimentId=${experimentId}&userId=${user.id}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${user.accessToken}`,
@@ -173,21 +173,21 @@ const Survey = () => {
                         }
                     ),
                     !experiment
-                        ? api.get(`experiments2/${experimentId}`, {
-                              headers: {
-                                  Authorization: `Bearer ${user.accessToken}`,
-                              },
-                          })
+                        ? api.get(`experiment/${experimentId}`, {
+                            headers: {
+                                Authorization: `Bearer ${user.accessToken}`,
+                            },
+                        })
                         : null,
                     !survey
-                        ? api.get(`survey2/${surveyId}`, {
-                              headers: {
-                                  Authorization: `Bearer ${user.accessToken}`,
-                              },
-                          })
+                        ? api.get(`survey/${surveyId}`, {
+                            headers: {
+                                Authorization: `Bearer ${user.accessToken}`,
+                            },
+                        })
                         : null,
                     api.get(
-                        `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,
+                        `survey-answer?userId=${user.id}&surveyId=${surveyId}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${user.accessToken}`,
@@ -195,9 +195,9 @@ const Survey = () => {
                         }
                     ),
                 ]);
-                
+
                 const userExperimentResult = userExperimentResponse?.data;
-                
+
 
                 if (!userExperimentResult) {
                     navigate(`/experiments`);
@@ -210,7 +210,7 @@ const Survey = () => {
                 const userSurveyResult = userSurveyResponse?.data;
 
                 setUserSurvey(userSurveyResult);
-               
+
                 if (isMounted) {
                     let uniqueAnswer = false;
                     if (experimentResult) {
@@ -315,7 +315,7 @@ const Survey = () => {
             if (surveyAnswer) {
                 surveyAnswer.answers = answers;
                 // Não envia mais score, backend calcula
-                if (surveyAnswer.score !== undefined) delete surveyAnswer.score;                
+                if (surveyAnswer.score !== undefined) delete surveyAnswer.score;
                 await separateUsersInGroup(
                     api,
                     user,
@@ -325,7 +325,7 @@ const Survey = () => {
 
                 await handleSurveySubmit(() =>
                     api.patch(
-                        `survey-answer2/${surveyAnswer._id}`,
+                        `survey-answer/${surveyAnswer._id}`,
                         surveyAnswer,
                         {
                             headers: {
@@ -348,46 +348,46 @@ const Survey = () => {
                     experiment
                 );
                 await handleSurveySubmit(() =>
-                    api.post("survey-answer2", surveyAnswer, {
+                    api.post("survey-answer", surveyAnswer, {
                         headers: {
                             Authorization: `Bearer ${user.accessToken}`,
                         },
                     })
                 );
             }
-            
+
             const userPreSurveysApiCalls = [];
             const userPostSurveysApiCalls = [];
 
             // Aqui era utilizado o surveysProps, como não existe mais irei utilizar
             // irei utilizar o survey que é passado como parametro para a pagina
             if (survey.required) {
-                    if (survey.type === "pre") {
-                        userPreSurveysApiCalls.push(
-                            api.get(
-                                `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,
-                                {
-                                    headers: {
-                                        Authorization: `Bearer ${user.accessToken}`,
-                                    },
-                                }
-                            )
-                        );
-                    }
-                    if (survey.type === "post") {
-                        userPostSurveysApiCalls.push(
-                            api.get(
-                                `survey-answer2?userId=${user.id}&surveyId=${surveyId}`,
-                                {
-                                    headers: {
-                                        Authorization: `Bearer ${user.accessToken}`,
-                                    },
-                                }
-                            )
-                        );
-                    }
+                if (survey.type === "pre") {
+                    userPreSurveysApiCalls.push(
+                        api.get(
+                            `survey-answer?userId=${user.id}&surveyId=${surveyId}`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${user.accessToken}`,
+                                },
+                            }
+                        )
+                    );
                 }
-            
+                if (survey.type === "post") {
+                    userPostSurveysApiCalls.push(
+                        api.get(
+                            `survey-answer?userId=${user.id}&surveyId=${surveyId}`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${user.accessToken}`,
+                                },
+                            }
+                        )
+                    );
+                }
+            }
+
 
             await updateUserExperimentStatus(
                 userPreSurveysApiCalls,

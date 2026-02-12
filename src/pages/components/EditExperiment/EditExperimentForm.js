@@ -97,7 +97,7 @@ const EditExperimentForm = () => {
     };
 
     try {
-      await api.patch(`/experiments2/${ExperimentId}`, updatedExperiment, {
+      await api.patch(`/experiment/${ExperimentId}`, updatedExperiment, {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       });
       if (msgs.current) {

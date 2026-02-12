@@ -1,29 +1,9 @@
-import React, { useState, useContext, useEffect } from "react";
-import {
-    Box,
-    TextField,
-    Button,
-    FormControl,
-    IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    CircularProgress,
-    ListItemText,
-    styled,
-    Typography,
-    Grid,
-    InputLabel,
-    Select,
-    MenuItem,
-    Checkbox,
-} from "@mui/material";
-import { useTranslation } from "react-i18next";
-import ReactQuill from "react-quill";
+import React, {useState, useContext, useEffect} from "react";
+import {Box, CircularProgress, IconButton, Typography, TextField} from "@mui/material";
+import {useTranslation} from "react-i18next";
 import StepContext from "./context/StepContext";
-import { api } from "../../../config/axios";
-import "react-quill/dist/quill.snow.css";
 import NotFound from "../../../components/NotFound";
+import {api} from "../../../config/axios";
 import {
     ExpandMore as ExpandMoreIcon,
     ExpandLess as ExpandLessIcon,
@@ -31,29 +11,15 @@ import {
     Delete as DeleteIcon,
 } from "@mui/icons-material";
 
-// Estilização personalizada para o editor ReactQuill
-const CustomContainer = styled("div")(({ theme }) => ({
-    backgroundColor: "#fafafa",
-    borderRadius: "8px",
-    padding: "0px",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-    "& .ql-toolbar": {
-        backgroundColor: "#f5f5f5",
-        borderRadius: "8px 8px 0 0",
-    },
-    "& .ql-container": {
-        minHeight: "200px",
-        borderRadius: "0 0 8px 8px",
-    },
-    "& .ql-editor": {
-        fontFamily: theme.typography.fontFamily,
-        lineHeight: 1.6,
-        color: "#444",
-    },
-}));
+import TaskDialog from "../CreateExperiment/components/TaskDialog";
+import DeleteConfirmDialog from "../CreateExperiment/components/DeleteConfirmDialog";
+
+import {useTaskForm} from "../CreateExperiment/hooks/useTaskForm";
+import {filterTasks} from "../CreateExperiment/utils/formHelpers";
 
 const EditExperimentTask = () => {
-    // Contexto compartilhado com o fluxo de criação/edição do experimento
+    const {t} = useTranslation();
+
     const [
         ExperimentTitle,
         setExperimentTitle,
@@ -69,195 +35,126 @@ const EditExperimentTask = () => {
         setExperimentSurveys,
     ] = useContext(StepContext);
 
-    // Dados do usuário autenticado
     const [user] = useState(JSON.parse(localStorage.getItem("user")));
-    const { t } = useTranslation();
 
-    // Estados para gerenciamento de tarefas
     const [isLoadingTask, setIsLoadingTask] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [ExperimentTasks, setExperimentTasks] = useState([]);
-    const [openTaskIds, setOpenTaskIds] = useState([]);
     const [tasks, setTasks] = useState([]);
-
-    // Estados para controle de modais
+    const [openTaskIds, setOpenTaskIds] = useState([]);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [taskToDeleteId, setTaskToDeleteId] = useState(null);
     const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
     const [isEditTaskOpen, setIsEditTaskOpen] = useState(false);
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [taskToDeleteIndex, setTaskToDeleteIndex] = useState(null);
+    const [editTaskId, setEditTaskId] = useState(null);
 
-    // Estados para formulário de criação/edição de tarefas
-    const [taskTitle, setTaskTitle] = useState("");
-    const [taskid, settaskid] = useState("");
-    const [taskSummary, setTaskSummary] = useState("");
-    const [taskDescription, setTaskDescription] = useState("");
-    const [editTaskIndex, setEditTaskIndex] = useState(null);
-
-    // Estados para regras do experimento (score-based ou question-based)
-    const [RulesExperiment, setRulesExperiment] = useState("score");
-    const [ScoreThresholdmx, setScoreThresholdmx] = useState("");
-    const [ScoreThreshold, setScoreThreshold] = useState("");
     const [scoreType, setscoreType] = useState("");
 
-    // Estados para seleção de survey e questões
-    const [SelectedSurvey, setSelectedSurvey] = useState("");
-    const [SelectedSurveyids, setSelectedSurveyids] = useState("");
-    const [selectedQuestionIds, setSelectedQuestionIds] = useState([]);
-    const [SelectedQuestion, setSelectedQuestion] = useState(null);
+    const createForm = useTaskForm("create");
+    const editForm = useTaskForm("edit");
 
-    // Estados para configuração de fonte de pesquisa (LLM ou Search Engine)
-    const [origin, setOrigin] = useState("");
-    const [llm, setLlm] = useState("gemini");
-    const [searchEngine, setSearchEngine] = useState("google");
-
-    // Estados para armazenamento de chaves de API
-    const [geminiApiKey, setGeminiApiKey] = useState("");
-    const [googleApiKey, setGoogleApiKey] = useState("");
-    const [googleCx, setGoogleCx] = useState("");
-
-    // Validação de formulário
-    const [isValidTitleTask, setIsValidTitleTask] = React.useState(true);
-    const [isValidSumaryTask, setIsValidSumaryTask] = React.useState(true);
-    const isValidFormTask = isValidTitleTask && taskTitle && isValidSumaryTask && taskSummary;
-
-    // Opções disponíveis para LLMs e motores de busca
-    const LlmTypes = [
-        { value: "gemini", label: "Gemini (Google)" },
-    ];
-    const SearchEngines = [
-        { value: "google", label: "Google" },
-    ];
-    const scoreTypes = [
-        { value: "unic", label: t("unic") },
-        { value: "min_max", label: t("min_max") },
-    ];
-    const RulesExperimentTypes = [
-        { value: "score", label: t("score") },
-        { value: "question", label: t("question") },
-    ];
-
-    // Carrega as tarefas do experimento ao montar o componente
     useEffect(() => {
         fetchTasks();
-    }, [user, t]);
+    }, [ExperimentId]);
 
-    /**
-     * Busca todas as tarefas associadas ao experimento atual
-     */
     const fetchTasks = async () => {
+        if (!ExperimentId) return;
+
+        setIsLoadingTask(true);
         try {
-            const response = await api.get(`task2/experiment/${ExperimentId}`, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
+            const response = await api.get(`task/experiment/${ExperimentId}`, {
+                headers: {Authorization: `Bearer ${user.accessToken}`},
             });
             setTasks(response.data);
         } catch (error) {
             console.error(t("Error in Search"), error);
+        } finally {
+            setIsLoadingTask(false);
         }
     };
 
-    /**
-     * Preenche o formulário de edição com dados da tarefa selecionada
-     */
-    const handleEditTask = async (index) => {
-        setEditTaskIndex(index);
-        const task = tasks.find((t) => t._id === index);
-
-        if (task) {
-            // Busca as questões associadas à tarefa
-            const response = await api.get(`task-question-map/task/${task._id}`, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
-            });
-            const filteredTasks = response.data;
-            setSelectedQuestionIds(filteredTasks);
-
-            // Preenche os campos do formulário
-            settaskid(task._id);
-            setTaskTitle(task.title);
-            setTaskSummary(task.summary);
-            setTaskDescription(task.description);
-            setRulesExperiment(task.rule_type);
-            setScoreThresholdmx(task.max_score);
-            setScoreThreshold(task.min_score);
-            setscoreType("min_max");
-            setOrigin(task.search_source || "");
-
-            // Configura fonte de pesquisa baseada no tipo
-            if (task.search_source === "llm") {
-                setLlm(task.search_model || "gemini");
-            } else if (task.search_source === "search-engine") {
-                setSearchEngine(task.search_model || "google");
-            }
-
-            // Carrega chaves de API
-            setGeminiApiKey(task.geminiApiKey || "");
-            setGoogleApiKey(task.googleApiKey || "");
-            setGoogleCx(task.google_cx || "");
-
-            // Encontra e configura o survey selecionado
-            const selectedSurvey2 = ExperimentSurveys.find(
-                (s) => s._id === task.survey_id,
-            );
-            setSelectedSurvey(selectedSurvey2);
-            setSelectedSurveyids(selectedSurvey2);
-
-            // Filtra questões selecionadas baseado no mapeamento
-            if (selectedSurvey2?.questions) {
-                const selectedQs = selectedSurvey2.questions.filter((q) =>
-                    filteredTasks.includes(q.id),
-                );
-                setSelectedQuestion(selectedQs);
-            }
-
-            toggleEditTask();
+    const toggleCreateTask = () => {
+        if (isCreateTaskOpen) {
+            createForm.resetForm();
         }
+        setIsCreateTaskOpen((prev) => !prev);
     };
 
-    /**
-     * Cria uma nova tarefa no experimento
-     */
-    const handleCreateTask = async () => {
+    const toggleEditTask = () => {
+        if (isEditTaskOpen) {
+            editForm.resetForm();
+        }
+        setIsEditTaskOpen((prev) => !prev);
+    };
+
+    const toggleTaskDescription = (taskId) => {
+        setOpenTaskIds((prev) =>
+            prev.includes(taskId)
+                ? prev.filter((id) => id !== taskId)
+                : [...prev, taskId]
+        );
+    };
+
+    const handleOpenDeleteDialog = (taskId) => {
+        setTaskToDeleteId(taskId);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const handleCloseDeleteDialog = () => {
+        setIsDeleteDialogOpen(false);
+        setTaskToDeleteId(null);
+    };
+
+    const handleDeleteTask = async () => {
         try {
-            setIsLoadingTask(true);
+            await api.delete(`task/${taskToDeleteId}`, {
+                headers: {Authorization: `Bearer ${user.accessToken}`},
+            });
+            await fetchTasks();
+            handleCloseDeleteDialog();
+        } catch (error) {
+            console.error(t("Error deleting task"), error);
+        }
+    };
 
-            let questionIds = [];
-            let surveyId = SelectedSurvey?._id || null;
+    const handleSurveyChangeGeneric = (event, isEdit) => {
+        const newSurvey = event.target.value;
+        if (isEdit) {
+            editForm.setSelectedSurvey(newSurvey);
+            editForm.setQuestionsId([]);
+        } else {
+            createForm.setSelectedSurvey(newSurvey);
+            createForm.setSelectedQuestion(null);
+        }
+    };
 
-            // Ajusta configurações baseadas no tipo de experimento
-            if (BtypeExperiment !== "rules_based") {
-                surveyId = null;
-                questionIds = null;
-            } else {
-                questionIds = RulesExperiment === "score"
-                    ? null
-                    : Array.isArray(selectedQuestionIds)
-                        ? selectedQuestionIds.map((q) => q.id).filter(Boolean)
-                        : [];
-            }
+    const handleQuestionChangeGeneric = (event, isEdit) => {
+        const selectedIds = event.target.value;
+        if (isEdit) {
+            editForm.setQuestionsId(selectedIds);
+        } else {
+            createForm.setQuestionsId(selectedIds);
+            const selectedQuestions = createForm.formState.SelectedSurvey.questions?.filter(
+                (q) => selectedIds.includes(q.statement)
+            );
+            createForm.setSelectedQuestion(selectedQuestions);
+        }
+    };
 
-            const newTask = {
-                title: taskTitle,
-                summary: taskSummary,
-                description: taskDescription,
-                rule_type: RulesExperiment,
-                survey_id: surveyId,
-                questionsId: questionIds,
-                min_score: ScoreThreshold,
-                max_score: ScoreThresholdmx,
-                experiment_id: ExperimentId,
-                search_source: origin,
-                search_model: origin === "llm" ? llm : searchEngine,
-                geminiApiKey: geminiApiKey,
-                googleApiKey: googleApiKey,
-                googleCx: googleCx,
-            };
+    const handleCreateTask = async (e) => {
+        e.preventDefault();
+        setIsLoadingTask(true);
 
-            await api.post(`/task2`, newTask, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
+        try {
+            const newTask = createForm.buildTaskObject();
+            newTask.experiment_id = ExperimentId;
+
+            await api.post(`task`, newTask, {
+                headers: {Authorization: `Bearer ${user.accessToken}`},
             });
 
+            await fetchTasks();
+            createForm.resetForm();
             toggleCreateTask();
-            resetTask();
-            fetchTasks();
         } catch (error) {
             console.error(t("Error creating task"), error);
         } finally {
@@ -265,152 +162,172 @@ const EditExperimentTask = () => {
         }
     };
 
-    /**
-     * Atualiza uma tarefa existente
-     */
-    const handleEditTaskSubmit = async (e) => {
-        e.preventDefault();
-
-        let surveyId = SelectedSurvey?._id || null;
-        let questionsId = selectedQuestionIds || [];
-
-        // Ajusta configurações baseadas no tipo de experimento
-        if (BtypeExperiment !== "rules_based") {
-            surveyId = null;
-            questionsId = [];
-        } else if (RulesExperiment === "score") {
-            questionsId = [];
-        }
-
-        const newTask = {
-            title: taskTitle,
-            summary: taskSummary,
-            description: taskDescription,
-            rule_type: RulesExperiment,
-            survey_id: surveyId,
-            questionsId: questionsId,
-            min_score: ScoreThreshold,
-            max_score: ScoreThresholdmx,
-            experiment_id: ExperimentId,
-            search_source: origin,
-            search_model: origin === "llm" ? llm : searchEngine,
-            geminiApiKey: geminiApiKey,
-            googleApiKey: googleApiKey,
-            googleCx: googleCx,
-        };
-
+    const handleEditTask = async (taskId) => {
         try {
-            await api.patch(`/task2/${editTaskIndex}`, newTask, {
+            setIsLoadingTask(true);
+            const response = await api.get(`task/${taskId}`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
+            const task = response.data;
+            const config = task.provider_config || {};
+            const masked = task.provider_config_masked?.masked || {};
+
+            setEditTaskId(taskId);
+
+            editForm.setTaskTitle(task.title);
+            editForm.setTaskSummary(task.summary);
+            editForm.setTaskDescription(task.description);
+
+            editForm.setRulesExperiment(task.rule_type || "score");
+            editForm.setScoreThreshold(task.min_score || 0);
+            editForm.setScoreThresholdmx(task.max_score || 0);
+            setscoreType(task.min_score !== task.max_score ? "min_max" : "unic");
+
+            editForm.setOrigin(task.search_source || "");
+            if (task.search_source === "llm") {
+                editForm.setLlmProvider(config.modelProvider || "");
+                editForm.setLlm(config.model || "");
+                editForm.setGeminiApiKey(masked.apiKey || "");
+            } else {
+                editForm.setSearchEngine(config.searchProvider || "google");
+                editForm.setGoogleApikey(masked.apiKey || "");
+                editForm.setGoogleCx(masked.cx || "");
+            }
 
             toggleEditTask();
-            resetTask();
-            fetchTasks();
         } catch (error) {
-            console.error("Erro na atualização da tarefa:", error);
+            console.error("Erro ao carregar tarefa:", error);
+        } finally {
+            setIsLoadingTask(false);
         }
     };
 
-    /**
-     * Remove uma tarefa do experimento
-     */
-    const handleDeleteTask = async () => {
+    const handleEditTaskSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoadingTask(true);
+
         try {
-            await api.delete(`/task2/${taskToDeleteIndex}`, {
+            const updatedTask = editForm.buildTaskObject();
+
+            const taskDataToSend = {
+                title: updatedTask.title,
+                summary: updatedTask.summary,
+                description: updatedTask.description,
+                search_source: updatedTask.search_source,
+                provider_config: updatedTask.provider_config,
+                rule_type: updatedTask.RulesExperiment,
+                survey_id: updatedTask.SelectedSurvey,
+                min_score: Number(updatedTask.ScoreThreshold) || 0,
+                max_score: Number(updatedTask.ScoreThresholdmx) || 0,
+                questionsId: editForm.formState.RulesExperiment === "question"
+                    ? (editForm.formState.questionsId?.map(q => q.id) || [])
+                    : []
+            };
+
+            await api.patch(`task/${editTaskId}`, taskDataToSend, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
-            handleCloseDeleteDialog();
-            fetchTasks();
+
+            if (editForm.formState.RulesExperiment === "question") {
+                try {
+                    await api.delete(`task-question-map/task/${editTaskId}`, {
+                        headers: { Authorization: `Bearer ${user.accessToken}` },
+                    });
+                } catch (err) {
+                    console.log("Nenhum mapeamento prévio para deletar");
+                }
+
+                if (editForm.formState.questionsId?.length > 0) {
+                    const mappingPromises = editForm.formState.questionsId.map((question) =>
+                        api.post(
+                            `task-question-map`,
+                            { task: editTaskId, question: question.id },
+                            { headers: { Authorization: `Bearer ${user.accessToken}` } }
+                        )
+                    );
+                    await Promise.all(mappingPromises);
+                }
+            }
+
+            await fetchTasks();
+            toggleEditTask();
         } catch (error) {
-            console.error(t("Error in Search"), error);
+            console.error(t("Error updating task"), error);
+        } finally {
+            setIsLoadingTask(false);
         }
     };
 
-    /**
-     * Reseta todos os campos do formulário
-     */
-    const resetTask = () => {
-        setTaskTitle("");
-        setTaskSummary("");
-        setTaskDescription("");
-        setIsValidTitleTask(true);
-        setIsValidSumaryTask(true);
-        setRulesExperiment("score");
-        setScoreThreshold("");
-        setScoreThresholdmx("");
-        setSelectedSurvey(null);
-        setSelectedQuestionIds([]);
-        setSelectedQuestion(null);
-        setOrigin("");
-        setLlm("gemini");
-        setSearchEngine("google");
-        setGeminiApiKey("");
-        setGoogleApiKey("");
-        setGoogleCx("");
+    const getFormConfig = (mode) => {
+        const isEdit = mode === "edit";
+        const form = isEdit ? editForm : createForm;
+
+        return {
+            mode,
+            title: form.formState.taskTitle,
+            setTitle: (e) => {
+                const value = e.target.value;
+                form.setTaskTitle(value);
+                form.setIsValidTitleTask(value.trim().length > 0);
+            },
+            isTitleValid: form.formState.isValidTitleTask,
+
+            summary: form.formState.taskSummary,
+            setSummary: (e) => {
+                const value = e.target.value;
+                form.setTaskSummary(value);
+                form.setIsValidSumaryTask(value.trim().length > 0);
+            },
+            isSummaryValid: form.formState.isValidSumaryTask,
+
+            description: form.formState.taskDescription,
+            setDescription: form.setTaskDescription,
+
+            rulesExp: form.formState.RulesExperiment,
+            setRulesExp: form.setRulesExperiment,
+
+            survey: form.formState.SelectedSurvey,
+            setSurvey: (e) => handleSurveyChangeGeneric(e, isEdit),
+
+            questions: form.formState.questionsId,
+            setQuestions: (e) => handleQuestionChangeGeneric(e, isEdit),
+
+            threshold: form.formState.ScoreThreshold,
+            setThreshold: form.setScoreThreshold,
+
+            thresholdMx: form.formState.ScoreThresholdmx,
+            setThresholdMx: form.setScoreThresholdmx,
+
+            origin: form.formState.origin,
+            setOrigin: form.setOrigin,
+            llmProvider: form.formState.llmProvider,
+            setLlmProvider: form.setLlmProvider,
+            llm: form.formState.llm,
+            setLlm: form.setLlm,
+            searchEngine: form.formState.searchEngine,
+            setSearchEngine: form.setSearchEngine,
+
+            geminiKey: form.formState.geminiApiKey,
+            setGeminiKey: form.setGeminiApiKey,
+
+            googleKey: form.formState.googleApiKey,
+            setGoogleKey: form.setGoogleApikey,
+
+            cx: form.formState.googleCx,
+            setCx: form.setGoogleCx,
+
+            isValidForm:
+                form.formState.isValidTitleTask &&
+                form.formState.taskTitle &&
+                form.formState.isValidSumaryTask &&
+                form.formState.taskSummary,
+        };
     };
 
-    /**
-     * Manipula a seleção de questões do survey
-     */
-    const handleQuestionChange = (event) => {
-        const selectedIds = event.target.value;
-        const selectedQuestions = SelectedSurvey.questions.filter((q) =>
-            selectedIds.includes(q._id),
-        );
-        setSelectedQuestionIds(selectedIds);
-        setSelectedQuestion(selectedQuestions);
-    };
-
-    /**
-     * Controla abertura/fechamento da descrição da tarefa na lista
-     */
-    const toggleTaskDescription = (index) => {
-        setOpenTaskIds((prev) =>
-            prev.includes(index)
-                ? prev.filter((id) => id !== index)
-                : [...prev, index],
-        );
-    };
-
-    // Handlers para abertura/fechamento de diálogos
-    const handleOpenDeleteDialog = (index) => {
-        setTaskToDeleteIndex(index);
-        setIsDeleteDialogOpen(true);
-    };
-    const handleCloseDeleteDialog = () => {
-        setIsDeleteDialogOpen(false);
-        setTaskToDeleteIndex(null);
-    };
-    const toggleCreateTask = () => {
-        resetTask();
-        setIsCreateTaskOpen((prev) => !prev);
-    };
-    const toggleEditTask = () => setIsEditTaskOpen((prev) => !prev);
-    const handleCancelEditTask = () => {
-        resetTask();
-        toggleEditTask();
-    };
-    const handleCancelTask = () => {
-        resetTask();
-        toggleCreateTask();
-    };
+    const filteredTasks = filterTasks(tasks, searchTerm);
 
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                columnGap: 2.5,
-                marginTop: { xs: 6.5, sm: 0 },
-            }}
-        >
-            <Typography fontSize={40} variant="h6" align="center" gutterBottom>
-                {t("edit_task")}
-            </Typography>
-
-            {/* Lista de tarefas do experimento */}
+        <Box>
             <Box
                 sx={{
                     alignItems: "center",
@@ -430,698 +347,131 @@ const EditExperimentTask = () => {
                         backgroundColor: "#f9f9f9",
                         borderRadius: "8px",
                         boxShadow: 4,
-                        width: "100%",
+                        width: {xs: "95%", sm: "60%"},
                         marginX: "auto",
                     }}
                 >
+                    <TextField
+                        label={t("search_task")}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+
                     {isLoadingTask ? (
-                        <CircularProgress />
-                    ) : Array.isArray(tasks) && tasks.length > 0 ? (
-                        <FormControl fullWidth>
+                        <CircularProgress/>
+                    ) : filteredTasks.length > 0 ? (
+                        filteredTasks.map((task) => (
                             <Box
+                                key={task._id}
                                 sx={{
-                                    minHeight: 300,
-                                    maxHeight: 300,
-                                    overflowY: "auto",
+                                    width: "100%",
+                                    marginBottom: 2,
+                                    border: "1px solid #ddd",
+                                    borderRadius: "8px",
+                                    padding: 2,
+                                    backgroundColor: "#fff",
                                 }}
                             >
-                                {tasks
-                                    .filter((task) =>
-                                        task.title.toLowerCase().includes(searchTerm.toLowerCase())
-                                    )
-                                    .map((task, index) => (
-                                        <Box
-                                            key={index}
-                                            sx={{
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                mb: 1,
-                                                padding: 1,
-                                                backgroundColor: "#ffffff",
-                                                borderRadius: "4px",
-                                                boxShadow: 1,
-                                                wordBreak: "break-word",
-                                                "&:hover": { backgroundColor: "#e6f7ff" },
-                                            }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    display: "flex",
-                                                    justifyContent: "space-between",
-                                                    alignItems: "center",
-                                                }}
-                                            >
-                                                <Box sx={{ display: "flex", alignItems: "center" }}>
-                                                    <ListItemText primary={task.title} sx={{ ml: 1 }} />
-                                                </Box>
-                                                <Box sx={{ display: "flex", alignItems: "center" }}>
-                                                    <IconButton
-                                                        color="error"
-                                                        onClick={() => handleOpenDeleteDialog(task._id)}
-                                                        sx={{ ml: 1 }}
-                                                    >
-                                                        <DeleteIcon />
-                                                    </IconButton>
-                                                    <IconButton
-                                                        color="primary"
-                                                        onClick={() => handleEditTask(task._id)}
-                                                        sx={{ ml: 2 }}
-                                                    >
-                                                        <EditIcon />
-                                                    </IconButton>
-                                                    <IconButton
-                                                        color="primary"
-                                                        onClick={() => toggleTaskDescription(task._id)}
-                                                        sx={{ ml: 1 }}
-                                                    >
-                                                        {openTaskIds.includes(task._id) ? (
-                                                            <ExpandLessIcon />
-                                                        ) : (
-                                                            <ExpandMoreIcon />
-                                                        )}
-                                                    </IconButton>
-                                                </Box>
-                                            </Box>
-
-                                            {openTaskIds.includes(task._id) && (
-                                                <Box
-                                                    sx={{
-                                                        marginTop: 0,
-                                                        padding: 1,
-                                                        backgroundColor: "#E8E8E8",
-                                                        borderRadius: "4px",
-                                                        maxHeight: "150px",
-                                                        overflowY: "auto",
-                                                        wordBreak: "break-word",
-                                                    }}
-                                                    dangerouslySetInnerHTML={{
-                                                        __html: task.description,
-                                                    }}
-                                                />
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                    }}
+                                >
+                                    <Typography variant="h6">{task.title}</Typography>
+                                    <Box>
+                                        <IconButton onClick={() => toggleTaskDescription(task._id)}>
+                                            {openTaskIds.includes(task._id) ? (
+                                                <ExpandLessIcon/>
+                                            ) : (
+                                                <ExpandMoreIcon/>
                                             )}
-                                        </Box>
-                                    ))}
+                                        </IconButton>
+                                        <IconButton
+                                            onClick={() => handleEditTask(task._id)}
+                                            color="primary"
+                                        >
+                                            <EditIcon/>
+                                        </IconButton>
+                                        <IconButton
+                                            onClick={() => handleOpenDeleteDialog(task._id)}
+                                            color="error"
+                                        >
+                                            <DeleteIcon/>
+                                        </IconButton>
+                                    </Box>
+                                </Box>
+                                {openTaskIds.includes(task._id) && (
+                                    <Box sx={{marginTop: 2}}>
+                                        <Typography variant="body2">{task.summary}</Typography>
+                                        <div dangerouslySetInnerHTML={{__html: task.description}}/>
+                                    </Box>
+                                )}
                             </Box>
-                        </FormControl>
+                        ))
                     ) : (
-                        <NotFound title={t("NTaskFound")} subTitle={t("NoTaskcreated")} />
+                        <NotFound title={t("NTaskFound")} subTitle={t("NoTaskcreated")}/>
                     )}
 
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            marginTop: "auto",
-                            width: "100%",
-                            mt: 2,
-                        }}
-                    >
-                        <Button
-                            variant="contained"
-                            color="primary"
+                    <Box sx={{marginTop: 2, width: "100%", textAlign: "center"}}>
+                        <button
                             onClick={toggleCreateTask}
+                            style={{
+                                padding: "10px 20px",
+                                backgroundColor: "#1976d2",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: "pointer",
+                                fontSize: "16px",
+                            }}
                         >
-                            {isCreateTaskOpen ? t("cancel") : t("create_task")}
-                        </Button>
+                            {t("create_task") || "Criar Tarefa"}
+                        </button>
                     </Box>
                 </Box>
             </Box>
 
-            {/* Diálogo de confirmação de exclusão */}
-            <Dialog
+            <DeleteConfirmDialog
                 open={isDeleteDialogOpen}
                 onClose={handleCloseDeleteDialog}
-                fullWidth
-                maxWidth="xs"
-                sx={{
-                    "& .MuiDialog-paper": {
-                        backgroundColor: "#f9fafb",
-                        borderRadius: "12px",
-                        boxShadow: 5,
-                        padding: 4,
-                    },
-                }}
-            >
-                <DialogTitle
-                    sx={{
-                        fontSize: "1.25rem",
-                        fontWeight: "bold",
-                        color: "#111827",
-                        textAlign: "center",
-                        paddingBottom: "8px",
-                    }}
-                >
-                    {t("confirm_delete")}
-                </DialogTitle>
-                <DialogContent
-                    sx={{
-                        textAlign: "center",
-                        color: "#6b7280",
-                    }}
-                >
-                    <Box sx={{ marginBottom: 3 }}>
-                        <p
-                            style={{
-                                margin: 0,
-                                fontSize: "1rem",
-                                lineHeight: 1.5,
-                            }}
-                        >
-                            {t("delete_confirmation_message")}
-                        </p>
-                    </Box>
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            gap: 2,
-                        }}
-                    >
-                        <Button
-                            variant="outlined"
-                            onClick={handleCloseDeleteDialog}
-                            sx={{
-                                borderColor: "#d1d5db",
-                                color: "#374151",
-                                ":hover": {
-                                    backgroundColor: "#f3f4f6",
-                                },
-                            }}
-                        >
-                            {t("cancel")}
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="error"
-                            onClick={handleDeleteTask}
-                            sx={{
-                                boxShadow: "0 3px 6px rgba(0, 0, 0, 0.1)",
-                            }}
-                        >
-                            {t("delete")}
-                        </Button>
-                    </Box>
-                </DialogContent>
-            </Dialog>
+                onConfirm={handleDeleteTask}
+                t={t}
+            />
 
-            {/* Diálogo de edição de tarefa */}
-            <Dialog
+            <TaskDialog
                 open={isEditTaskOpen}
                 onClose={toggleEditTask}
-                fullWidth
-                maxWidth="lg"
-                sx={{
-                    "& .MuiDialog-paper": {
-                        backgroundColor: "#ffffff",
-                        borderRadius: "8px",
-                        boxShadow: 3,
-                        padding: 4,
-                    },
-                }}
-            >
-                <Typography variant="h4" gutterBottom align="center">
-                    {t("edit_task")}
-                </Typography>
-                <DialogContent>
-                    <form onSubmit={handleEditTaskSubmit}>
-                        {/* Campos básicos da tarefa */}
-                        <TextField
-                            label={t("task_title")}
-                            error={!isValidTitleTask}
-                            helperText={!isValidTitleTask ? t("invalid_name_message") : ""}
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={taskTitle}
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                setTaskTitle(value);
-                                setIsValidTitleTask(value.trim().length > 0);
-                            }}
-                            required
-                        />
+                mode="edit"
+                config={getFormConfig("edit")}
+                onSubmit={handleEditTaskSubmit}
+                isLoading={isLoadingTask}
+                experimentType={ExperimentType}
+                btypeExperiment={BtypeExperiment}
+                experimentSurveys={ExperimentSurveys}
+                scoreType={scoreType}
+                setScoreType={setscoreType}
+                t={t}
+            />
 
-                        {/* Configuração de fonte de pesquisa */}
-                        <Grid container spacing={2} alignItems="center">
-                            <Grid item xs={6}>
-                                <FormControl fullWidth margin="normal">
-                                    <InputLabel id="origin-label">{t("select_source")}</InputLabel>
-                                    <Select
-                                        labelId="origin-label"
-                                        value={origin}
-                                        onChange={(e) => setOrigin(e.target.value)}
-                                        label={t("select_source")}
-                                        required
-                                    >
-                                        <MenuItem value="llm">Large Language Model</MenuItem>
-                                        <MenuItem value="search-engine">{t("search_engine")}</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-
-                            {/* Seleção de LLM específico */}
-                            {origin === "llm" && (
-                                <Grid item xs={6}>
-                                    <FormControl fullWidth margin="normal">
-                                        <InputLabel id="llm-select-label">{t("select_llm")}</InputLabel>
-                                        <Select
-                                            labelId="llm-select-label"
-                                            value={llm}
-                                            onChange={(e) => setLlm(e.target.value)}
-                                            label={t("select_llm")}
-                                            required
-                                        >
-                                            {LlmTypes.map((type) => (
-                                                <MenuItem key={type.value} value={type.value}>
-                                                    {type.label}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                            )}
-
-                            {/* Seleção de motor de busca */}
-                            {origin === "search-engine" && (
-                                <Grid item xs={6}>
-                                    <FormControl fullWidth margin="normal">
-                                        <InputLabel id="search-engine-label">
-                                            {t("select_search_engine")}
-                                        </InputLabel>
-                                        <Select
-                                            labelId="search-engine-label"
-                                            value={searchEngine}
-                                            onChange={(e) => setSearchEngine(e.target.value)}
-                                            label={t("select_search_engine")}
-                                            required
-                                        >
-                                            {SearchEngines.map((engine) => (
-                                                <MenuItem key={engine.value} value={engine.value}>
-                                                    {engine.label}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                            )}
-                        </Grid>
-
-                        {/* Campos para chaves de API */}
-                        <Grid container spacing={2} alignItems="center">
-                            {origin === "llm" && llm === "gemini" && (
-                                <Grid item xs={12}>
-                                    <TextField
-                                        label="Gemini API Key"
-                                        variant="outlined"
-                                        fullWidth
-                                        margin="normal"
-                                        value={geminiApiKey}
-                                        onChange={(e) => setGeminiApiKey(e.target.value)}
-                                        placeholder="Enter your Gemini API Key"
-                                        required
-                                    />
-                                </Grid>
-                            )}
-
-                            {origin === "search-engine" && searchEngine === "google" && (
-                                <>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            label="Google API Key"
-                                            variant="outlined"
-                                            fullWidth
-                                            margin="normal"
-                                            value={googleApiKey}
-                                            onChange={(e) => setGoogleApiKey(e.target.value)}
-                                            placeholder="Enter Google API Key"
-                                            required
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            label="Google CX (Search Engine ID)"
-                                            variant="outlined"
-                                            fullWidth
-                                            margin="normal"
-                                            value={googleCx}
-                                            onChange={(e) => setGoogleCx(e.target.value)}
-                                            placeholder="Enter Google CX"
-                                            required
-                                        />
-                                    </Grid>
-                                </>
-                            )}
-                        </Grid>
-
-                        {/* Configurações específicas para experimentos rules_based */}
-                        {ExperimentType === "between-subject" && BtypeExperiment === "rules_based" && (
-                            <>
-                                {/* Configuração para regras baseadas em score */}
-                                {RulesExperiment === "score" && (
-                                    <Grid container spacing={2} alignItems="center">
-                                        <Grid item xs={4}>
-                                            <FormControl fullWidth margin="normal">
-                                                <InputLabel>{t("Separation_rule")}</InputLabel>
-                                                <Select
-                                                    value={RulesExperiment}
-                                                    onChange={(e) => setRulesExperiment(e.target.value)}
-                                                    label={t("Separation_rule")}
-                                                >
-                                                    {RulesExperimentTypes.map((stype) => (
-                                                        <MenuItem key={stype.value} value={stype.value}>
-                                                            {stype.label}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-
-                                        <Grid item xs={4}>
-                                            <FormControl fullWidth margin="normal">
-                                                <InputLabel>{t("select_survey")}</InputLabel>
-                                                <Select
-                                                    value={SelectedSurvey}
-                                                    onChange={(e) => {
-                                                        const newSurvey = e.target.value;
-                                                        setSelectedSurvey(newSurvey);
-                                                        setSelectedQuestion(null);
-                                                    }}
-                                                    label={t("select_survey")}
-                                                >
-                                                    {ExperimentSurveys?.length > 0 ? (
-                                                        ExperimentSurveys.map((survey) => (
-                                                            <MenuItem key={survey.id} value={survey}>
-                                                                {survey.title}
-                                                            </MenuItem>
-                                                        ))
-                                                    ) : (
-                                                        <MenuItem disabled>{t("no_survey_available")}</MenuItem>
-                                                    )}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-
-                                        <Grid item xs={4}>
-                                            <FormControl fullWidth margin="normal">
-                                                <InputLabel>{t("select_survey_th")}</InputLabel>
-                                                <Select
-                                                    value={scoreType}
-                                                    onChange={(e) => setscoreType(e.target.value)}
-                                                    label={t("select_survey_th")}
-                                                >
-                                                    {scoreTypes.map((stype) => (
-                                                        <MenuItem key={stype.value} value={stype.value}>
-                                                            {stype.label}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-
-                                        {scoreType === "unic" ? (
-                                            <Grid item xs={2}>
-                                                <TextField
-                                                    fullWidth
-                                                    margin="normal"
-                                                    type="number"
-                                                    label={t("score_Threshold_unic")}
-                                                    value={ScoreThreshold}
-                                                    onChange={(e) => {
-                                                        const value = Number(e.target.value);
-                                                        setScoreThreshold(value);
-                                                        setScoreThresholdmx(value);
-                                                    }}
-                                                />
-                                            </Grid>
-                                        ) : (
-                                            <>
-                                                <Grid item xs={4}>
-                                                    <TextField
-                                                        fullWidth
-                                                        margin="normal"
-                                                        type="number"
-                                                        label={t("score_Threshold_min")}
-                                                        value={ScoreThreshold}
-                                                        onChange={(e) => {
-                                                            const minValue = Number(e.target.value);
-                                                            if (minValue <= ScoreThresholdmx) {
-                                                                setScoreThreshold(minValue);
-                                                            }
-                                                        }}
-                                                    />
-                                                </Grid>
-                                                <Grid item xs={4}>
-                                                    <TextField
-                                                        fullWidth
-                                                        margin="normal"
-                                                        type="number"
-                                                        label={t("score_Threshold_max")}
-                                                        value={ScoreThresholdmx}
-                                                        onChange={(e) => {
-                                                            const maxValue = Number(e.target.value);
-                                                            if (maxValue >= ScoreThreshold) {
-                                                                setScoreThresholdmx(maxValue);
-                                                            }
-                                                        }}
-                                                        inputProps={{ min: ScoreThreshold }}
-                                                    />
-                                                </Grid>
-                                            </>
-                                        )}
-                                    </Grid>
-                                )}
-
-                                {/* Configuração para regras baseadas em questões */}
-                                {RulesExperiment === "question" && (
-                                    <Grid container spacing={2} alignItems="center">
-                                        <Grid item xs={4}>
-                                            <FormControl fullWidth margin="normal">
-                                                <InputLabel>{t("Separation_rule")}</InputLabel>
-                                                <Select
-                                                    value={RulesExperiment}
-                                                    onChange={(e) => setRulesExperiment(e.target.value)}
-                                                    label={t("Separation_rule")}
-                                                >
-                                                    {RulesExperimentTypes.map((stype) => (
-                                                        <MenuItem key={stype.value} value={stype.value}>
-                                                            {stype.label}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-
-                                        <Grid item xs={4}>
-                                            <FormControl fullWidth margin="normal">
-                                                <InputLabel>{t("select_survey")}</InputLabel>
-                                                <Select
-                                                    value={SelectedSurvey}
-                                                    onChange={(e) => {
-                                                        const newSurvey = e.target.value;
-                                                        setSelectedSurvey(newSurvey);
-                                                        setSelectedQuestion(null);
-                                                    }}
-                                                    label={t("select_survey")}
-                                                >
-                                                    {ExperimentSurveys?.length > 0 ? (
-                                                        ExperimentSurveys.map((survey) => (
-                                                            <MenuItem key={survey.id} value={survey}>
-                                                                {survey.title}
-                                                            </MenuItem>
-                                                        ))
-                                                    ) : (
-                                                        <MenuItem disabled>{t("no_survey_available")}</MenuItem>
-                                                    )}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-
-                                        <Grid item xs={4}>
-                                            <FormControl fullWidth margin="normal">
-                                                <InputLabel>{t("select_question")}</InputLabel>
-                                                <Select
-                                                    value={selectedQuestionIds}
-                                                    onChange={handleQuestionChange}
-                                                    label={t("select_question")}
-                                                    multiple
-                                                    renderValue={(selected) =>
-                                                        SelectedSurvey.questions
-                                                            .filter((q) => selected.includes(q.id))
-                                                            .map((q) => q.statement || "Sem enunciado")
-                                                            .join(", ")
-                                                    }
-                                                >
-                                                    {SelectedSurvey?.questions && SelectedSurvey.questions.length > 0 ? (
-                                                        SelectedSurvey.questions
-                                                            .filter(
-                                                                (q) =>
-                                                                    q.type === "multiple-selection" ||
-                                                                    q.type === "multiple-choices"
-                                                            )
-                                                            .map((question) => (
-                                                                <MenuItem key={question.id} value={question.id}>
-                                                                    <Checkbox checked={selectedQuestionIds.includes(question.id)} />
-                                                                    {question.statement || "Sem enunciado"}
-                                                                </MenuItem>
-                                                            ))
-                                                    ) : (
-                                                        <MenuItem disabled>{t("no_questions_available")}</MenuItem>
-                                                    )}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-
-                                        <Grid item xs={4}>
-                                            <FormControl fullWidth margin="normal">
-                                                <InputLabel>{t("select_survey_th")}</InputLabel>
-                                                <Select
-                                                    value={scoreType}
-                                                    onChange={(e) => setscoreType(e.target.value)}
-                                                    label={t("select_survey_th")}
-                                                >
-                                                    {scoreTypes.map((stype) => (
-                                                        <MenuItem key={stype.value} value={stype.value}>
-                                                            {stype.label}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-
-                                        {scoreType === "unic" ? (
-                                            <Grid item xs={2}>
-                                                <TextField
-                                                    fullWidth
-                                                    margin="normal"
-                                                    type="number"
-                                                    label={t("score_Threshold_unic")}
-                                                    value={ScoreThreshold}
-                                                    onChange={(e) => {
-                                                        const value = Number(e.target.value);
-                                                        setScoreThreshold(value);
-                                                        setScoreThresholdmx(value);
-                                                    }}
-                                                />
-                                            </Grid>
-                                        ) : (
-                                            <>
-                                                <Grid item xs={2}>
-                                                    <TextField
-                                                        fullWidth
-                                                        margin="normal"
-                                                        type="number"
-                                                        label={t("score_Threshold_min")}
-                                                        value={ScoreThreshold}
-                                                        onChange={(e) => {
-                                                            const minValue = Number(e.target.value);
-                                                            if (minValue <= ScoreThresholdmx) {
-                                                                setScoreThreshold(minValue);
-                                                            }
-                                                        }}
-                                                    />
-                                                </Grid>
-                                                <Grid item xs={2}>
-                                                    <TextField
-                                                        fullWidth
-                                                        margin="normal"
-                                                        type="number"
-                                                        label={t("score_Threshold_max")}
-                                                        value={ScoreThresholdmx}
-                                                        onChange={(e) => {
-                                                            const maxValue = Number(e.target.value);
-                                                            if (maxValue >= ScoreThreshold) {
-                                                                setScoreThresholdmx(maxValue);
-                                                            }
-                                                        }}
-                                                        inputProps={{ min: ScoreThreshold }}
-                                                    />
-                                                </Grid>
-                                            </>
-                                        )}
-                                    </Grid>
-                                )}
-                            </>
-                        )}
-
-                        {/* Campo de resumo da tarefa */}
-                        <TextField
-                            label={t("task_summary")}
-                            error={!isValidSumaryTask}
-                            helperText={!isValidSumaryTask ? t("invalid_name_message") : ""}
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            multiline
-                            rows={4}
-                            value={taskSummary}
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                setTaskSummary(value);
-                                setIsValidSumaryTask(value.trim().length > 0);
-                            }}
-                            required
-                        />
-
-                        {/* Editor de descrição da tarefa (ReactQuill) */}
-                        <div style={{ width: "100%", marginTop: "16.5px", marginBottom: "16px" }}>
-                            <CustomContainer>
-                                <ReactQuill
-                                    value={taskDescription}
-                                    onChange={(content) => setTaskDescription(content)}
-                                    placeholder={t("task_Desc1")}
-                                />
-                            </CustomContainer>
-                        </div>
-
-                        {/* Botões de ação do formulário */}
-                        <Box
-                            sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                marginTop: "auto",
-                                width: "100%",
-                                mt: 2,
-                            }}
-                        >
-                            <Button variant="contained" onClick={handleCancelEditTask} color="primary">
-                                {"Cancelar"}
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                type="submit"
-                                onClick={handleEditTaskSubmit}
-                                disabled={!isValidFormTask || isLoadingTask}
-                            >
-                                {"Editar"}
-                            </Button>
-                        </Box>
-                    </form>
-                </DialogContent>
-            </Dialog>
-
-            {/* Diálogo de criação de tarefa (similar ao de edição, mas com submit diferente) */}
-            <Dialog
+            <TaskDialog
                 open={isCreateTaskOpen}
                 onClose={toggleCreateTask}
-                fullWidth
-                maxWidth="lg"
-                sx={{
-                    "& .MuiDialog-paper": {
-                        backgroundColor: "#ffffff",
-                        borderRadius: "8px",
-                        boxShadow: 3,
-                        padding: 4,
-                    },
-                }}
-            >
-                <DialogTitle>{t("task_creation")}</DialogTitle>
-                <DialogContent>
-                    {/* O conteúdo deste formulário é idêntico ao de edição,
-              com exceção dos handlers de submit e cancelamento */}
-                    {/* ... conteúdo omitido por ser redundante ... */}
-                </DialogContent>
-            </Dialog>
+                mode="create"
+                config={getFormConfig("create")}
+                onSubmit={handleCreateTask}
+                isLoading={isLoadingTask}
+                experimentType={ExperimentType}
+                btypeExperiment={BtypeExperiment}
+                experimentSurveys={ExperimentSurveys}
+                scoreType={scoreType}
+                setScoreType={setscoreType}
+                t={t}
+            />
         </Box>
     );
 };

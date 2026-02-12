@@ -1,226 +1,203 @@
-import { useState } from "react";
+import {useState} from "react";
 import {
-  Paper,
-  Typography,
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
-  Button,
-  CircularProgress,
+    Paper,
+    Typography,
+    Box,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Chip,
+    Button,
+    CircularProgress,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 
-// Mock data - será substituído pela API
-const fetchParticipantsList = async (experimentId, accessToken) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
+const ParticipantsOverview = ({participants, stats, experimentId, t}) => {
+    const [exporting, setExporting] = useState(false);
 
-  return [
-    {
-      id: "p1",
-      name: "Participante 001",
-      email: "p001@example.com",
-      status: "FINISHED",
-      startDate: "2026-01-20",
-      completionDate: "2026-01-20",
-      completionTime: "15 min",
-      progress: 100,
-    },
-    {
-      id: "p2",
-      name: "Participante 002",
-      email: "p002@example.com",
-      status: "IN_PROGRESS",
-      startDate: "2026-01-22",
-      completionDate: null,
-      completionTime: null,
-      progress: 60,
-    },
-    {
-      id: "p3",
-      name: "Participante 003",
-      email: "p003@example.com",
-      status: "NOT_STARTED",
-      startDate: null,
-      completionDate: null,
-      completionTime: null,
-      progress: 0,
-    },
-  ];
-};
+    const handleExportParticipants = async () => {
+        setExporting(true);
+        try {
+            const csvContent = [
+                "ID,Nome,Email,Status,Data Início,Data Conclusão,Tempo Gasto (ms),Progresso (%)",
+                ...participants.map((p) => {
+                    const startDate = p.startDate
+                        ? new Date(p.startDate).toLocaleString("pt-BR")
+                        : "";
+                    const completionDate = p.completionDate
+                        ? new Date(p.completionDate).toLocaleString("pt-BR")
+                        : "";
+                    return `${p.id},"${p.name}","${p.email}",${p.status},"${startDate}","${completionDate}",${p.timeTaken || 0},${p.progress || 0}`;
+                }),
+            ].join("\n");
 
-const ParticipantsOverview = ({ overview, experimentId, accessToken, t }) => {
-  const [participants, setParticipants] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [exporting, setExporting] = useState(false);
+            const blob = new Blob([csvContent], {type: "text/csv;charset=utf-8;"});
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `participants_${experimentId}_${new Date().toISOString().split("T")[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error exporting participants:", error);
+        } finally {
+            setExporting(false);
+        }
+    };
 
-  const loadParticipants = async () => {
-    setLoading(true);
-    try {
-      // TODO: Substituir por chamada real da API
-      // const { data } = await api.get(
-      //   `experiments2/${experimentId}/participants`,
-      //   { headers: { Authorization: `Bearer ${accessToken}` } }
-      // );
-      const data = await fetchParticipantsList(experimentId, accessToken);
-      setParticipants(data);
-    } catch (error) {
-      console.error("Error loading participants:", error);
-    } finally {
-      setLoading(false);
+    const getStatusColor = (status) => {
+        switch (status) {
+            case "FINISHED":
+                return "success";
+            case "IN_PROGRESS":
+                return "warning";
+            case "NOT_STARTED":
+                return "default";
+            default:
+                return "default";
+        }
+    };
+
+    const getStatusLabel = (status) => {
+        switch (status) {
+            case "FINISHED":
+                return t("finished") || "Finalizado";
+            case "IN_PROGRESS":
+                return t("in_progress") || "Em Andamento";
+            case "NOT_STARTED":
+                return t("not_started") || "Não Iniciado";
+            default:
+                return status;
+        }
+    };
+
+    const formatTime = (milliseconds) => {
+        if (!milliseconds || milliseconds === 0) return "-";
+
+        const seconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+
+        if (hours > 0) {
+            return `${hours}h ${minutes % 60}min`;
+        } else if (minutes > 0) {
+            return `${minutes}min ${seconds % 60}s`;
+        } else {
+            return `${seconds}s`;
+        }
+    };
+
+    if (!participants || participants.length === 0) {
+        return (
+            <Paper sx={{p: 3}}>
+                <Typography color="textSecondary" align="center">
+                    {t("no_participants") || "Nenhum participante encontrado"}
+                </Typography>
+            </Paper>
+        );
     }
-  };
 
-  const handleExportParticipants = async () => {
-    setExporting(true);
-    try {
-      // TODO: Implementar chamada real da API
-      // await api.get(`experiments2/${experimentId}/export-participants`, {
-      //   headers: { Authorization: `Bearer ${accessToken}` },
-      //   responseType: 'blob'
-      // });
+    return (
+        <Paper sx={{p: 3}}>
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 3,
+                }}
+            >
+                <Typography variant="h6">
+                    {t("participants_list") || "Lista de Participantes"}
+                </Typography>
+                <Button
+                    variant="outlined"
+                    startIcon={
+                        exporting ? <CircularProgress size={16}/> : <DownloadIcon/>
+                    }
+                    onClick={handleExportParticipants}
+                    disabled={exporting}
+                >
+                    {exporting
+                        ? t("exporting") || "Exportando..."
+                        : t("export_csv") || "Exportar CSV"}
+                </Button>
+            </Box>
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const csvContent = [
-        "ID,Nome,Email,Status,Data Início,Data Conclusão,Tempo de Conclusão,Progresso",
-        ...participants.map(
-          (p) =>
-            `${p.id},${p.name},${p.email},${p.status},${p.startDate || ""},${p.completionDate || ""},${p.completionTime || ""},${p.progress}%`,
-        ),
-      ].join("\n");
+            <TableContainer>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>{t("participant") || "Participante"}</TableCell>
+                            <TableCell>{t("email") || "Email"}</TableCell>
+                            <TableCell>{t("status") || "Status"}</TableCell>
+                            <TableCell>{t("start_date") || "Data Início"}</TableCell>
+                            <TableCell>{t("completion_date") || "Data Conclusão"}</TableCell>
+                            <TableCell>{t("time_taken") || "Tempo Gasto"}</TableCell>
+                            <TableCell align="center">{t("progress") || "Progresso"}</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {participants.map((participant) => (
+                            <TableRow key={participant.id}>
+                                <TableCell>{participant.name}</TableCell>
+                                <TableCell>{participant.email}</TableCell>
+                                <TableCell>
+                                    <Chip
+                                        label={getStatusLabel(participant.status)}
+                                        color={getStatusColor(participant.status)}
+                                        size="small"
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    {participant.startDate
+                                        ? new Date(participant.startDate).toLocaleString("pt-BR")
+                                        : "-"}
+                                </TableCell>
+                                <TableCell>
+                                    {participant.completionDate
+                                        ? new Date(participant.completionDate).toLocaleString("pt-BR")
+                                        : "-"}
+                                </TableCell>
+                                <TableCell>{formatTime(participant.timeTaken)}</TableCell>
+                                <TableCell align="center">
+                                    {participant.progress !== undefined
+                                        ? `${participant.progress.toFixed(1)}%`
+                                        : "-"}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
 
-      const blob = new Blob([csvContent], { type: "text/csv" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `participants_${experimentId}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error exporting participants:", error);
-    } finally {
-      setExporting(false);
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "FINISHED":
-        return "success";
-      case "IN_PROGRESS":
-        return "warning";
-      case "NOT_STARTED":
-        return "default";
-      default:
-        return "default";
-    }
-  };
-
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case "FINISHED":
-        return t("finished") || "Finalizado";
-      case "IN_PROGRESS":
-        return t("in_progress") || "Em Andamento";
-      case "NOT_STARTED":
-        return t("not_started") || "Não Iniciado";
-      default:
-        return status;
-    }
-  };
-
-  // Auto-load participants on mount
-  useState(() => {
-    loadParticipants();
-  }, []);
-
-  return (
-    <Paper sx={{ p: 3 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        <Typography variant="h6">
-          {t("participants_list") || "Lista de Participantes"}
-        </Typography>
-        <Button
-          variant="outlined"
-          startIcon={
-            exporting ? <CircularProgress size={16} /> : <DownloadIcon />
-          }
-          onClick={handleExportParticipants}
-          disabled={exporting || participants.length === 0}
-        >
-          {exporting
-            ? t("exporting") || "Exportando..."
-            : t("export_csv") || "Exportar CSV"}
-        </Button>
-      </Box>
-
-      {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>{t("participant") || "Participante"}</TableCell>
-                <TableCell>{t("email") || "Email"}</TableCell>
-                <TableCell>{t("status") || "Status"}</TableCell>
-                <TableCell>{t("start_date") || "Data Início"}</TableCell>
-                <TableCell>
-                  {t("completion_date") || "Data Conclusão"}
-                </TableCell>
-                <TableCell>
-                  {t("completion_time") || "Tempo de Conclusão"}
-                </TableCell>
-                <TableCell>{t("progress") || "Progresso"}</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {participants.map((participant) => (
-                <TableRow key={participant.id}>
-                  <TableCell>{participant.name}</TableCell>
-                  <TableCell>{participant.email}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={getStatusLabel(participant.status)}
-                      color={getStatusColor(participant.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{participant.startDate || "-"}</TableCell>
-                  <TableCell>{participant.completionDate || "-"}</TableCell>
-                  <TableCell>{participant.completionTime || "-"}</TableCell>
-                  <TableCell>{participant.progress}%</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-
-      {!loading && participants.length === 0 && (
-        <Box sx={{ textAlign: "center", py: 4 }}>
-          <Typography color="textSecondary">
-            {t("no_participants") || "Nenhum participante encontrado"}
-          </Typography>
-        </Box>
-      )}
-    </Paper>
-  );
+            {stats && (
+                <Box sx={{mt: 3, p: 2, bgcolor: "grey.50", borderRadius: 1}}>
+                    <Typography variant="subtitle2" gutterBottom>
+                        {t("summary") || "Resumo"}
+                    </Typography>
+                    <Box sx={{display: "flex", gap: 3, flexWrap: "wrap"}}>
+                        <Typography variant="body2">
+                            <strong>{t("total") || "Total"}:</strong> {stats.totalParticipants}
+                        </Typography>
+                        <Typography variant="body2" color="success.main">
+                            <strong>{t("finished") || "Finalizados"}:</strong>{" "}
+                            {stats.finishedParticipants}
+                        </Typography>
+                        <Typography variant="body2">
+                            <strong>{t("completion_rate") || "Taxa de Conclusão"}:</strong>{" "}
+                            {stats.completionPercentage?.toFixed(1)}%
+                        </Typography>
+                    </Box>
+                </Box>
+            )}
+        </Paper>
+    );
 };
 
 export default ParticipantsOverview;

@@ -74,13 +74,10 @@ const Chatbot = ({ taskId, user }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    setSessionId(data.id); // Guarda o ID da sessão para usar nas mensagens
-                    console.log("Sessão iniciada:", data.id);
-                    console.log("DataChat: ", data)
+                    setSessionId(data.id);
                     if(data.messages && data.messages.length > 0){
                        const history = data.messages.map(msg => ({
                             id: msg.id,
-                            // Se for bot, já passamos o marked. Se for user, texto puro.
                             text: msg.role === 'model' ? marked(msg.content) : msg.content,
                             sender: msg.role === 'user' ? 'user' : 'bot',
                             role: msg.role,
@@ -89,8 +86,7 @@ const Chatbot = ({ taskId, user }) => {
 
                         setMessages(prev => {
                             const welcome = prev.find(m => m.id === 1);
-                            // Fallback de segurança caso não ache a msg de boas vindas
-                            const initialMsg = welcome || prev[0]; 
+                            const initialMsg = welcome || prev[0];
                             return [initialMsg, ...history];
                         });
                     }

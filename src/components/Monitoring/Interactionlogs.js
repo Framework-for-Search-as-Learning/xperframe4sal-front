@@ -162,7 +162,7 @@ const InteractionLogs = ({ experimentId, accessToken, t }) => {
     try {
       // TODO: Substituir por chamada real da API
       // const { data } = await api.get(
-      //   `experiments2/${experimentId}/interaction-logs`,
+      //   `experiment/${experimentId}/interaction-logs`,
       //   {
       //     headers: { Authorization: `Bearer ${accessToken}` },
       //     params: { ...filters, page, limit: rowsPerPage }
@@ -188,7 +188,7 @@ const InteractionLogs = ({ experimentId, accessToken, t }) => {
     setExporting(true);
     try {
       // TODO: Implementar chamada real da API
-      // await api.get(`experiments2/${experimentId}/export-logs`, {
+      // await api.get(`experiment/${experimentId}/export-logs`, {
       //   headers: { Authorization: `Bearer ${accessToken}` },
       //   params: filters,
       //   responseType: 'blob'

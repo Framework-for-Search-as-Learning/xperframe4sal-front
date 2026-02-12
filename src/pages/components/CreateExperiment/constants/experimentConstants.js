@@ -45,8 +45,6 @@ export const LLM_PROVIDERS = [
     { value: "openai", label: "OpenAI" },
     { value: "anthropic", label: "Anthropic" },
     { value: "google", label: "Google" },
-    // { value: "cohere", label: "Cohere" },
-    // { value: "mistral", label: "Mistral AI" },
 ];
 
 

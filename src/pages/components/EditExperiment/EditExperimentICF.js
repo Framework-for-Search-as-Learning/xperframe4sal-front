@@ -68,7 +68,7 @@ const EditExperimentICF = () => {
 
     const fetchIcf = useCallback(async () => {
         try {
-            const { data } = await api.get(`/icf2/experiment/${ExperimentId}`, {
+            const { data } = await api.get(`/icf/experiment/${ExperimentId}`, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
             setExperimentTitleICF(data.title || '');
@@ -92,7 +92,7 @@ const EditExperimentICF = () => {
         };
 
         try {
-            await api.patch(`/icf2/${Icfid}`, icf, {
+            await api.patch(`/icf/${Icfid}`, icf, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
 

@@ -55,7 +55,7 @@ const Google = ({
                             }
                         ),
                         api.post(
-                            `/user-task-session2/`,
+                            `/user-task-session/`,
                             {
                                 user_id: user.id,
                                 task_id: taskId,
@@ -96,7 +96,7 @@ const Google = ({
             url: url,
         };
         const response = await api.patch(
-            `/user-task-session2/${session._id}/open-page/${rank}`,
+            `/user-task-session/${session._id}/open-page/${rank}`,
             payload,
             { headers: { Authorization: `Bearer ${user.accessToken}` } }
         );
