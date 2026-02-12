@@ -16,6 +16,7 @@ import {
   InputAdornment,
   IconButton,
   Box,
+  CircularProgress,
 } from '@mui/material';
 
 import { ErrorMessage } from '../components/ErrorMessage';
@@ -126,7 +127,6 @@ const Login = () => {
             }}>
             {t('sign_in_title')}
           </Typography>
-          {isLoading && <LoadingIndicator size={25} />}
           {alertMessage && (
             <ErrorMessage
               message={alertMessage}
@@ -194,13 +194,16 @@ const Login = () => {
               onClick={handleEmailLogin}
               variant="contained"
               color="primary"
-              style={{
-                boxSizing: 'inherit',
-                display: 'inline-block'
-              }}
               disabled={!isValidForm || isLoading}
+              sx={{
+                minWidth: 120,
+              }}
             >
-              {t('sign_in_label')}
+              {isLoading ? (
+                <CircularProgress size={22} sx={{ color: 'white' }} />
+              ) : (
+                t('sign_in_label')
+              )}
             </Button>
             <Button
               onClick={handleRegister}
