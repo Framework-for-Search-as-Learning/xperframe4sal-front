@@ -13,7 +13,7 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import UserList from './UserList';
-import GroupSelector from './groupSelector';
+import GroupSelector from './GroupSelector';
 
 const EditGroupArea = ({ExperimentId}) => {
     const { t } = useTranslation();
