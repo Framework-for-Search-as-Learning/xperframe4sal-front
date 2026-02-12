@@ -31,10 +31,10 @@ const useStyles = makeStyles((theme) => ({
 const BOT_NAME = "XF4 Bot";
 
 // Adicionei taskId como prop, pois precisamos saber qual experimento iniciar
-const Chatbot = ({ taskId, user }) => { 
+const Chatbot = ({ taskId, user }) => {
     const { t } = useTranslation();
     const style = useStyles();
-    
+
     // Estado para guardar o ID da sessão atual criado pelo backend
     const [sessionId, setSessionId] = useState(null);
     const [isTyping, setIsTyping] = useState(false);
@@ -42,7 +42,7 @@ const Chatbot = ({ taskId, user }) => {
 
     const sessionInitialized = useRef(false); // Trava para não duplicar sessão
     const abortControllerRef = useRef(null);  // Para cancelar requisição se necessário
-    
+
     // Mensagem inicial estática (apenas visual)
     const [messages, setMessages] = useState([
         {
@@ -58,7 +58,7 @@ const Chatbot = ({ taskId, user }) => {
     // 1. Ao montar o componente, cria a sessão no Backend
     useEffect(() => {
 
-        if(sessionInitialized.current || !taskId || !user || !user.accessToken) return;
+        if (sessionInitialized.current || !taskId || !user || !user.accessToken) return;
 
         const initSession = async () => {
             sessionInitialized.current = true;
@@ -67,7 +67,7 @@ const Chatbot = ({ taskId, user }) => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${user.accessToken}` 
+                        'Authorization': `Bearer ${user.accessToken}`
                     },
                     body: JSON.stringify({ taskId: taskId, userId: user.id })
                 });
@@ -75,8 +75,8 @@ const Chatbot = ({ taskId, user }) => {
                 if (response.ok) {
                     const data = await response.json();
                     setSessionId(data.id);
-                    if(data.messages && data.messages.length > 0){
-                       const history = data.messages.map(msg => ({
+                    if (data.messages && data.messages.length > 0) {
+                        const history = data.messages.map(msg => ({
                             id: msg.id,
                             text: msg.role === 'model' ? marked(msg.content) : msg.content,
                             sender: msg.role === 'user' ? 'user' : 'bot',
@@ -90,7 +90,7 @@ const Chatbot = ({ taskId, user }) => {
                             return [initialMsg, ...history];
                         });
                     }
-                    
+
                 } else {
                     console.error("Falha ao iniciar sessão");
                     sessionInitialized.current = false;
@@ -110,11 +110,9 @@ const Chatbot = ({ taskId, user }) => {
     const handleSendMessage = async (messageText) => {
         if (!messageText.trim() || !sessionId) return;
 
-        // Cancela requisição anterior se houver (evita bugs de digitação rápida)
         if (abortControllerRef.current) abortControllerRef.current.abort();
         abortControllerRef.current = new AbortController();
 
-        // Adiciona mensagem do usuário na tela imediatamente
         const userMessage = {
             id: Date.now(),
             text: messageText,
@@ -129,58 +127,62 @@ const Chatbot = ({ taskId, user }) => {
         try {
             const token = user.accessToken;
 
-            // 2. Faz a requisição para o endpoint de Stream do seu Backend
             const response = await fetch(`${API_URL}/llm-session/${sessionId}/message`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ content: messageText, userId: user.id}),
+                body: JSON.stringify({ content: messageText, userId: user.id }),
                 signal: abortControllerRef.current.signal
             });
 
             if (!response.body) throw new Error('ReadableStream not supported.');
 
-            // 3. Configura a leitura do Stream
             const reader = response.body.getReader();
             const decoder = new TextDecoder("utf-8");
-            
+
             let fullResponse = "";
+            let hasReceivedFirstChunk = false;
             const botMessageId = Date.now() + 1;
 
-            // Cria o balão vazio do bot para começar a preencher
             setMessages(prev => [...prev, {
                 id: botMessageId,
-                text: "", 
+                text: "",
                 sender: "bot",
                 role: "model",
                 timestamp: new Date(),
             }]);
 
-            // 4. Loop de leitura (enquanto houver dados chegando)
             while (true) {
                 const { done, value } = await reader.read();
-                if (done) break;
+                if (done) {
+                    setIsTyping(false);
+                    break;
+                }
 
                 const chunk = decoder.decode(value, { stream: true });
                 fullResponse += chunk;
 
+                if (!hasReceivedFirstChunk && fullResponse.length > 0) {
+                    hasReceivedFirstChunk = true;
+                    setIsTyping(false);
+                }
 
-                setMessages(prev => 
-                    prev.map(msg => 
-                        msg.id === botMessageId 
-                            ? { ...msg, text: marked(fullResponse) } 
+                setMessages(prev =>
+                    prev.map(msg =>
+                        msg.id === botMessageId
+                            ? { ...msg, text: marked(fullResponse) }
                             : msg
                     )
                 );
-
             }
 
         } catch (error) {
-            if (error.name === 'AbortError') return; // Ignora se foi cancelado
+            setIsTyping(false);
+            if (error.name === 'AbortError') return;
             console.error('Erro:', error);
-            
+
             setMessages(prev => [...prev, {
                 id: Date.now() + 2,
                 text: "Erro de conexão ou resposta interrompida.",

@@ -354,7 +354,7 @@ const SurveyAccordion = ({
                         </Tabs>
                     </Paper>
                     {activeTab === 0 && (
-                        <ResumoTab
+                        <SummaryTab
                             survey={survey}
                             handleExportCSV={handleExportCSV}
                             exporting={exporting}
@@ -364,7 +364,7 @@ const SurveyAccordion = ({
                     )}
 
                     {activeTab === 1 && (
-                        <PerguntaTab
+                        <QuestionTab
                             survey={survey}
                             selectedQuestion={selectedQuestion}
                             handleQuestionChange={handleQuestionChange}
@@ -391,7 +391,7 @@ const SurveyAccordion = ({
     );
 };
 
-const ResumoTab = ({
+const SummaryTab = ({
     survey,
     handleExportCSV,
     exporting,
@@ -434,7 +434,7 @@ const ResumoTab = ({
     );
 };
 
-const PerguntaTab = ({
+const QuestionTab = ({
     survey,
     selectedQuestion,
     handleQuestionChange,
@@ -588,7 +588,7 @@ const IndividualTab = ({
                                         display="block"
                                         gutterBottom
                                     >
-                                        {t("type") || "Tipo"}: {answer.questionType} •{" "}
+                                        {t("type") || "Tipo"}: {t(answer.questionType) || answer.questionType} •{" "}
                                         {t("score") || "Pontuação"}: {answer.score}
                                     </Typography>
 
@@ -612,7 +612,7 @@ const IndividualTab = ({
                                                             mb: 1,
                                                             bgcolor: "white",
                                                             borderRadius: 1,
-                                                            border: "2px solid",
+                                                            border: "1px solid",
                                                             borderColor: "primary.main",
                                                         }}
                                                     >

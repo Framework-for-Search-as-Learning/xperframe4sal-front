@@ -73,7 +73,7 @@ export function PrivateRoutes(props) {
   }
 
   const handleGoCreateExperiment = () => {
-    navigate('/CreateExperiment');
+    navigate('/new');
     setAnchorEl(null);
   }
   const handleGoExperimentList= () => {

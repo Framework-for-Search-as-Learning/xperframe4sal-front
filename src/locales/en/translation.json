@@ -3,6 +3,7 @@
   "AddSubq": "Add Subquestion",
   "Apagar todos meus dados": "Delete all my data",
   "answered_at": "Answered at",
+  "answers": "Answers",
   "by_task": "By Task",
   "by_participant": "By Participant",
   "cannot_edit_active_experiment": "Cannot edit an active experiment. Deactivate it first.",
