@@ -43,11 +43,15 @@ const ExperimentTemplate = ({ steps, headerTitle, children }) => {
 
             const user_experiment = get_response.data
 
-            const patch_responde = await api.patch(`user-experiment/finish/${user_experiment._id}`, {
-                headers: {
-                    Authorization: `Bearer ${user.accessToken}`,
-                },
-            })
+            const patch_responde = await api.patch(
+                `user-experiment/${user_experiment._id}/finish`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.accessToken}`,
+                    },
+                }
+            )
 
             if (patch_responde.data._id) {
                 navigate('/experiments')
