@@ -234,7 +234,7 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
     }
 
     return (<Box>
-        <Paper sx={{ mb: 3, borderRadius: 2, bgcolor: '#f5f5f5', p: 0.5 }}>
+        <Paper sx={{mb: 3, borderRadius: 2, bgcolor: '#f5f5f5', p: 0.5}}>
             <Tabs
                 value={activeTab}
                 onChange={handleTabChange}
@@ -262,9 +262,9 @@ const InteractionMetrics = ({tasksExecution, participants, experimentId, accessT
                     }
                 }}
             >
-                <Tab label={t("summary") || "Resumo"} />
-                <Tab label={t("by_task") || "Por Tarefa"} />
-                <Tab label={t("by_participant") || "Por Participante"} />
+                <Tab label={t("summary") || "Resumo"}/>
+                <Tab label={t("by_task") || "Por Tarefa"}/>
+                <Tab label={t("by_participant") || "Por Participante"}/>
             </Tabs>
         </Paper>
 
@@ -751,8 +751,11 @@ const ByParticipantTab = ({
             <Box sx={{mb: 3}}>
                 <FormControl fullWidth>
                     <InputLabel>{t("select_participant") || "Selecione um participante"}</InputLabel>
-                    <Select value={selectedUser} label={t("select_participant") || "Selecione um participante"}
-                            onChange={handleUserChange}>
+                    <Select
+                        value={selectedUser}
+                        label={t("select_participant") || "Selecione um participante"}
+                        onChange={handleUserChange}
+                    >
                         {participants?.map((participant) => (
                             <MenuItem key={participant.id} value={participant.id}>
                                 {participant.name} ({participant.email})
@@ -763,7 +766,9 @@ const ByParticipantTab = ({
             </Box>
 
             {isLoadingUserDetails() ? (
-                <Box sx={{display: "flex", justifyContent: "center", py: 4}}> <CircularProgress/> </Box>
+                <Box sx={{display: "flex", justifyContent: "center", py: 4}}>
+                    <CircularProgress/>
+                </Box>
             ) : userDetails ? (
                 <Box>
                     <Card sx={{mb: 3, bgcolor: 'primary.main', color: 'primary.contrastText'}}>
@@ -778,188 +783,269 @@ const ByParticipantTab = ({
                         if (!taskDetails || taskDetails.length === 0) return null;
 
                         return (
-                            <Accordion key={task.taskId} defaultExpanded sx={{mb: 2, boxShadow: 2}}>
+                            <Accordion key={task.taskId} defaultExpanded sx={{mb: 3, boxShadow: 2}}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                                    <Box>
-                                        <Typography variant="subtitle1"
-                                                    sx={{fontWeight: 'bold'}}>{task.taskTitle}</Typography>
+                                    <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                                        <Typography variant="subtitle1" sx={{fontWeight: 'bold'}}>
+                                            {task.taskTitle}
+                                        </Typography>
                                         <Chip
-                                            label={taskDetails[0]?.taskType === "search-engine" ? "Busca" : "Chat"}
+                                            label={taskDetails[0]?.taskType === "search-engine" ? (t("search") || "Busca") : (t("chat") || "Chat")}
                                             color={taskDetails[0]?.taskType === "search-engine" ? "primary" : "secondary"}
                                             size="small"
                                         />
                                     </Box>
                                 </AccordionSummary>
-                                <AccordionDetails sx={{bgcolor: '#f8f9fa'}}>
-                                    {taskDetails.map((detail) => (
-                                        <Box key={detail.userTaskId} sx={{mb: 3}}>
-                                            <Grid container spacing={2} sx={{mb: 2}}>
-                                                <Grid item xs={12} sm={4}>
-                                                    <Paper variant="outlined"
-                                                           sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
-                                                        <Typography variant="caption" color="textSecondary"
-                                                                    display="block" sx={{fontWeight: 'bold', textTransform: 'uppercase'}}>{t("execution_time")}</Typography>
-                                                        <Typography variant="body1"
-                                                                    sx={{fontWeight: 'bold'}}>{formatTime(detail.executionTime)}</Typography>
-                                                    </Paper>
+                                <AccordionDetails sx={{bgcolor: '#f8f9fa', p: 3}}>
+                                    {taskDetails.map((detail) => {
+                                        const chronologicalResources = detail.searchDetails?.queries
+                                            ? detail.searchDetails.queries
+                                                .flatMap(q => (q.resources || []).map(r => ({
+                                                    ...r,
+                                                    queryContext: q.query
+                                                })))
+                                                .sort((a, b) => new Date(a.visitTime) - new Date(b.visitTime))
+                                            : [];
+
+                                        return (
+                                            <Box key={detail.userTaskId} sx={{mb: 5}}>
+                                                <Grid container spacing={2} sx={{mb: 4}}>
+                                                    <Grid item xs={12} sm={4}>
+                                                        <Paper variant="outlined" sx={{p: 2, textAlign: 'center'}}>
+                                                            <Typography variant="caption" color="textSecondary" sx={{
+                                                                fontWeight: 'bold',
+                                                                display: 'block',
+                                                                textTransform: 'uppercase'
+                                                            }}>
+                                                                {t("execution_time") || "Tempo de Execução"}
+                                                            </Typography>
+                                                            <Typography
+                                                                variant="h6">{formatTime(detail.executionTime)}</Typography>
+                                                        </Paper>
+                                                    </Grid>
+
+                                                    {detail.taskType === "search-engine" && (
+                                                        <>
+                                                            <Grid item xs={6} sm={4}>
+                                                                <Paper variant="outlined"
+                                                                       sx={{p: 2, textAlign: 'center'}}>
+                                                                    <Typography variant="caption" color="textSecondary"
+                                                                                sx={{
+                                                                                    fontWeight: 'bold',
+                                                                                    display: 'block',
+                                                                                    textTransform: 'uppercase'
+                                                                                }}>
+                                                                        {t("total_resources") || "Recursos Totais"}
+                                                                    </Typography>
+                                                                    <Typography
+                                                                        variant="h6">{detail.searchDetails?.resourcesAccessedTotal || 0}</Typography>
+                                                                </Paper>
+                                                            </Grid>
+                                                            <Grid item xs={6} sm={4}>
+                                                                <Paper variant="outlined"
+                                                                       sx={{p: 2, textAlign: 'center'}}>
+                                                                    <Typography variant="caption" color="textSecondary"
+                                                                                sx={{
+                                                                                    fontWeight: 'bold',
+                                                                                    display: 'block',
+                                                                                    textTransform: 'uppercase'
+                                                                                }}>
+                                                                        {t("queries") || "Consultas"}
+                                                                    </Typography>
+                                                                    <Typography
+                                                                        variant="h6">{detail.searchDetails?.queriesCount || 0}</Typography>
+                                                                </Paper>
+                                                            </Grid>
+                                                        </>
+                                                    )}
                                                 </Grid>
 
-                                                {detail.taskType === "search-engine" && (
-                                                    <>
-                                                        <Grid item xs={6} sm={4}>
-                                                            <Paper variant="outlined"
-                                                                   sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
-                                                                <Typography variant="caption" color="textSecondary"
-                                                                            display="block"
-                                                                            sx={{fontWeight: 'bold', textTransform: 'uppercase'}}>{t("resources")}</Typography>
-                                                                <Typography variant="body1"
-                                                                            sx={{fontWeight: 'bold'}}>{detail.searchDetails?.resourcesAccessedTotal || 0}</Typography>
-                                                            </Paper>
-                                                        </Grid>
-                                                        <Grid item xs={6} sm={4}>
-                                                            <Paper variant="outlined"
-                                                                   sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
-                                                                <Typography variant="caption" color="textSecondary"
-                                                                            display="block"
-                                                                            sx={{fontWeight: 'bold', textTransform: 'uppercase'}}>{t("queries")}</Typography>
-                                                                <Typography variant="body1"
-                                                                            sx={{fontWeight: 'bold'}}>{detail.searchDetails?.queriesCount || 0}</Typography>
-                                                            </Paper>
-                                                        </Grid>
-                                                    </>
+                                                {detail.taskType === "search-engine" && chronologicalResources.length > 0 && (
+                                                    <Box sx={{mb: 4}}>
+                                                        <Box
+                                                            sx={{display: 'flex', alignItems: 'center', mb: 2, gap: 1}}>
+                                                            <AccessTimeIcon color="primary"/>
+                                                            <Typography variant="subtitle2"
+                                                                        sx={{fontWeight: 'bold', letterSpacing: 1}}>
+                                                                {t("access_sequence") || "SEQUÊNCIA CRONOLÓGICA DE NAVEGAÇÃO"}
+                                                            </Typography>
+                                                        </Box>
+                                                        <TableContainer component={Paper} variant="outlined">
+                                                            <Table size="small">
+                                                                <TableHead sx={{bgcolor: '#f0f4f8'}}>
+                                                                    <TableRow>
+                                                                        <TableCell
+                                                                            sx={{fontWeight: 'bold'}}>{t("order") || "Ordem"}</TableCell>
+                                                                        <TableCell
+                                                                            sx={{fontWeight: 'bold'}}>{t("exact_time") || "Hora (HH:MM:SS)"}</TableCell>
+                                                                        <TableCell
+                                                                            sx={{fontWeight: 'bold'}}>{t("resource_title") || "Título do Recurso"}</TableCell>
+                                                                        <TableCell
+                                                                            sx={{fontWeight: 'bold'}}>{t("source_query") || "Consulta de Origem"}</TableCell>
+                                                                        <TableCell align="right"
+                                                                                   sx={{fontWeight: 'bold'}}>{t("time_spent") || "Permanência"}</TableCell>
+                                                                    </TableRow>
+                                                                </TableHead>
+                                                                <TableBody>
+                                                                    {chronologicalResources.map((res, idx) => (
+                                                                        <TableRow key={idx} hover>
+                                                                            <TableCell>{idx + 1}º</TableCell>
+                                                                            <TableCell sx={{
+                                                                                whiteSpace: 'nowrap',
+                                                                                fontFamily: 'monospace'
+                                                                            }}>
+                                                                                {new Date(res.visitTime).toLocaleTimeString("en-US", {
+                                                                                    hour: '2-digit',
+                                                                                    minute: '2-digit',
+                                                                                    second: '2-digit'
+                                                                                })}
+                                                                            </TableCell>
+                                                                            <TableCell>
+                                                                                <Box sx={{
+                                                                                    display: "flex",
+                                                                                    alignItems: "center",
+                                                                                    gap: 1
+                                                                                }}>
+                                                                                    <Typography variant="body2" noWrap
+                                                                                                sx={{maxWidth: 300}}>
+                                                                                        {res.title}
+                                                                                    </Typography>
+                                                                                    <a href={res.url} target="_blank"
+                                                                                       rel="noopener noreferrer">
+                                                                                        <OpenInNewIcon
+                                                                                            sx={{fontSize: 14}}
+                                                                                            color="primary"/>
+                                                                                    </a>
+                                                                                </Box>
+                                                                            </TableCell>
+                                                                            <TableCell>
+                                                                                <Chip label={res.queryContext}
+                                                                                      size="small" variant="outlined"
+                                                                                      sx={{fontSize: '0.7rem'}}/>
+                                                                            </TableCell>
+                                                                            <TableCell
+                                                                                align="right">{formatTime(res.timeSpent)}</TableCell>
+                                                                        </TableRow>
+                                                                    ))}
+                                                                </TableBody>
+                                                            </Table>
+                                                        </TableContainer>
+                                                    </Box>
                                                 )}
 
-                                                {detail.taskType === "llm" && detail.llmDetails && (
-                                                    <>
-                                                        <Grid item xs={6} sm={4}>
-                                                            <Paper variant="outlined"
-                                                                   sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
-                                                                <Typography variant="caption" color="textSecondary"
-                                                                            display="block" sx={{fontWeight: 'bold', textTransform: 'uppercase'}}>{t("total_messages")}</Typography>
-                                                                <Typography variant="body1"
-                                                                            sx={{fontWeight: 'bold'}}>{detail.llmDetails.totalMessages || 0}</Typography>
-                                                            </Paper>
-                                                        </Grid>
-                                                        <Grid item xs={6} sm={4}>
-                                                            <Paper variant="outlined"
-                                                                   sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
-                                                                <Typography variant="caption" color="textSecondary"
-                                                                            display="block" sx={{fontWeight: 'bold', textTransform: 'uppercase'}}>{t("prompts_count")}</Typography>
-                                                                <Typography variant="body1"
-                                                                            sx={{fontWeight: 'bold'}}>{detail.llmDetails.promptsCount || 0}</Typography>
-                                                            </Paper>
-                                                        </Grid>
-                                                    </>
-                                                )}
-                                            </Grid>
-
-                                            {detail.taskType === "search-engine" && detail.searchDetails?.queries && (
-                                                <Box sx={{mt: 2}}>
-                                                    <Typography variant="subtitle2" sx={{
-                                                        mb: 1,
-                                                        color: 'text.secondary',
-                                                        textTransform: 'uppercase',
-                                                        letterSpacing: 1
-                                                    }}>
-                                                        {t("queries_and_results") || "Consultas e Resultados"}
-                                                    </Typography>
-                                                    <Box sx={{display: 'flex', flexDirection: 'column', gap: 1}}>
-                                                        {detail.searchDetails.queries.map((q, qIdx) => (
-                                                            <Accordion key={qIdx} variant="outlined"
-                                                                       sx={{borderRadius: '8px !important'}}>
-                                                                <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                                                                    <Box sx={{
-                                                                        display: 'flex',
-                                                                        alignItems: 'center',
-                                                                        justifyContent: 'space-between',
-                                                                        width: '100%',
-                                                                        pr: 1
-                                                                    }}>
+                                                {detail.taskType === "search-engine" && detail.searchDetails?.queries && (
+                                                    <Box>
+                                                        <Typography variant="subtitle2" sx={{
+                                                            mb: 2,
+                                                            color: 'text.secondary',
+                                                            fontWeight: 'bold'
+                                                        }}>
+                                                            {t("grouped_by_query") || "AGRUPAMENTO POR TERMO DE BUSCA"}
+                                                        </Typography>
+                                                        <Box sx={{display: 'flex', flexDirection: 'column', gap: 1.5}}>
+                                                            {detail.searchDetails.queries.map((q, qIdx) => (
+                                                                <Accordion key={qIdx} variant="outlined"
+                                                                           sx={{borderRadius: '8px !important'}}>
+                                                                    <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
                                                                         <Box sx={{
                                                                             display: 'flex',
                                                                             alignItems: 'center',
-                                                                            gap: 1
+                                                                            justifyContent: 'space-between',
+                                                                            width: '100%',
+                                                                            pr: 2
                                                                         }}>
-                                                                            <SearchIcon color="action"
-                                                                                        fontSize="small"/>
-                                                                            <Typography variant="body2"
-                                                                                        sx={{fontWeight: 600}}>{q.query}</Typography>
+                                                                            <Box sx={{
+                                                                                display: 'flex',
+                                                                                alignItems: 'center',
+                                                                                gap: 1
+                                                                            }}>
+                                                                                <SearchIcon color="action"
+                                                                                            fontSize="small"/>
+                                                                                <Typography variant="body2"
+                                                                                            sx={{fontWeight: 600}}>{q.query}</Typography>
+                                                                            </Box>
+                                                                            <Typography variant="caption" sx={{
+                                                                                bgcolor: '#eee',
+                                                                                px: 1,
+                                                                                borderRadius: 1
+                                                                            }}>
+                                                                                {q.resourcesAccessedCount || 0} {t("links_accessed") || "links acessados"}
+                                                                            </Typography>
                                                                         </Box>
-                                                                        <Chip
-                                                                            label={`${q.resourcesAccessedCount || 0} links`}
-                                                                            size="small" variant="outlined"/>
-                                                                    </Box>
-                                                                </AccordionSummary>
-                                                                <AccordionDetails sx={{p: 0}}>
-                                                                    <TableContainer>
-                                                                        <Table size="small">
-                                                                            <TableHead sx={{bgcolor: '#fafafa'}}>
-                                                                                <TableRow>
-                                                                                    <TableCell sx={{
-                                                                                        fontSize: '0.75rem',
-                                                                                        fontWeight: 'bold'
-                                                                                    }}>TÍTULO</TableCell>
-                                                                                    <TableCell align="right" sx={{
-                                                                                        fontSize: '0.75rem',
-                                                                                        fontWeight: 'bold'
-                                                                                    }}>PERMANÊNCIA</TableCell>
-                                                                                    <TableCell align="right" sx={{
-                                                                                        fontSize: '0.75rem',
-                                                                                        fontWeight: 'bold'
-                                                                                    }}>HORA</TableCell>
-                                                                                </TableRow>
-                                                                            </TableHead>
-                                                                            <TableBody>
-                                                                                {q.resources?.map((resource, rIdx) => (
-                                                                                    <TableRow key={rIdx} hover>
-                                                                                        <TableCell>
-                                                                                            <Box sx={{
-                                                                                                display: "flex",
-                                                                                                alignItems: "center",
-                                                                                                gap: 1
-                                                                                            }}>
+                                                                    </AccordionSummary>
+                                                                    <AccordionDetails sx={{p: 0}}>
+                                                                        <TableContainer>
+                                                                            <Table size="small">
+                                                                                <TableHead sx={{bgcolor: '#fafafa'}}>
+                                                                                    <TableRow>
+                                                                                        <TableCell sx={{
+                                                                                            fontSize: '0.75rem',
+                                                                                            fontWeight: 'bold'
+                                                                                        }}>{t("title_header") || "TÍTULO"}</TableCell>
+                                                                                        <TableCell align="right" sx={{
+                                                                                            fontSize: '0.75rem',
+                                                                                            fontWeight: 'bold'
+                                                                                        }}>{t("time_spent_header") || "PERMANÊNCIA"}</TableCell>
+                                                                                        <TableCell align="right" sx={{
+                                                                                            fontSize: '0.75rem',
+                                                                                            fontWeight: 'bold'
+                                                                                        }}>{t("time_header") || "HORA"}</TableCell>
+                                                                                    </TableRow>
+                                                                                </TableHead>
+                                                                                <TableBody>
+                                                                                    {q.resources?.map((resource, rIdx) => (
+                                                                                        <TableRow key={rIdx} hover>
+                                                                                            <TableCell>
                                                                                                 <Typography
                                                                                                     variant="caption"
-                                                                                                    sx={{
-                                                                                                        maxWidth: {
-                                                                                                            xs: 150,
-                                                                                                            md: 350
-                                                                                                        }
-                                                                                                    }} noWrap>
+                                                                                                    noWrap sx={{
+                                                                                                    display: 'block',
+                                                                                                    maxWidth: 400
+                                                                                                }}>
                                                                                                     {resource.title}
                                                                                                 </Typography>
-                                                                                                <a href={resource.url}
-                                                                                                   target="_blank"
-                                                                                                   rel="noopener noreferrer">
-                                                                                                    <OpenInNewIcon
-                                                                                                        sx={{fontSize: 14}}
-                                                                                                        color="primary"/>
-                                                                                                </a>
-                                                                                            </Box>
-                                                                                        </TableCell>
-                                                                                        <TableCell align="right"
-                                                                                                   sx={{fontSize: '0.75rem'}}>{formatTime(resource.timeSpent)}</TableCell>
-                                                                                        <TableCell align="right"
-                                                                                                   sx={{fontSize: '0.75rem'}}>
-                                                                                            {new Date(resource.visitTime).toLocaleTimeString("pt-BR", {
-                                                                                                hour: '2-digit',
-                                                                                                minute: '2-digit'
-                                                                                            })}
-                                                                                        </TableCell>
-                                                                                    </TableRow>
-                                                                                ))}
-                                                                            </TableBody>
-                                                                        </Table>
-                                                                    </TableContainer>
-                                                                </AccordionDetails>
-                                                            </Accordion>
-                                                        ))}
+                                                                                            </TableCell>
+                                                                                            <TableCell align="right"
+                                                                                                       sx={{fontSize: '0.75rem'}}>{formatTime(resource.timeSpent)}</TableCell>
+                                                                                            <TableCell align="right"
+                                                                                                       sx={{fontSize: '0.75rem'}}>
+                                                                                                {new Date(resource.visitTime).toLocaleTimeString("en-US", {
+                                                                                                    hour: '2-digit',
+                                                                                                    minute: '2-digit'
+                                                                                                })}
+                                                                                            </TableCell>
+                                                                                        </TableRow>
+                                                                                    ))}
+                                                                                </TableBody>
+                                                                            </Table>
+                                                                        </TableContainer>
+                                                                    </AccordionDetails>
+                                                                </Accordion>
+                                                            ))}
+                                                        </Box>
                                                     </Box>
-                                                </Box>
-                                            )}
-                                            <Divider sx={{mt: 3}}/>
-                                        </Box>
-                                    ))}
+                                                )}
+
+                                                {detail.taskType === "llm" && (
+                                                    <Box sx={{
+                                                        p: 2,
+                                                        bgcolor: 'background.paper',
+                                                        borderRadius: 1,
+                                                        border: '1px solid #ddd'
+                                                    }}>
+                                                        <Typography variant="subtitle2" gutterBottom color="primary"
+                                                                    sx={{fontWeight: 'bold'}}>{t("conversation_metrics") || "MÉTRICAS DA CONVERSA"}</Typography>
+                                                        <Typography
+                                                            variant="body2">{t("total_messages")}: {detail.llmDetails?.totalMessages || 0}</Typography>
+                                                        <Typography
+                                                            variant="body2">{t("prompts_count")}: {detail.llmDetails?.promptsCount || 0}</Typography>
+                                                    </Box>
+                                                )}
+
+                                                <Divider sx={{mt: 4, mb: 2}}/>
+                                            </Box>
+                                        );
+                                    })}
                                 </AccordionDetails>
                             </Accordion>
                         );
@@ -967,7 +1053,8 @@ const ByParticipantTab = ({
                 </Box>
             ) : (
                 <Paper sx={{p: 3, textAlign: 'center'}}>
-                    <Typography color="textSecondary">{t("no_task_details") || "Nenhum detalhe encontrado"}</Typography>
+                    <Typography
+                        color="textSecondary">{t("select_participant_prompt") || "Selecione um participante para ver os detalhes"}</Typography>
                 </Paper>
             )}
         </Box>

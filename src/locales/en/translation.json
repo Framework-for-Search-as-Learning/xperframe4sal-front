@@ -394,5 +394,20 @@
   "resources_accessed": "Resources Accessed",
   "resources_queries": "Resource Queries",
   "resources": "Resources",
-  "last_name_label": "Last Name"
+  "last_name_label": "Last Name",
+  "access_sequence": "CHRONOLOGICAL NAVIGATION SEQUENCE",
+  "order": "Order",
+  "exact_time": "Exact Time (HH:MM:SS)",
+  "resource_title": "Resource Title",
+  "source_query": "Source Query",
+  "time_spent": "Duration",
+  "grouped_by_query": "GROUPED BY SEARCH TERM",
+  "links_accessed": "links accessed",
+  "title_header": "TITLE",
+  "time_spent_header": "TIME SPENT",
+  "time_header": "TIME",
+  "conversation_metrics": "CONVERSATION METRICS",
+  "select_participant_prompt": "Select a participant to view details",
+  "search": "Search",
+  "chat": "Chat"
 }
