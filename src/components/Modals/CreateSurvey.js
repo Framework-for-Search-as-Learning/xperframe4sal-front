@@ -3,9 +3,9 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import { useState } from 'react';
+import {useState} from 'react';
 import 'react-quill/dist/quill.snow.css';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import {
     TextField,
     Button,
@@ -28,26 +28,26 @@ import {
     Menu,
 } from '@mui/material';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { Add, CancelOutlined, Done } from '@mui/icons-material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
-import { api } from '../../config/axios';
-import { useParams } from 'react-router-dom';
+import {Add, CancelOutlined, Done} from '@mui/icons-material';
+import {Delete as DeleteIcon} from '@mui/icons-material';
+import {api} from '../../config/axios';
+import {useParams} from 'react-router-dom';
 
-const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSurveys, fetch = false }) => {
+const CreateSurvey = ({isCreateQuestOpen, toggleCreateQuest, t, setExperimentSurveys, fetch = false}) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [type, setType] = useState('pre');
     const [isLoadingSurvey, setIsLoadingSurvey] = useState(false);
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+    const [snackbar, setSnackbar] = useState({open: false, message: '', severity: 'success'});
     const [questions, setQuestions] = useState([]);
     const [isValidTitleSurvey, setIsValidTitleSurvey] = useState(true);
     const [isValidDescSurvey, setIsValidDescSurvey] = useState(true);
-    const isValidFormSurvey = isValidTitleSurvey && title && isValidDescSurvey && description;
+    const isValidFormSurvey = isValidTitleSurvey && title && isValidDescSurvey && description && questions.length > 0;
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedOptId, setSelectedOptId] = useState(null);
 
-    const { experimentId } = useParams();
+    const {experimentId} = useParams();
 
     const handleMenuOpen = (event, optId) => {
         setAnchorEl(event.currentTarget);
@@ -79,10 +79,10 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                     question.options = [];
                 } else {
                     question.options = q.options.map((opt) => {
-                        const option = { statement: opt.statement, id: opt.id };
+                        const option = {statement: opt.statement, id: opt.id};
 
                         if (opt.subquestion) {
-                            option.subquestion = { ...opt.subquestion };
+                            option.subquestion = {...opt.subquestion};
                             option.hassub = true;
                         } else {
                             option.hassub = false;
@@ -106,7 +106,7 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
         setType('pre');
         toggleCreateQuest();
         if (fetch) {
-            const body = { ...payload, experimentId: experimentId }
+            const body = {...payload, experimentId: experimentId}
             try {
                 await api.post('/survey', body)
             } catch (error) {
@@ -155,12 +155,11 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                         ...q,
                         options: [
                             ...q.options,
-                            { id: uuidv4(), statement: '', score: 0, subquestion: null, hassub: false },
+                            {id: uuidv4(), statement: '', score: 0, subquestion: null, hassub: false},
                         ],
                     }
                     : q
             )
-
         );
 
     };
@@ -189,7 +188,7 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                 ? {
                                     ...opt,
                                     [field]: value,
-                                    ...(field === "subquestion" ? { hassub: true } : {}),
+                                    ...(field === "subquestion" ? {hassub: true} : {}),
                                 }
                                 : opt
                         ),
@@ -211,14 +210,14 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
     };
 
     const questionTypes = [
-        { value: 'open', label: t('open') },
-        { value: 'multiple-selection', label: t('multiple_selection') },
-        { value: 'multiple-choices', label: t('multiple_choices') },
+        {value: 'open', label: t('open')},
+        {value: 'multiple-selection', label: t('multiple_selection')},
+        {value: 'multiple-choices', label: t('multiple_choices')},
     ];
     const surveyTypes = [
-        { value: 'pre', label: t('pre') },
-        { value: 'demo', label: t('demo') },
-        { value: 'post', label: t('post') }
+        {value: 'pre', label: t('pre')},
+        {value: 'demo', label: t('demo')},
+        {value: 'post', label: t('post')}
     ];
 
     return (
@@ -228,10 +227,10 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
             fullWidth
             sx={{
                 '& .MuiDialog-paper': {
-                    margin: { xs: 0, sm: 32 },
-                    height: { xs: '100vh', sm: '100%' },
-                    maxWidth: { xs: '100vw', sm: 'calc(100% - 64px)' },
-                    width: { xs: '100vw', sm: 'calc(100% - 64px)' },
+                    margin: {xs: 0, sm: 32},
+                    height: {xs: '100vh', sm: '100%'},
+                    maxWidth: {xs: '100vw', sm: 'calc(100% - 64px)'},
+                    width: {xs: '100vw', sm: 'calc(100% - 64px)'},
                 }
             }}
         >
@@ -278,13 +277,13 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                             margin="normal"
                         />
 
-                        <Box sx={{ mt: 4 }}>
+                        <Box sx={{mt: 4}}>
                             <Typography variant="h5" gutterBottom>
                                 {t('questions')}
                             </Typography>
 
                             {questions.map((q, index) => (
-                                <Paper key={q.id} sx={{ padding: 2, mb: 2, backgroundColor: '#f9f9f9' }}>
+                                <Paper key={q.id} sx={{padding: 2, mb: 2, backgroundColor: '#f9f9f9'}}>
                                     <Grid container spacing={2} sx={{
                                         flexDirection: {
                                             xs: 'column', sm: 'row'
@@ -298,10 +297,10 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                             xs={6}
                                             sx={{
                                                 width: '100%',
-                                                maxWidth: { xs: '100%', sm: '50%' }
+                                                maxWidth: {xs: '100%', sm: '50%'}
                                             }}>
                                             <TextField
-                                                label={t('questionStatement', { index: index + 1 })}
+                                                label={t('questionStatement', {index: index + 1})}
                                                 value={q.statement}
                                                 onChange={(e) => handleQuestionChange(q.id, 'statement', e.target.value)}
                                                 fullWidth
@@ -313,7 +312,7 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                             xs={6}
                                             sx={{
                                                 width: '100%',
-                                                maxWidth: { xs: '100%', sm: '50%' }
+                                                maxWidth: {xs: '100%', sm: '50%'}
                                             }}>
                                             <FormControl fullWidth>
                                                 <InputLabel>{t('questionType')}</InputLabel>
@@ -377,22 +376,22 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                         </Grid>
                                         <Grid item xs={1}>
                                             <IconButton color="error" onClick={() => handleRemoveQuestion(q.id)}>
-                                                <DeleteIcon />
+                                                <DeleteIcon/>
                                             </IconButton>
                                         </Grid>
 
 
                                         {(q.type === 'multiple-selection' || q.type === 'multiple-choices') && (
                                             <Grid item xs={12}>
-                                                <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+                                                <Typography variant="subtitle1" sx={{marginBottom: 2}}>
                                                     {t('options')}
                                                 </Typography>
 
                                                 {q.options.map((opt, optIndex) => (
-                                                    <Box key={opt.id} sx={{ mb: 2 }}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                                    <Box key={opt.id} sx={{mb: 2}}>
+                                                        <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
                                                             <TextField
-                                                                label={t('option', { index: optIndex + 1 })}
+                                                                label={t('option', {index: optIndex + 1})}
                                                                 value={opt.statement}
                                                                 onChange={(e) =>
                                                                     handleOptionChange(q.id, opt.id, 'statement', e.target.value)
@@ -409,13 +408,14 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                                                     onChange={(e) =>
                                                                         handleOptionChange(q.id, opt.id, 'score', Number(e.target.value))
                                                                     }
-                                                                    sx={{ width: 100, ml: 2 }}
+                                                                    sx={{width: 100, ml: 2}}
                                                                     required
                                                                 />
                                                             )}
 
-                                                            <IconButton onClick={(event) => handleMenuOpen(event, opt.id)}>
-                                                                <MoreVertIcon />
+                                                            <IconButton
+                                                                onClick={(event) => handleMenuOpen(event, opt.id)}>
+                                                                <MoreVertIcon/>
                                                             </IconButton>
 
                                                             <Menu
@@ -452,10 +452,21 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                                             </Menu>
                                                         </Box>
 
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                        <Box sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between'
+                                                        }}>
 
                                                             {opt.subquestion !== null && (
-                                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, ml: 8, marginTop: 2 }}>
+                                                                <Box sx={{
+                                                                    display: 'flex',
+                                                                    flexDirection: 'column',
+                                                                    gap: 2,
+                                                                    flex: 1,
+                                                                    ml: 8,
+                                                                    marginTop: 2
+                                                                }}>
                                                                     <Grid container spacing={2} alignItems="center">
                                                                         <Grid item xs={6}>
                                                                             <TextField
@@ -477,12 +488,16 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                                                                 <Select
                                                                                     value={opt.subquestion.type}
                                                                                     onChange={(e) =>
-                                                                                        handleOptionChange(q.id, opt.id, 'subquestion', { ...opt.subquestion, type: e.target.value })
+                                                                                        handleOptionChange(q.id, opt.id, 'subquestion', {
+                                                                                            ...opt.subquestion,
+                                                                                            type: e.target.value
+                                                                                        })
                                                                                     }
                                                                                     label={t('subquestionType')}
                                                                                 >
                                                                                     {questionTypes.map((qt) => (
-                                                                                        <MenuItem key={qt.value} value={qt.value}>
+                                                                                        <MenuItem key={qt.value}
+                                                                                                  value={qt.value}>
                                                                                             {qt.label}
                                                                                         </MenuItem>
                                                                                     ))}
@@ -544,20 +559,29 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
 
                                                                     {(opt.subquestion.type === 'multiple-selection' || opt.subquestion.type === 'multiple-choices') && (
                                                                         <Box>
-                                                                            <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+                                                                            <Typography variant="subtitle1"
+                                                                                        sx={{marginBottom: 2}}>
                                                                                 {t('options')}
                                                                             </Typography>
                                                                             {opt.subquestion.options?.map((subOpt, subOptIndex) => (
 
-                                                                                <Box key={subOpt.id} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                                                                                <Box key={subOpt.id} sx={{
+                                                                                    display: 'flex',
+                                                                                    alignItems: 'center',
+                                                                                    gap: 2,
+                                                                                    mb: 2
+                                                                                }}>
                                                                                     <TextField
-                                                                                        label={t('option', { index: subOptIndex + 1 })}
+                                                                                        label={t('option', {index: subOptIndex + 1})}
                                                                                         value={subOpt.statement}
                                                                                         onChange={(e) =>
                                                                                             handleOptionChange(q.id, opt.id, 'subquestion', {
                                                                                                 ...opt.subquestion,
                                                                                                 options: opt.subquestion.options.map((o, i) =>
-                                                                                                    i === subOptIndex ? { ...o, statement: e.target.value } : o
+                                                                                                    i === subOptIndex ? {
+                                                                                                        ...o,
+                                                                                                        statement: e.target.value
+                                                                                                    } : o
                                                                                                 ),
                                                                                             })
                                                                                         }
@@ -573,11 +597,14 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                                                                                 handleOptionChange(q.id, opt.id, 'subquestion', {
                                                                                                     ...opt.subquestion,
                                                                                                     options: opt.subquestion.options.map((o, i) =>
-                                                                                                        i === subOptIndex ? { ...o, score: Number(e.target.value) } : o
+                                                                                                        i === subOptIndex ? {
+                                                                                                            ...o,
+                                                                                                            score: Number(e.target.value)
+                                                                                                        } : o
                                                                                                     ),
                                                                                                 })
                                                                                             }
-                                                                                            sx={{ width: 100, ml: 2 }}
+                                                                                            sx={{width: 100, ml: 2}}
                                                                                             required
                                                                                         />
 
@@ -591,19 +618,19 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                                                                             })
                                                                                         }
                                                                                     >
-                                                                                        <DeleteIcon />
+                                                                                        <DeleteIcon/>
                                                                                     </IconButton>
                                                                                 </Box>
                                                                             ))}
                                                                             <Button
                                                                                 variant="outlined"
-                                                                                startIcon={<Add />}
+                                                                                startIcon={<Add/>}
                                                                                 onClick={() =>
                                                                                     handleOptionChange(q.id, opt.id, 'subquestion', {
                                                                                         ...opt.subquestion,
                                                                                         options: [
                                                                                             ...(opt.subquestion.options || []),
-                                                                                            { id: uuidv4(), },
+                                                                                            {id: uuidv4(),},
                                                                                         ],
                                                                                     })
                                                                                 }
@@ -619,7 +646,7 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                                 ))}
                                                 <Button
                                                     variant="outlined"
-                                                    startIcon={<Add />}
+                                                    startIcon={<Add/>}
                                                     onClick={() => handleAddOption(q.id)}
                                                 >
                                                     {t('addOption')}
@@ -629,36 +656,51 @@ const CreateSurvey = ({ isCreateQuestOpen, toggleCreateQuest, t, setExperimentSu
                                     </Grid>
                                 </Paper>
                             ))}
-                            <Button variant="contained" startIcon={<Add />} onClick={handleAddQuestion}>
+                            <Button variant="contained" startIcon={<Add/>} onClick={handleAddQuestion}>
                                 {t('addQuestion')}
                             </Button>
                         </Box>
 
-                        <Box sx={{ display: { xs: 'flex', sm: 'none' }, justifyContent: 'space-between', marginTop: 'auto', width: '100%', mt: 2 }}>
+                        <Box sx={{
+                            display: {xs: 'flex', sm: 'none'},
+                            justifyContent: 'space-between',
+                            marginTop: 'auto',
+                            width: '100%',
+                            mt: 2
+                        }}>
                             <Button variant="contained" onClick={toggleCreateQuest} color="primary">
-                                <CancelOutlined />
+                                <CancelOutlined/>
                             </Button>
 
-                            <Button type="submit" variant="contained" color="primary" disabled={!isValidFormSurvey || isLoadingSurvey}>
-                                {isLoadingSurvey ? <CircularProgress size={24} /> : <Done />}
+                            <Button type="submit" variant="contained" color="primary"
+                                    disabled={!isValidFormSurvey || isLoadingSurvey}>
+                                {isLoadingSurvey ? <CircularProgress size={24}/> : <Done/>}
                             </Button>
                         </Box>
-                        <Box sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent: 'space-between', marginTop: 'auto', width: '100%', mt: 2 }}>
+                        <Box sx={{
+                            display: {xs: 'none', sm: 'flex'},
+                            justifyContent: 'space-between',
+                            marginTop: 'auto',
+                            width: '100%',
+                            mt: 2
+                        }}>
                             <Button variant="contained" onClick={toggleCreateQuest} color="primary">
                                 {t('cancel')}
                             </Button>
 
-                            <Button type="submit" variant="contained" color="primary" disabled={!isValidFormSurvey || isLoadingSurvey}>
-                                {isLoadingSurvey ? <CircularProgress size={24} /> : t('createSurvey')}
+                            <Button type="submit" variant="contained" color="primary"
+                                    disabled={!isValidFormSurvey || isLoadingSurvey}>
+                                {isLoadingSurvey ? <CircularProgress size={24}/> : t('createSurvey')}
                             </Button>
                         </Box>
                     </form>
                     <Snackbar
                         open={snackbar.open}
                         autoHideDuration={6000}
-                        onClose={() => setSnackbar({ ...snackbar, open: false })}
+                        onClose={() => setSnackbar({...snackbar, open: false})}
                     >
-                        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+                        <Alert onClose={() => setSnackbar({...snackbar, open: false})} severity={snackbar.severity}
+                               sx={{width: '100%'}}>
                             {snackbar.message}
                         </Alert>
                     </Snackbar>
