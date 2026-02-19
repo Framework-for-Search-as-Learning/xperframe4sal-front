@@ -4,15 +4,17 @@
  */
 
 import React, { useState, useEffect, useContext } from 'react';
-import { Box, Typography, Grid, Button } from '@mui/material';
+import { Box, Typography, Grid, Button, CircularProgress, Alert } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import StepContext from './context/StepContextCreate';
 import { Add, ArrowBack } from '@mui/icons-material';
+
 const ConfirmCreateExperiment = () => {
     const { t } = useTranslation();
     const {
         step,
         setStep,
+        handleCreateExperiment,
         ExperimentTitle,
         ExperimentType,
         BtypeExperiment,
@@ -20,8 +22,20 @@ const ConfirmCreateExperiment = () => {
         ExperimentTasks,
         ExperimentSurveys,
     } = useContext(StepContext);
-    const handleCreate = () => {
-        setStep(step + 1);
+
+    const [loading, setLoading] = useState(false);
+    const handleCreate = async () => {
+        setLoading(true);
+
+        const success = await handleCreateExperiment();
+
+        if (success) {
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            setLoading(false);
+        }
     };
 
     const handleBack = () => {

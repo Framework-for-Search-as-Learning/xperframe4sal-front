@@ -409,5 +409,6 @@
   "conversation_metrics": "CONVERSATION METRICS",
   "select_participant_prompt": "Select a participant to view details",
   "search": "Search",
-  "chat": "Chat"
+  "chat": "Chat",
+  "no_participants": "No participants"
 }
