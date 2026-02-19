@@ -3,9 +3,9 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { api } from "../config/axios";
+import {useEffect, useState} from "react";
+import {useParams, useNavigate} from "react-router-dom";
+import {api} from "../config/axios";
 import {
     Accordion,
     AccordionDetails,
@@ -16,219 +16,128 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PlayArrow from "@mui/icons-material/PlayArrow";
-import { useTranslation } from "react-i18next";
-import { LoadingIndicator } from "../components/LoadIndicator";
+import {useTranslation} from "react-i18next";
+import {LoadingIndicator} from "../components/LoadIndicator";
 
-import { ExperimentTemplate, mountSteps } from "./ExperimentTemplate";
+import {ExperimentTemplate, mountSteps} from "./ExperimentTemplate";
 
 const Tasks = () => {
     const navigate = useNavigate();
-    const { experimentId } = useParams();
-
-    const { t } = useTranslation();
+    const {experimentId} = useParams();
+    const {t} = useTranslation();
 
     const [user] = useState(JSON.parse(localStorage.getItem("user")));
-    const [, setExperiment] = useState(null);
-    const [tasks, setTasks] = useState();
-    const [expanded, setExpanded] = useState(`panel-0`);
+    const [tasks, setTasks] = useState([]);
+    const [userTasks, setUserTasks] = useState([]);
     const [steps, setSteps] = useState([]);
-
     const [isLoading, setIsLoading] = useState(false);
 
-    const [userTasks, setUserTasks] = useState(null);
+    const fetchTaskData = async () => {
+        try {
+            setIsLoading(true);
+            const [experimentRes, userExpRes, userTasksRes, stepsRes] = await Promise.all([
+                api.get(`experiment/${experimentId}`, {headers: {Authorization: `Bearer ${user.accessToken}`}}),
+                api.get(`user-experiment?experimentId=${experimentId}&userId=${user.id}`, {headers: {Authorization: `Bearer ${user.accessToken}`}}),
+                api.get(`user-task/user/${user.id}/experiment/${experimentId}`, {headers: {Authorization: `Bearer ${user.accessToken}`}}),
+                api.get(`experiment/${experimentId}/step`, {headers: {Authorization: `Bearer ${user.accessToken}`}})
+            ]);
+
+            const userTasksData = userTasksRes.data || [];
+            setUserTasks(userTasksData);
+
+            const activeTasks = userTasksData
+                .filter(ut => ut.task && ut.task.isActive)
+                .map(ut => ut.task);
+
+            setTasks(activeTasks);
+
+            const experimentSteps = mountSteps(stepsRes.data, userExpRes.data.stepsCompleted);
+            setSteps(experimentSteps);
+
+        } catch (error) {
+            console.error("Erro ao carregar tarefas:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchTaskData = async () => {
-            try {
-                setIsLoading(true);
-                const [experimentResponse, userExperimentResponse] =
-                    await Promise.all([
-                        api.get(`experiment/${experimentId}`, {
-                            headers: {
-                                Authorization: `Bearer ${user.accessToken}`,
-                            },
-                        }),
-                        api.get(
-                            `user-experiment?experimentId=${experimentId}&userId=${user.id}`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${user.accessToken}`,
-                                },
-                            }
-                        ),
-                    ]);
-
-                let experimentResult = experimentResponse.data;
-                let userExperimentResult = userExperimentResponse.data;
-                setExperiment(experimentResult);
-
-                let response = await api.get(`user-task/user/${user.id}/experiment/${experimentId}`, {
-                    headers: { Authorization: `Bearer ${user.accessToken}` },
-                });
-                let userTasks = response?.data;
-
-
-                setUserTasks(userTasks);
-
-                let taskList = [];
-
-                for (let userTask of userTasks) {
-                    const task = userTask.task
-                    if (task.isActive) {
-                        taskList.push(task);
-                    }
-                }
-                const steps = await api.get(`experiment/${experimentId}/step`, {
-                    headers: {
-                        Authorization: `Bearer ${user.accessToken}`,
-                    },
-                });
-                const experimentSteps = mountSteps(
-                    steps.data,
-                    userExperimentResult.stepsCompleted
-                );
-                setSteps(experimentSteps);
-
-                setTasks(taskList);
-                setIsLoading(false);
-            } catch (error) {
-                setIsLoading(false);
-                console.error(error);
-            }
-        };
         fetchTaskData();
-    }, [experimentId, user?.id, user?.accessToken]);
+    }, [experimentId]);
 
-    const handleStartTaskClick = async (e) => {
+    const handleTaskAction = async (taskId, actionType) => {
         try {
-            const userTask = userTasks.filter(
-                (userTask) => userTask['task_id'] === e
-            )[0];
-            await api.patch(`user-task/${userTask._id}/start`, userTask, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
+            const userTask = userTasks.find(ut => ut.task?._id === taskId || ut.task_id === taskId || ut.taskId === taskId);
+
+            if (!userTask) {
+                console.error("UserTask não encontrada para o ID:", taskId);
+                return;
+            }
+
+            const endpoint = actionType === 'resume' ? 'resume' : 'start';
+            await api.patch(`user-task/${userTask._id}/${endpoint}`, userTask, {
+                headers: {Authorization: `Bearer ${user.accessToken}`},
             });
 
-            navigate(`/experiments/${experimentId}/tasks/${e}`, {
+            navigate(`/experiments/${experimentId}/tasks/${taskId}`, {
                 state: {
-                    task: tasks.filter((s) => s._id === e)[0],
+                    task: tasks.find(t => t._id === taskId),
                     userTask: userTask,
                 },
             });
         } catch (error) {
-            console.error(error);
+            console.error(`Erro ao ${actionType} tarefa:`, error);
         }
-    };
-
-    const handleContinueTaskClick = async (e) => {
-        try {
-            const userTask = userTasks.filter(
-                (userTask) => userTask.taskId === e
-            )[0];
-            await api.patch(`user-task/${userTask._id}/resume`, userTask, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
-            });
-
-            navigate(`/experiments/${experimentId}/tasks/${e}`, {
-                state: {
-                    task: tasks.filter((s) => s._id === e)[0],
-                    userTask: userTask,
-                },
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleChange = (panel) => (event, isExpanded) => {
-        setExpanded(isExpanded ? panel : false);
     };
 
     return (
-        <ExperimentTemplate
-            headerTitle={t("see_tasks_list_title")}
-            steps={steps}
-        >
-            {!tasks && (
-                <Typography variant="body1">Carregando tarefas...</Typography>
+        <ExperimentTemplate headerTitle={t("see_tasks_list_title")} steps={steps}>
+            {isLoading && <LoadingIndicator size={70}/>}
+
+            {!isLoading && tasks?.length === 0 && (
+                <Typography variant="body1">Obrigad@! No momento você não tem tarefas.</Typography>
             )}
-            {!tasks && isLoading && <LoadingIndicator size={70} />}
-            {tasks?.length === 0 && (
-                <Typography variant="body1">
-                    No momento você não foi inscrito em nenhuma tarefa.
-                    Obrigad@!
-                </Typography>
-            )}
+
             {tasks?.map((task, index) => {
-                const userTask = userTasks.find((ut) => ut.task._id === task._id);
+                const userTask = userTasks.find(ut => (ut.task?._id === task._id) || (ut.task_id === task._id));
                 const hasFinished = userTask?.hasFinishedTask;
+                const isPaused = userTask?.isPaused;
 
                 return (
-                    <Accordion
-                        sx={{ marginBottom: "5px" }}
-                        key={task._id}
-                        elevation={3}
-                        expanded={true}
-                        // expanded=true{expanded === `panel-${index}`}
-                        onChange={handleChange(`panel-${index}`)}
-                        disabled={hasFinished}
-                    >
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls={`panel-${index}bh-content`}
-                            id={`panel-${index}bh-header`}
-                            sx={{
-                                "&:hover": {
-                                    backgroundColor: "lightgray",
-                                },
-                            }}
-                        >
+                    <Accordion key={task._id} elevation={3} defaultExpanded={true} disabled={hasFinished}>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
                             <Typography>
-                                <span>{task.title}</span>
+                                <strong>{task.title}</strong>
                                 {hasFinished && (
-                                    <span
-                                        style={{
-                                            color: "red",
-                                            marginLeft: "10px",
-                                            fontWeight: "bold",
-                                        }}
-                                    >
-                                        - {t("task_finished") || "Você já completou esta tarefa."}
+                                    <span style={{color: "red", marginLeft: "10px"}}>
+                                        - {t("task_finished")}
                                     </span>
                                 )}
                             </Typography>
                         </AccordionSummary>
-                        <Divider />
+                        <Divider/>
                         <AccordionDetails>
-                            <Typography
-                                dangerouslySetInnerHTML={{
-                                    __html: task.description,
-                                }}
-                            />
-                            <div style={{ textAlign: "right" }}>
-                                {!hasFinished &&
-                                    (userTask?.isPaused ? (
+                            <Typography dangerouslySetInnerHTML={{__html: task.description}}/>
+                            <div style={{textAlign: "right", marginTop: "15px"}}>
+                                {!hasFinished && (
+                                    isPaused ? (
                                         <Button
                                             variant="contained"
                                             color="primary"
-                                            style={{ margin: "16px" }}
-                                            onClick={() =>
-                                                handleContinueTaskClick(task._id)
-                                            }
+                                            onClick={() => handleTaskAction(task._id, 'resume')}
                                         >
-                                            Retomar
+                                            {t("resume") || "Retomar"}
                                         </Button>
                                     ) : (
                                         <Button
                                             variant="contained"
                                             color="success"
-                                            style={{ margin: "16px" }}
-                                            onClick={() =>
-                                                handleStartTaskClick(task._id)
-                                            }
+                                            onClick={() => handleTaskAction(task._id, 'start')}
                                         >
-                                            Start <PlayArrow />
+                                            {t("start") || "Começar"} <PlayArrow/>
                                         </Button>
-                                    ))}
+                                    )
+                                )}
                             </div>
                         </AccordionDetails>
                     </Accordion>
@@ -238,4 +147,4 @@ const Tasks = () => {
     );
 };
 
-export { Tasks };
+export {Tasks};
