@@ -71,7 +71,7 @@ const MessageBubble = ({ message }) => {
     const isUser = message.sender === 'user';
 
     const formatTime = (timestamp) => {
-        return new Date(timestamp).toLocaleTimeString('pt-BR', {
+        return new Date(timestamp).toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
         });

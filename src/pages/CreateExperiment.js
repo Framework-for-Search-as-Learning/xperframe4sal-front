@@ -88,14 +88,7 @@ const CreateExperiment = () => {
                     life: 3000,
                 });
             }
-
-            setTimeout(() => {
-                setExperimentTitle("");
-                setExperimentDesc("");
-                setExperimentTasks([]);
-                setExperimentSurveys([]);
-                setStep(0);
-            }, 1500);
+            return true;
         } catch (error) {
             if (toast.current) {
                 toast.current.clear();
@@ -107,14 +100,9 @@ const CreateExperiment = () => {
                 });
             }
             console.error(t("Error creating experiment"), error);
+            return false;
         }
     };
-
-    useEffect(() => {
-        if (step === 5) {
-            handleCreateExperiment();
-        }
-    }, [step]);
 
     const CustomStepIcon = (props) => {
         let icon = props.icon - 1;
@@ -145,7 +133,7 @@ const CreateExperiment = () => {
 
     return (
         <>
-            <Toast ref={toast} position="bottom-right"/>
+            <Toast ref={toast} position="center" baseZIndex={9999}/>
 
             <Typography variant="h4" component="h1" gutterBottom align="center">
                 {t("Experiment_create")}
@@ -173,6 +161,7 @@ const CreateExperiment = () => {
                 value={{
                     step,
                     setStep,
+                    handleCreateExperiment,
                     ExperimentTitle,
                     setExperimentTitle,
                     ExperimentType,

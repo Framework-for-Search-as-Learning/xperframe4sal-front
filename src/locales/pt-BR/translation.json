@@ -429,5 +429,20 @@
   "queries_and_results": "Consultas e Resultados",
   "individual": "Individual",
   "experiments_empty_title": "Nenhum experimento encontrado",
-  "experiments_empty_call_to_action": "Comece agora criando ou importando um experimento no botão acima."
+  "experiments_empty_call_to_action": "Comece agora criando ou importando um experimento no botão acima.",
+  "access_sequence": "SEQUÊNCIA CRONOLÓGICA DE NAVEGAÇÃO",
+  "order": "Ordem",
+  "exact_time": "Hora Exata (HH:MM:SS)",
+  "resource_title": "Título do Recurso",
+  "source_query": "Consulta de Origem",
+  "time_spent": "Permanência",
+  "grouped_by_query": "AGRUPAMENTO POR TERMO DE BUSCA",
+  "links_accessed": "links acessados",
+  "title_header": "TÍTULO",
+  "time_spent_header": "PERMANÊNCIA",
+  "time_header": "HORA",
+  "conversation_metrics": "MÉTRICAS DA CONVERSA",
+  "select_participant_prompt": "Selecione um participante para ver os detalhes",
+  "search": "Busca",
+  "chat": "Chat"
 }
