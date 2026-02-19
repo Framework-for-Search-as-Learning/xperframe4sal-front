@@ -4,7 +4,7 @@
  */
 
 import React, {useState, useContext} from "react";
-import {Box, CircularProgress} from "@mui/material";
+import {Box, CircularProgress, Typography} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import StepContext from "./context/StepContextCreate";
 import NotFound from "../../../components/NotFound";
@@ -238,6 +238,8 @@ const CreateExperimentTask = () => {
     };
 
     const filteredTasks = filterTasks(ExperimentTasks, searchTerm);
+    const minimal_tasks = ExperimentType === 'between-subject' ? 2 : 1;
+    const canGoNext = ExperimentTasks.length >= minimal_tasks;
 
     return (
         <Box>
@@ -288,7 +290,15 @@ const CreateExperimentTask = () => {
                         isCreateOpen={isCreateTaskOpen}
                         t={t}
                         isMobile={false}
+                        nextDisabled={!canGoNext}
                     />
+                    {!canGoNext && (
+                        <Typography variant="caption" sx={{ color: 'error.main', mt: 1, fontWeight: 'bold' }}>
+                            {ExperimentType === 'between-subject'
+                                ? t('needs_at_least_2_tasks')
+                                : t('needs_at_least_1_task')}
+                        </Typography>
+                    )}
 
                     <NavigationButtons
                         onBack={handleBack}
@@ -297,6 +307,7 @@ const CreateExperimentTask = () => {
                         isCreateOpen={isCreateTaskOpen}
                         t={t}
                         isMobile={true}
+                        nextDisabled={!canGoNext}
                     />
                 </Box>
             </Box>

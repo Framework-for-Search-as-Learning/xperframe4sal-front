@@ -410,5 +410,8 @@
   "select_participant_prompt": "Select a participant to view details",
   "search": "Search",
   "chat": "Chat",
-  "no_participants": "No participants"
+  "no_participants": "No participants",
+  "needs_at_least_1_task": "Add at least 1 task to proceed.",
+  "needs_at_least_2_tasks": "Between-subject experiments require at least 2 tasks.",
+  "error_creating_experiment": "Error connecting to server. Please try sending again."
 }

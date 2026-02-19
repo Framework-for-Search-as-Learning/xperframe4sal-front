@@ -444,5 +444,8 @@
   "conversation_metrics": "MÉTRICAS DA CONVERSA",
   "select_participant_prompt": "Selecione um participante para ver os detalhes",
   "search": "Busca",
-  "chat": "Chat"
+  "chat": "Chat",
+  "needs_at_least_1_task": "Adicione pelo menos 1 tarefa para prosseguir.",
+  "needs_at_least_2_tasks": "Experimentos 'entre sujeitos' exigem pelo menos 2 tarefas.",
+  "error_creating_experiment": "Erro ao conectar com o servidor. Tente enviar novamente."
 }
