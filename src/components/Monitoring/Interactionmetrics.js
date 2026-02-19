@@ -534,10 +534,10 @@ const SummaryTab = ({stats, tasksExecution, handleExportMetrics, exporting, form
                             if (taskType === "search-engine") {
                                 const totalResources = task.executions.reduce((sum, ex) => sum + (ex.searchDetails?.resourcesAccessedDepth || 0), 0);
                                 const totalQueries = task.executions.reduce((sum, ex) => sum + (ex.searchDetails?.queriesCount || 0), 0);
-                                additionalInfo = `${totalResources} recursos / ${totalQueries} consultas`;
+                                additionalInfo = `${totalResources} ${t("resources")} / ${totalQueries} ${t("queries")}`;
                             } else if (taskType === "llm") {
                                 const totalMessages = task.executions.reduce((sum, ex) => sum + (ex.llmDetails?.totalMessages || 0), 0);
-                                additionalInfo = `${totalMessages} mensagens`;
+                                additionalInfo = `${totalMessages} ${t("messages")}`;
                             }
 
                             return (<TableRow key={task.taskId}>
@@ -798,8 +798,7 @@ const ByParticipantTab = ({
                                                     <Paper variant="outlined"
                                                            sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
                                                         <Typography variant="caption" color="textSecondary"
-                                                                    display="block" sx={{fontWeight: 'bold'}}>TEMPO DE
-                                                            EXECUÇÃO</Typography>
+                                                                    display="block" sx={{fontWeight: 'bold', textTransform: 'uppercase'}}>{t("execution_time")}</Typography>
                                                         <Typography variant="body1"
                                                                     sx={{fontWeight: 'bold'}}>{formatTime(detail.executionTime)}</Typography>
                                                     </Paper>
@@ -812,7 +811,7 @@ const ByParticipantTab = ({
                                                                    sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
                                                                 <Typography variant="caption" color="textSecondary"
                                                                             display="block"
-                                                                            sx={{fontWeight: 'bold'}}>RECURSOS</Typography>
+                                                                            sx={{fontWeight: 'bold', textTransform: 'uppercase'}}>{t("resources")}</Typography>
                                                                 <Typography variant="body1"
                                                                             sx={{fontWeight: 'bold'}}>{detail.searchDetails?.resourcesAccessedTotal || 0}</Typography>
                                                             </Paper>
@@ -822,7 +821,7 @@ const ByParticipantTab = ({
                                                                    sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
                                                                 <Typography variant="caption" color="textSecondary"
                                                                             display="block"
-                                                                            sx={{fontWeight: 'bold'}}>CONSULTAS</Typography>
+                                                                            sx={{fontWeight: 'bold', textTransform: 'uppercase'}}>{t("queries")}</Typography>
                                                                 <Typography variant="body1"
                                                                             sx={{fontWeight: 'bold'}}>{detail.searchDetails?.queriesCount || 0}</Typography>
                                                             </Paper>
@@ -836,8 +835,7 @@ const ByParticipantTab = ({
                                                             <Paper variant="outlined"
                                                                    sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
                                                                 <Typography variant="caption" color="textSecondary"
-                                                                            display="block" sx={{fontWeight: 'bold'}}>TOTAL
-                                                                    DE MENSAGENS</Typography>
+                                                                            display="block" sx={{fontWeight: 'bold', textTransform: 'uppercase'}}>{t("total_messages")}</Typography>
                                                                 <Typography variant="body1"
                                                                             sx={{fontWeight: 'bold'}}>{detail.llmDetails.totalMessages || 0}</Typography>
                                                             </Paper>
@@ -846,8 +844,7 @@ const ByParticipantTab = ({
                                                             <Paper variant="outlined"
                                                                    sx={{p: 1.5, textAlign: 'center', height: '100%'}}>
                                                                 <Typography variant="caption" color="textSecondary"
-                                                                            display="block" sx={{fontWeight: 'bold'}}>PROMPTS
-                                                                    DO USUÁRIO</Typography>
+                                                                            display="block" sx={{fontWeight: 'bold', textTransform: 'uppercase'}}>{t("prompts_count")}</Typography>
                                                                 <Typography variant="body1"
                                                                             sx={{fontWeight: 'bold'}}>{detail.llmDetails.promptsCount || 0}</Typography>
                                                             </Paper>
