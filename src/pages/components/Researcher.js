@@ -28,7 +28,6 @@ const Researcher = () => {
     const [activeTab, setActiveTab] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [editingUser, setEditingUser] = useState(null);
     const [experimentsWithParticipants, setExperimentsWithParticipants] = useState(new Set());
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [experimentToDelete, setExperimentToDelete] = useState(null);
@@ -393,12 +392,9 @@ const Researcher = () => {
     };
 
     const handleEditUser = (experimentId) => {
-        setEditingUser(experimentId);
+        console.log("experimentId: ", experimentId)
+        navigate(`/experiments/${experimentId}/users`);
     };
-
-    if (editingUser) {
-        return <EditUser experimentId={editingUser}/>;
-    }
 
     return (
         <div className={styles.researcherContainer}>
