@@ -14,16 +14,17 @@ import 'primeicons/primeicons.css';
 import EditUserArea from '../../components/EditUser/EditUsersArea';
 import EditGroupArea from '../../components/EditUser/EditGroupArea';
 import {People, Person} from '@mui/icons-material';
+import {useParams} from "react-router-dom";
 
-
-const EditUser = (ExperimentId) => {
+const EditUser = () => {
+    const {experimentId} = useParams();
     const [user] = useState(JSON.parse(localStorage.getItem('user')));
     const {t} = useTranslation();
     const [actualStep, setActualStep] = useState(null);
 
     const fetchData = useCallback(async () => {
         try {
-            const {data} = await api.get(`/experiment/${ExperimentId.experimentId}`, {
+            const {data} = await api.get(`/experiment/${experimentId}`, {
                 headers: {Authorization: `Bearer ${user.accessToken}`},
             });
 
@@ -33,7 +34,7 @@ const EditUser = (ExperimentId) => {
         } catch (error) {
             console.error('Erro ao buscar dados do experimento:', error);
         }
-    }, [ExperimentId.experimentId, user.accessToken]);
+    }, [experimentId, user.accessToken]);
 
     useEffect(() => {
         fetchData();
@@ -50,9 +51,9 @@ const EditUser = (ExperimentId) => {
 
     const displayStep = () => {
         if (actualStep === 0)
-            return <EditUserArea ExperimentId={ExperimentId}/>
+            return <EditUserArea ExperimentId={{experimentId}}/>
         if (actualStep === 1)
-            return <EditGroupArea ExperimentId={ExperimentId}/>
+            return <EditGroupArea ExperimentId={{experimentId}}/>
 
         return <p>Algo deu errado...</p>
     }
@@ -91,7 +92,7 @@ const EditUser = (ExperimentId) => {
 
                     {displayStep()}
                 </>
-            ) : <EditUserArea ExperimentId={ExperimentId}/>}
+            ) : <EditUserArea ExperimentId={{experimentId}}/>}
         </div>
     );
 };

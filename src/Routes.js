@@ -24,6 +24,7 @@ import {
     EditExperiment,
 } from './pages';
 import ExperimentMonitoring from './pages/ExperimentMonitoring';
+import EditUser from "./pages/components/EditUser";
 
 
 const Router = () => {
@@ -44,16 +45,11 @@ const Router = () => {
                 <Route index element={<Instructions/>}/>
             </Route>
 
-
-            {/* <Route path='/EditExperiment' element={<PrivateRoutes />}>
-        <Route path=':experimentId' element={<EditExperiment />} />
-      </Route> */}
-
-
             <Route path='/experiments' element={<PrivateRoutes/>}>
                 <Route index element={<Experiments/>}/>
                 <Route path='new' element={<CreateExperiment/>}/>
                 <Route path=':experimentId/edit' element={<EditExperiment/>}/>
+                <Route path=':experimentId/users' element={<EditUser/>}/>
                 <Route path=':experimentId/icf' element={<ICF/>}/>
                 <Route path=":experimentId/monitoring" element={<ExperimentMonitoring/>}/>
                 <Route path=':experimentId/surveys' element={<Surveys/>}/>
