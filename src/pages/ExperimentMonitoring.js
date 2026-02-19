@@ -24,12 +24,15 @@ import ParticipantsOverview from "../components/Monitoring/ParticipantsOverview"
 import QuestionnaireAnalysis from "../components/Monitoring/Questionnaireanalysis";
 import InteractionLogs from "../components/Monitoring/Interactionlogs";
 import InteractionMetrics from "../components/Monitoring/Interactionmetrics";
+import {useExperimentAuth} from "../hooks/useExperimentAuth";
 
 const ExperimentMonitoring = () => {
     const { experimentId } = useParams();
     const navigate = useNavigate();
     const { t } = useTranslation();
     const user = JSON.parse(localStorage.getItem("user"));
+
+    const { isLoading: authLoading, isAuthorized, data: authData } = useExperimentAuth(experimentId, user);
 
     const [activeTab, setActiveTab] = useState(0);
     const [experimentData, setExperimentData] = useState(null);
@@ -42,42 +45,24 @@ const ExperimentMonitoring = () => {
     const [exportingData, setExportingData] = useState(false);
 
     const loadMonitoringData = useCallback(async () => {
+        if (!isAuthorized) return;
+
         setLoading(true);
         setError(null);
         try {
-            const { data: experiment } = await api.get(`experiment/${experimentId}`, {
-                headers: { Authorization: `Bearer ${user.accessToken}` }
-            });
-            setExperimentData(experiment);
+            setExperimentData(authData);
 
-            const { data: stats } = await api.get(`experiment/${experimentId}/stats`, {
-                headers: { Authorization: `Bearer ${user.accessToken}` }
-            });
-            setStatsData(stats);
+            const [stats, participants, surveysStats, tasksExecution] = await Promise.all([
+                api.get(`experiment/${experimentId}/stats`, { headers: { Authorization: `Bearer ${user.accessToken}` } }),
+                api.get(`experiment/${experimentId}/participants`, { headers: { Authorization: `Bearer ${user.accessToken}` } }),
+                api.get(`experiment/${experimentId}/surveys-stats`, { headers: { Authorization: `Bearer ${user.accessToken}` } }),
+                api.get(`experiment/${experimentId}/tasks-execution`, { headers: { Authorization: `Bearer ${user.accessToken}` } })
+            ]);
 
-            const { data: participants } = await api.get(
-                `experiment/${experimentId}/participants`,
-                {
-                    headers: { Authorization: `Bearer ${user.accessToken}` }
-                }
-            );
-            setParticipantsData(participants);
-
-            const { data: surveysStats } = await api.get(
-                `experiment/${experimentId}/surveys-stats`,
-                {
-                    headers: { Authorization: `Bearer ${user.accessToken}` }
-                }
-            );
-            setSurveysStatsData(surveysStats);
-
-            const { data: tasksExecution } = await api.get(
-                `experiment/${experimentId}/tasks-execution`,
-                {
-                    headers: { Authorization: `Bearer ${user.accessToken}` }
-                }
-            );
-            setTasksExecutionData(tasksExecution);
+            setStatsData(stats.data);
+            setParticipantsData(participants.data);
+            setSurveysStatsData(surveysStats.data);
+            setTasksExecutionData(tasksExecution.data);
         } catch (err) {
             console.error("Error loading monitoring data:", err);
             setError(
@@ -87,11 +72,13 @@ const ExperimentMonitoring = () => {
         } finally {
             setLoading(false);
         }
-    }, [experimentId, user.accessToken, t]);
+    }, [experimentId, user.accessToken, t, isAuthorized, authData]);
 
     useEffect(() => {
-        loadMonitoringData();
-    }, [loadMonitoringData]);
+        if (isAuthorized) {
+            loadMonitoringData();
+        }
+    }, [isAuthorized, loadMonitoringData]);
 
     const handleExportAllData = async () => {
         setExportingData(true);
@@ -130,31 +117,20 @@ const ExperimentMonitoring = () => {
         setActiveTab(newValue);
     };
 
-    if (loading) {
+    if (authLoading || (isAuthorized && loading)) {
         return (
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: "60vh",
-                }}
-            >
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
                 <CircularProgress size={60} />
             </Box>
         );
     }
 
-    if (error) {
+    if (error || !isAuthorized) {
+        if (!isAuthorized && !authLoading) return null;
         return (
             <Box sx={{ p: 3 }}>
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
-                </Alert>
-                <Button
-                    startIcon={<ArrowBackIcon />}
-                    onClick={() => navigate("/experiments")}
-                >
+                <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
+                <Button startIcon={<ArrowBackIcon />} onClick={() => navigate("/experiments")}>
                     {t("back") || "Voltar"}
                 </Button>
             </Box>

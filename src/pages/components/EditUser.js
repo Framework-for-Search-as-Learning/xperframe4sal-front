@@ -5,7 +5,7 @@
 
 import React, {useState, useEffect, useCallback} from 'react';
 import {api} from '../../config/axios';
-import {Typography, Box} from '@mui/material';
+import {Typography, Box, CircularProgress} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import styles from "../../style/editUser.module.css"
 import 'primereact/resources/themes/saga-blue/theme.css';
@@ -15,6 +15,7 @@ import EditUserArea from '../../components/EditUser/EditUsersArea';
 import EditGroupArea from '../../components/EditUser/EditGroupArea';
 import {People, Person} from '@mui/icons-material';
 import {useParams} from "react-router-dom";
+import {useExperimentAuth} from "../../hooks/useExperimentAuth";
 
 const EditUser = () => {
     const {experimentId} = useParams();
@@ -22,23 +23,15 @@ const EditUser = () => {
     const {t} = useTranslation();
     const [actualStep, setActualStep] = useState(null);
 
-    const fetchData = useCallback(async () => {
-        try {
-            const {data} = await api.get(`/experiment/${experimentId}`, {
-                headers: {Authorization: `Bearer ${user.accessToken}`},
-            });
-
-            if (data.typeExperiment === "between-subject" && data.betweenExperimentType === "manual") {
-                setActualStep(0);
-            }
-        } catch (error) {
-            console.error('Erro ao buscar dados do experimento:', error);
-        }
-    }, [experimentId, user.accessToken]);
+    const {isLoading, isAuthorized, data: experimentData} = useExperimentAuth(experimentId, user);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        if (isAuthorized && experimentData) {
+            if (experimentData.typeExperiment === "between-subject" && experimentData.betweenExperimentType === "manual") {
+                setActualStep(0);
+            }
+        }
+    }, [isAuthorized, experimentData]);
 
     const STEPS = [
         {label: 'edit_users', icon: (<Person/>)},
@@ -55,8 +48,18 @@ const EditUser = () => {
         if (actualStep === 1)
             return <EditGroupArea ExperimentId={{experimentId}}/>
 
-        return <p>Algo deu errado...</p>
+        return <EditUserArea ExperimentId={{experimentId}}/>
     }
+
+    if (isLoading) {
+        return (
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80vh', gap: 2 }}>
+                <CircularProgress />
+                <Typography>{t('loading') || 'Verificando permissões...'}</Typography>
+            </Box>
+        );
+    }
+    if (!isAuthorized) return null;
 
     return (
         <div className={styles.fullPage}>

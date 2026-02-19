@@ -3,7 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import {Routes, Route} from 'react-router-dom';
+import {Routes, Route, Navigate, Outlet} from 'react-router-dom';
 import {PrivateRoutes} from './PrivateRoutes';
 import {
     Login,
@@ -26,6 +26,15 @@ import {
 import ExperimentMonitoring from './pages/ExperimentMonitoring';
 import EditUser from "./pages/components/EditUser";
 
+const RoleGuard = ({ requireResearcher }) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (!user || (requireResearcher && !user.researcher)) {
+        return <Navigate to="/experiments" replace />;
+    }
+
+    return <Outlet />;
+};
 
 const Router = () => {
     return (
@@ -47,11 +56,13 @@ const Router = () => {
 
             <Route path='/experiments' element={<PrivateRoutes/>}>
                 <Route index element={<Experiments/>}/>
-                <Route path='new' element={<CreateExperiment/>}/>
-                <Route path=':experimentId/edit' element={<EditExperiment/>}/>
-                <Route path=':experimentId/users' element={<EditUser/>}/>
+                <Route element={<RoleGuard requireResearcher={true}/>}>
+                    <Route path='new' element={<CreateExperiment/>}/>
+                    <Route path=':experimentId/edit' element={<EditExperiment/>}/>
+                    <Route path=':experimentId/users' element={<EditUser/>}/>
+                    <Route path=":experimentId/monitoring" element={<ExperimentMonitoring/>}/>
+                </Route>
                 <Route path=':experimentId/icf' element={<ICF/>}/>
-                <Route path=":experimentId/monitoring" element={<ExperimentMonitoring/>}/>
                 <Route path=':experimentId/surveys' element={<Surveys/>}/>
                 <Route path=':experimentId/surveys/:surveyId' element={<Survey/>}/>
                 <Route path=':experimentId/tasks/' element={<Tasks/>}/>
