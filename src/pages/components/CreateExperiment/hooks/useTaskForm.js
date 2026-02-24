@@ -97,11 +97,11 @@ export const useTaskForm = (mode = "create", initialData = null) => {
             title: formState.taskTitle,
             summary: formState.taskSummary,
             description: formState.taskDescription,
-            RulesExperiment: formState.RulesExperiment,
-            SelectedSurvey: formState.SelectedSurvey?.uuid || null,
-            selectedQuestionIds: questionIds,
-            ScoreThreshold: formState.ScoreThreshold,
-            ScoreThresholdmx: formState.ScoreThresholdmx,
+            rule_type: formState.RulesExperiment,
+            survey_id: formState.SelectedSurvey?.uuid || null,
+            questionsId: questionIds,
+            min_score: Number(formState.ScoreThreshold) || 0,
+            max_score: Number(formState.ScoreThresholdmx) || 0,
             search_source: formState.origin,
             provider_config: providerConfig
         };

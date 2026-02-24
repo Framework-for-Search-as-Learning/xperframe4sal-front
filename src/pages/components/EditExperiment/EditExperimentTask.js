@@ -4,7 +4,7 @@
  */
 
 import React, {useState, useContext, useEffect} from "react";
-import {Box, CircularProgress, IconButton, Typography, TextField} from "@mui/material";
+import {Box, CircularProgress, Button, IconButton, Typography, TextField} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import StepContext from "./context/StepContext";
 import NotFound from "../../../components/NotFound";
@@ -125,7 +125,7 @@ const EditExperimentTask = () => {
         const newSurvey = event.target.value;
         if (isEdit) {
             editForm.setSelectedSurvey(newSurvey);
-            editForm.setQuestionsId([]);
+            editForm.setSelectedQuestionIds([]);
         } else {
             createForm.setSelectedSurvey(newSurvey);
             createForm.setSelectedQuestion(null);
@@ -135,9 +135,9 @@ const EditExperimentTask = () => {
     const handleQuestionChangeGeneric = (event, isEdit) => {
         const selectedIds = event.target.value;
         if (isEdit) {
-            editForm.setQuestionsId(selectedIds);
+            editForm.setSelectedQuestionIds(selectedIds);
         } else {
-            createForm.setQuestionsId(selectedIds);
+            createForm.setSelectedQuestionIds(selectedIds);
             const selectedQuestions = createForm.formState.SelectedSurvey.questions?.filter(
                 (q) => selectedIds.includes(q.statement)
             );
@@ -188,6 +188,23 @@ const EditExperimentTask = () => {
             editForm.setScoreThresholdmx(task.max_score || 0);
             setscoreType(task.min_score !== task.max_score ? "min_max" : "unic");
 
+            if (task.survey_id) {
+                const surveyObj = ExperimentSurveys?.find(s => s.uuid === task.survey_id) || null;
+                editForm.setSelectedSurvey(surveyObj);
+            } else {
+                editForm.setSelectedSurvey(null);
+            }
+
+            if (task.rule_type === "question") {
+                const questionsResponse = await api.get(`task-question-map/task/${taskId}`, {
+                    headers: { Authorization: `Bearer ${user.accessToken}` },
+                });
+                const questionIds = questionsResponse.data || [];
+                editForm.setSelectedQuestionIds(questionIds.map(id => ({ id })));
+            } else {
+                editForm.setSelectedQuestionIds([]);
+            }
+
             editForm.setOrigin(task.search_source || "");
             if (task.search_source === "llm") {
                 editForm.setLlmProvider(config.modelProvider || "");
@@ -213,46 +230,9 @@ const EditExperimentTask = () => {
 
         try {
             const updatedTask = editForm.buildTaskObject();
-
-            const taskDataToSend = {
-                title: updatedTask.title,
-                summary: updatedTask.summary,
-                description: updatedTask.description,
-                search_source: updatedTask.search_source,
-                provider_config: updatedTask.provider_config,
-                rule_type: updatedTask.RulesExperiment,
-                survey_id: updatedTask.SelectedSurvey,
-                min_score: Number(updatedTask.ScoreThreshold) || 0,
-                max_score: Number(updatedTask.ScoreThresholdmx) || 0,
-                questionsId: editForm.formState.RulesExperiment === "question"
-                    ? (editForm.formState.questionsId?.map(q => q.id) || [])
-                    : []
-            };
-
-            await api.patch(`task/${editTaskId}`, taskDataToSend, {
+            await api.patch(`task/${editTaskId}`, updatedTask, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
-
-            if (editForm.formState.RulesExperiment === "question") {
-                try {
-                    await api.delete(`task-question-map/task/${editTaskId}`, {
-                        headers: { Authorization: `Bearer ${user.accessToken}` },
-                    });
-                } catch (err) {
-                    console.log("Nenhum mapeamento prévio para deletar");
-                }
-
-                if (editForm.formState.questionsId?.length > 0) {
-                    const mappingPromises = editForm.formState.questionsId.map((question) =>
-                        api.post(
-                            `task-question-map`,
-                            { task: editTaskId, question: question.id },
-                            { headers: { Authorization: `Bearer ${user.accessToken}` } }
-                        )
-                    );
-                    await Promise.all(mappingPromises);
-                }
-            }
 
             await fetchTasks();
             toggleEditTask();
@@ -294,7 +274,7 @@ const EditExperimentTask = () => {
             survey: form.formState.SelectedSurvey,
             setSurvey: (e) => handleSurveyChangeGeneric(e, isEdit),
 
-            questions: form.formState.questionsId,
+            questions: form.formState.selectedQuestionIds,
             setQuestions: (e) => handleQuestionChangeGeneric(e, isEdit),
 
             threshold: form.formState.ScoreThreshold,
@@ -332,14 +312,13 @@ const EditExperimentTask = () => {
     const filteredTasks = filterTasks(tasks, searchTerm);
 
     return (
-        <Box>
+        <Box sx={{ width: "100%", marginTop: "10px", px: { xs: 2, sm: 4, md: 6 }, py: 4, boxSizing: "border-box" }}>
             <Box
                 sx={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginTop: 10,
                     display: "flex",
                     flexDirection: "column",
+                    alignItems: "center",
+                    width: "100%",
                 }}
             >
                 <Box
@@ -347,13 +326,11 @@ const EditExperimentTask = () => {
                         padding: 3,
                         display: "flex",
                         flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
                         backgroundColor: "#f9f9f9",
                         borderRadius: "8px",
                         boxShadow: 4,
-                        width: {xs: "95%", sm: "60%"},
-                        marginX: "auto",
+                        width: "100%",
+                        maxWidth: "800px",
                     }}
                 >
                     <TextField
@@ -422,21 +399,14 @@ const EditExperimentTask = () => {
                         <NotFound title={t("NTaskFound")} subTitle={t("NoTaskcreated")}/>
                     )}
 
-                    <Box sx={{marginTop: 2, width: "100%", textAlign: "center"}}>
-                        <button
+                    <Box sx={{ marginTop: 2, width: "100%", display: "flex", justifyContent: "center" }}>
+                        <Button
+                            variant="contained"
                             onClick={toggleCreateTask}
-                            style={{
-                                padding: "10px 20px",
-                                backgroundColor: "#1976d2",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "4px",
-                                cursor: "pointer",
-                                fontSize: "16px",
-                            }}
+                            sx={{ px: 4, py: 1.2, fontSize: "1rem", borderRadius: "6px" }}
                         >
                             {t("create_task") || "Criar Tarefa"}
-                        </button>
+                        </Button>
                     </Box>
                 </Box>
             </Box>

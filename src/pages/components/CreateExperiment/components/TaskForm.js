@@ -21,7 +21,6 @@ import {
     SCORE_TYPES,
 } from "../constants/experimentConstants";
 
-// Styled Components
 const CustomContainer = styled("div")(({ theme }) => ({
     backgroundColor: "#fafafa",
     borderRadius: "8px",
@@ -42,9 +41,6 @@ const CustomContainer = styled("div")(({ theme }) => ({
     },
 }));
 
-/**
- * Task Form Component - Used for both Create and Edit
- */
 const TaskForm = ({
                       config,
                       onSubmit,
@@ -57,24 +53,20 @@ const TaskForm = ({
                       setScoreType,
                       t,
                   }) => {
-    // Get available models based on selected provider
     const availableModels = useMemo(() => {
         if (!config.llmProvider) return [];
         return LLM_MODELS_BY_PROVIDER[config.llmProvider] || [];
     }, [config.llmProvider]);
 
-    // Reset model when provider changes
     useEffect(() => {
         if (config.llmProvider && config.llm) {
-            // Check if current model is valid for selected provider
             const isValidModel = availableModels.some(model => model.value === config.llm);
             if (!isValidModel) {
-                config.setLlm(""); // Reset if model not available for this provider
+                config.setLlm("");
             }
         }
-    }, [config.llmProvider]); // Only run when provider changes
+    }, [config.llmProvider]);
 
-    // Determine which API key field to show based on provider and model
     const getApiKeyFieldInfo = () => {
         if (config.origin !== "llm" || !config.llmProvider) return null;
 
@@ -96,14 +88,12 @@ const TaskForm = ({
 
     const apiKeyInfo = getApiKeyFieldInfo();
 
-    // Render Rules Section (for between-subject + rules_based)
     const renderRulesSection = () => {
         if (experimentType !== "between-subject" || btypeExperiment !== "rules_based")
             return null;
 
         return (
             <Grid container spacing={2} alignItems="center">
-                {/* Rule Type Selector */}
                 <Grid item xs={12} sm={4}>
                     <FormControl fullWidth margin="normal" sx={{ minWidth: 120 }}>
                         <InputLabel>{t("Separation_rule")}</InputLabel>
@@ -122,7 +112,6 @@ const TaskForm = ({
                     </FormControl>
                 </Grid>
 
-                {/* Survey Selector */}
                 <Grid item xs={12} sm={4}>
                     <FormControl fullWidth margin="normal" sx={{ minWidth: 120 }}>
                         <InputLabel>{t("select_survey")}</InputLabel>
@@ -145,14 +134,13 @@ const TaskForm = ({
                     </FormControl>
                 </Grid>
 
-                {/* Questions Selector (Only if Rule is 'question') */}
                 {config.rulesExp === "question" && (
                     <Grid item xs={12} sm={4}>
                         <FormControl fullWidth margin="normal" sx={{ minWidth: 120 }}>
                             <InputLabel>{t("select_question")}</InputLabel>
                             <Select
                                 fullWidth
-                                value={config.questions}
+                                value={config.questions ?? []}
                                 onChange={config.setQuestions}
                                 label={t("select_question")}
                                 multiple
@@ -185,7 +173,6 @@ const TaskForm = ({
                     </Grid>
                 )}
 
-                {/* Score Type Logic (Unic vs Min/Max) */}
                 <Grid item xs={12} sm={4}>
                     <FormControl fullWidth margin="normal" sx={{ minWidth: 120 }}>
                         <InputLabel>{t("select_survey_th")}</InputLabel>
@@ -272,9 +259,7 @@ const TaskForm = ({
                 required
             />
 
-            {/* SOURCE & PROVIDER SECTION */}
             <Grid container spacing={2} alignItems="flex-start">
-                {/* Linha 1: Source + Provider/Search Engine */}
                 <Grid item xs={12} sm={6}>
                     <FormControl fullWidth margin="normal" sx={{ minWidth: 120 }}>
                         <InputLabel id="origin-label">{t("select_source")}</InputLabel>
@@ -284,7 +269,6 @@ const TaskForm = ({
                             value={config.origin}
                             onChange={(e) => {
                                 config.setOrigin(e.target.value);
-                                // Reset provider and model when changing source
                                 config.setLlmProvider("");
                                 config.setLlm("");
                             }}
@@ -297,7 +281,6 @@ const TaskForm = ({
                     </FormControl>
                 </Grid>
 
-                {/* Condicional: LLM Provider OU Search Engine */}
                 {config.origin === "llm" ? (
                     <Grid item xs={12} sm={6}>
                         <FormControl fullWidth margin="normal" sx={{ minWidth: 120 }}>
@@ -310,7 +293,6 @@ const TaskForm = ({
                                 value={config.llmProvider || ""}
                                 onChange={(e) => {
                                     config.setLlmProvider(e.target.value);
-                                    // Reset model when provider changes
                                     config.setLlm("");
                                 }}
                                 label={t("select_llm_provider")}
@@ -348,7 +330,6 @@ const TaskForm = ({
                     </Grid>
                 ) : null}
 
-                {/* Linha 2: LLM Model (DINÂMICO baseado no provider) */}
                 {config.origin === "llm" && config.llmProvider && (
                     <Grid item xs={12} sm={6}>
                         <FormControl fullWidth margin="normal" sx={{ minWidth: 120 }}>
@@ -377,7 +358,6 @@ const TaskForm = ({
                     </Grid>
                 )}
 
-                {/* API KEY - Dinâmica baseada no provider */}
                 {config.origin === "llm" && config.llmProvider && apiKeyInfo && (
                     <Grid item xs={12} sm={6}>
                         <TextField
@@ -385,7 +365,7 @@ const TaskForm = ({
                             variant="outlined"
                             fullWidth
                             margin="normal"
-                            value={config.geminiKey} // Você pode criar campos específicos ou usar genérico
+                            value={config.geminiKey}
                             onChange={(e) => config.setGeminiKey(e.target.value)}
                             placeholder={apiKeyInfo.placeholder}
                             required
@@ -393,7 +373,6 @@ const TaskForm = ({
                     </Grid>
                 )}
 
-                {/* Google Search API Keys */}
                 {config.origin === "search-engine" && config.searchEngine === "google" && (
                     <>
                         <Grid item xs={12} sm={6}>
@@ -424,7 +403,6 @@ const TaskForm = ({
                 )}
             </Grid>
 
-            {/* Dynamic Rules Section based on Experiment Type */}
             {renderRulesSection()}
 
             <TextField
