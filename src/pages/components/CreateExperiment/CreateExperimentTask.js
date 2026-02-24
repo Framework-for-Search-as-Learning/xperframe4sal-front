@@ -126,41 +126,40 @@ const CreateExperimentTask = () => {
         editForm.setTaskTitle(task.title);
         editForm.setTaskSummary(task.summary);
         editForm.setTaskDescription(task.description);
-        editForm.setRulesExperiment(task.RulesExperiment);
-        editForm.setScoreThresholdmx(task.ScoreThresholdmx);
-        editForm.setScoreThreshold(task.ScoreThreshold);
+
+        const ruleType = task.rule_type || task.RulesExperiment || "score";
+        editForm.setRulesExperiment(ruleType);
+
+        const minScore = task.min_score ?? task.ScoreThreshold ?? 0;
+        const maxScore = task.max_score ?? task.ScoreThresholdmx ?? 0;
+        editForm.setScoreThreshold(minScore);
+        editForm.setScoreThresholdmx(maxScore);
+        setscoreType(minScore !== maxScore ? "min_max" : "unic");
 
         editForm.setGeminiApiKey(config.apiKey || "");
         editForm.setGoogleApikey(config.apiKey || "");
         editForm.setGoogleCx(config.cx || "");
 
-        const selectedSurveyObj = ExperimentSurveys.find(
-            (survey) => survey.uuid === task.SelectedSurvey
-        );
+        const surveyRef = task.survey_id || task.SelectedSurvey;
+        const selectedSurveyObj = surveyRef
+            ? ExperimentSurveys?.find(s => (s.uuid || s.id) === surveyRef) || null
+            : null;
         editForm.setSelectedSurvey(selectedSurveyObj);
 
-        const selectedQuestionIdsObj =
-            selectedSurveyObj?.questions?.filter(
-                (quest) =>
-                    Array.isArray(task?.selectedQuestionIds) &&
-                    task.selectedQuestionIds.includes(quest.id)
-            ) || [];
+        const rawQuestions = task.questionsId || task.selectedQuestionIds || [];
+        const selectedQuestionIdsObj = rawQuestions
+            .map(q => typeof q === "string" ? { id: q } : q)
+            .filter(q => selectedSurveyObj?.questions?.some(sq => sq.id === q.id));
         editForm.setSelectedQuestionIds(selectedQuestionIdsObj);
 
         editForm.setOrigin(task.search_source || "");
 
         if (task.search_source === "llm") {
             editForm.setLlmProvider(config.modelProvider || "");
-            editForm.setLlm(config.model || "gemini");
+            editForm.setLlm(config.model || "");
         } else if (task.search_source === "search-engine") {
             editForm.setSearchEngine(config.searchProvider || "google");
         }
-
-        const currentScoreType =
-            task.ScoreThreshold !== "" && task.ScoreThresholdmx !== "0"
-                ? "min_max"
-                : "unic";
-        setscoreType(currentScoreType);
 
         toggleEditTask();
     };

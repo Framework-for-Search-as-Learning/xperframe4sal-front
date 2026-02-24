@@ -93,17 +93,24 @@ export const useTaskForm = (mode = "create", initialData = null) => {
                 ? null
                 : formState.selectedQuestionIds?.map((q) => q.id) || [];
 
+        const surveyId = formState.SelectedSurvey?._id || formState.SelectedSurvey?.uuid || formState.SelectedSurvey?.id || null;
+
         return {
             title: formState.taskTitle,
             summary: formState.taskSummary,
             description: formState.taskDescription,
             rule_type: formState.RulesExperiment,
-            survey_id: formState.SelectedSurvey?.uuid || null,
+            survey_id: surveyId,
             questionsId: questionIds,
             min_score: Number(formState.ScoreThreshold) || 0,
             max_score: Number(formState.ScoreThresholdmx) || 0,
             search_source: formState.origin,
-            provider_config: providerConfig
+            provider_config: providerConfig,
+            RulesExperiment: formState.RulesExperiment,
+            SelectedSurvey: surveyId,
+            selectedQuestionIds: questionIds,
+            ScoreThreshold: formState.ScoreThreshold,
+            ScoreThresholdmx: formState.ScoreThresholdmx,
         };
     };
 

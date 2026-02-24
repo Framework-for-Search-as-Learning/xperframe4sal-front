@@ -140,15 +140,21 @@ const TaskForm = ({
                             <InputLabel>{t("select_question")}</InputLabel>
                             <Select
                                 fullWidth
-                                value={config.questions ?? []}
-                                onChange={config.setQuestions}
+                                value={(config.questions ?? []).map((q) => q.id)}
+                                onChange={(e) => {
+                                    const selectedIds = e.target.value;
+                                    const selectedObjs = config.survey?.questions
+                                        ?.filter((q) => selectedIds.includes(q.id))
+                                        .map((q) => ({ id: q.id })) || [];
+                                    config.setQuestions({ target: { value: selectedObjs } });
+                                }}
                                 label={t("select_question")}
                                 multiple
-                                renderValue={(selected) =>
+                                renderValue={(selectedIds) =>
                                     config.survey?.questions
-                                        .filter((q) => selected.includes(q))
+                                        ?.filter((q) => selectedIds.includes(q.id))
                                         .map((q) => q.statement || "Sem enunciado")
-                                        .join(", ")
+                                        .join(", ") || ""
                                 }
                             >
                                 {config.survey?.questions && config.survey.questions.length > 0 ? (
@@ -160,8 +166,8 @@ const TaskForm = ({
                                                 q.hasscore
                                         )
                                         .map((question) => (
-                                            <MenuItem key={question.id} value={question}>
-                                                <Checkbox checked={config.questions.includes(question)} />
+                                            <MenuItem key={question.id} value={question.id}>
+                                                <Checkbox checked={(config.questions ?? []).some((q) => q.id === question.id)} />
                                                 {question.statement || "Sem enunciado"}
                                             </MenuItem>
                                         ))

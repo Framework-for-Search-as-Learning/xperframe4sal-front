@@ -4,7 +4,7 @@
  */
 
 import React, {useState, useContext, useEffect} from "react";
-import {Box, CircularProgress, Button, IconButton, Typography, TextField} from "@mui/material";
+import {Box, Button, CircularProgress, IconButton, Typography, TextField} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import StepContext from "./context/StepContext";
 import NotFound from "../../../components/NotFound";
@@ -150,7 +150,9 @@ const EditExperimentTask = () => {
         setIsLoadingTask(true);
 
         try {
-            const newTask = createForm.buildTaskObject();
+            const rawTask = createForm.buildTaskObject();
+
+            const { RulesExperiment, SelectedSurvey, selectedQuestionIds, ScoreThreshold, ScoreThresholdmx, ...newTask } = rawTask;
             newTask.experiment_id = ExperimentId;
 
             await api.post(`task`, newTask, {
@@ -188,22 +190,31 @@ const EditExperimentTask = () => {
             editForm.setScoreThresholdmx(task.max_score || 0);
             setscoreType(task.min_score !== task.max_score ? "min_max" : "unic");
 
-            if (task.survey_id) {
-                const surveyObj = ExperimentSurveys?.find(s => s.uuid === task.survey_id) || null;
-                editForm.setSelectedSurvey(surveyObj);
-            } else {
-                editForm.setSelectedSurvey(null);
-            }
-
+            let loadedQuestionIds = [];
             if (task.rule_type === "question") {
                 const questionsResponse = await api.get(`task-question-map/task/${taskId}`, {
                     headers: { Authorization: `Bearer ${user.accessToken}` },
                 });
-                const questionIds = questionsResponse.data || [];
-                editForm.setSelectedQuestionIds(questionIds.map(id => ({ id })));
+                loadedQuestionIds = questionsResponse.data || [];
+                editForm.setSelectedQuestionIds(loadedQuestionIds.map(id => ({ id })));
             } else {
                 editForm.setSelectedQuestionIds([]);
             }
+
+            const surveyRef = task.survey_id || task.survey?._id || task.survey?.id || task.survey?.uuid;
+
+            let surveyObj = null;
+            if (surveyRef) {
+                surveyObj = ExperimentSurveys?.find(
+                    s => s._id === surveyRef || s.uuid === surveyRef || s.id === surveyRef
+                ) || null;
+            }
+            if (!surveyObj && loadedQuestionIds.length > 0) {
+                surveyObj = ExperimentSurveys?.find(s =>
+                    s.questions?.some(q => loadedQuestionIds.includes(q._id || q.id || q.uuid))
+                ) || null;
+            }
+            editForm.setSelectedSurvey(surveyObj);
 
             editForm.setOrigin(task.search_source || "");
             if (task.search_source === "llm") {
@@ -230,7 +241,10 @@ const EditExperimentTask = () => {
 
         try {
             const updatedTask = editForm.buildTaskObject();
-            await api.patch(`task/${editTaskId}`, updatedTask, {
+
+            const { RulesExperiment, SelectedSurvey, selectedQuestionIds, ScoreThreshold, ScoreThresholdmx, ...taskToSend } = updatedTask;
+
+            await api.patch(`task/${editTaskId}`, taskToSend, {
                 headers: { Authorization: `Bearer ${user.accessToken}` },
             });
 
@@ -312,7 +326,7 @@ const EditExperimentTask = () => {
     const filteredTasks = filterTasks(tasks, searchTerm);
 
     return (
-        <Box sx={{ width: "100%", marginTop: "10px", px: { xs: 2, sm: 4, md: 6 }, py: 4, boxSizing: "border-box" }}>
+        <Box sx={{ width: "100%", minHeight: "100vh", px: { xs: 2, sm: 4, md: 6 }, py: 4, boxSizing: "border-box" }}>
             <Box
                 sx={{
                     display: "flex",
