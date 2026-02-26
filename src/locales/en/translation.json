@@ -414,5 +414,6 @@
   "no_participants": "No participants",
   "needs_at_least_1_task": "Add at least 1 task to proceed.",
   "needs_at_least_2_tasks": "Between-subject experiments require at least 2 tasks.",
-  "error_creating_experiment": "Error connecting to server. Please try sending again."
+  "error_creating_experiment": "Error connecting to server. Please try sending again.",
+  "conversation_history": "Conversation History"
 }

@@ -746,6 +746,26 @@ const ByParticipantTab = ({
     const userDetails = getUserDetails();
     const selectedParticipant = participants?.find((p) => p.id === selectedUser);
 
+    const handleExportParticipant = () => {
+        if (!userDetails || !selectedParticipant) return;
+
+        const exportData = {
+            participant: selectedParticipant,
+            tasksDetails: userDetails
+        };
+
+        const jsonData = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([jsonData], {type: "application/json"});
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `participant_${selectedParticipant.id}_data_${new Date().toISOString().split("T")[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    };
+
     return (
         <Box>
             <Box sx={{mb: 3}}>
@@ -772,9 +792,25 @@ const ByParticipantTab = ({
             ) : userDetails ? (
                 <Box>
                     <Card sx={{mb: 3, bgcolor: 'primary.main', color: 'primary.contrastText'}}>
-                        <CardContent>
-                            <Typography variant="h6">{selectedParticipant?.name}</Typography>
-                            <Typography variant="body2">{selectedParticipant?.email}</Typography>
+                        <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box>
+                                <Typography variant="h6">{selectedParticipant?.name}</Typography>
+                                <Typography variant="body2">{selectedParticipant?.email}</Typography>
+                            </Box>
+                            <Button
+                                variant="contained"
+                                startIcon={<DownloadIcon />}
+                                onClick={handleExportParticipant}
+                                sx={{
+                                    bgcolor: 'white',
+                                    color: 'primary.main',
+                                    '&:hover': { bgcolor: 'grey.100' },
+                                    fontWeight: 'bold',
+                                    textTransform: 'none'
+                                }}
+                            >
+                                {t("export_data") || "Exportar Dados"}
+                            </Button>
                         </CardContent>
                     </Card>
 
@@ -854,6 +890,26 @@ const ByParticipantTab = ({
                                                                     </Typography>
                                                                     <Typography
                                                                         variant="h6">{detail.searchDetails?.queriesCount || 0}</Typography>
+                                                                </Paper>
+                                                            </Grid>
+                                                        </>
+                                                    )}
+                                                    {detail.taskType === "llm" && (
+                                                        <>
+                                                            <Grid item xs={6} sm={4}>
+                                                                <Paper variant="outlined" sx={{p: 2, textAlign: 'center'}}>
+                                                                    <Typography variant="caption" color="textSecondary" sx={{fontWeight: 'bold', display: 'block', textTransform: 'uppercase'}}>
+                                                                        {t("total_messages") || "Total de Mensagens"}
+                                                                    </Typography>
+                                                                    <Typography variant="h6">{detail.llmDetails?.totalMessages || 0}</Typography>
+                                                                </Paper>
+                                                            </Grid>
+                                                            <Grid item xs={6} sm={4}>
+                                                                <Paper variant="outlined" sx={{p: 2, textAlign: 'center'}}>
+                                                                    <Typography variant="caption" color="textSecondary" sx={{fontWeight: 'bold', display: 'block', textTransform: 'uppercase'}}>
+                                                                        {t("prompts_count") || "Prompts Enviados"}
+                                                                    </Typography>
+                                                                    <Typography variant="h6">{detail.llmDetails?.promptsCount || 0}</Typography>
                                                                 </Paper>
                                                             </Grid>
                                                         </>
@@ -1026,23 +1082,52 @@ const ByParticipantTab = ({
                                                     </Box>
                                                 )}
 
-                                                {detail.taskType === "llm" && (
-                                                    <Box sx={{
-                                                        p: 2,
-                                                        bgcolor: 'background.paper',
-                                                        borderRadius: 1,
-                                                        border: '1px solid #ddd'
-                                                    }}>
-                                                        <Typography variant="subtitle2" gutterBottom color="primary"
-                                                                    sx={{fontWeight: 'bold'}}>{t("conversation_metrics") || "MÉTRICAS DA CONVERSA"}</Typography>
-                                                        <Typography
-                                                            variant="body2">{t("total_messages")}: {detail.llmDetails?.totalMessages || 0}</Typography>
-                                                        <Typography
-                                                            variant="body2">{t("prompts_count")}: {detail.llmDetails?.promptsCount || 0}</Typography>
+                                                {detail.taskType === "llm" && detail.llmDetails?.messages && detail.llmDetails.messages.length > 0 && (
+                                                    <Box sx={{ mb: 4 }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
+                                                            <ChatIcon color="secondary" />
+                                                            <Typography variant="subtitle2" sx={{ fontWeight: 'bold', letterSpacing: 1 }}>
+                                                                {t("conversation_history") || "HISTÓRICO DA CONVERSA"}
+                                                            </Typography>
+                                                        </Box>
+
+                                                        <Paper variant="outlined" sx={{ p: 3, maxHeight: 500, overflow: 'auto', bgcolor: '#eef2f6', borderRadius: 2 }}>
+                                                            {detail.llmDetails.messages.map((msg, mIdx) => {
+                                                                const isUser = msg.role === 'user';
+                                                                return (
+                                                                    <Box key={mIdx} sx={{
+                                                                        display: 'flex',
+                                                                        flexDirection: 'column',
+                                                                        alignItems: isUser ? 'flex-end' : 'flex-start',
+                                                                        mb: 2.5
+                                                                    }}>
+                                                                        <Typography variant="caption" color="textSecondary" sx={{ mb: 0.5, px: 1 }}>
+                                                                            {isUser ? (t("user") || "Usuário") : (t("assistant") || "Assistente")} • {new Date(msg.createdAt).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                                                        </Typography>
+                                                                        <Paper elevation={1} sx={{
+                                                                            p: 1.5,
+                                                                            px: 2,
+                                                                            maxWidth: '85%',
+                                                                            bgcolor: isUser ? '#e3f2fd' : '#ffffff',
+                                                                            color: isUser ? '#0d47a1' : '#212121',
+                                                                            borderRadius: 3,
+                                                                            borderTopRightRadius: isUser ? 0 : 12,
+                                                                            borderTopLeftRadius: !isUser ? 0 : 12,
+                                                                            border: '1px solid',
+                                                                            borderColor: isUser ? '#bbdefb' : '#e0e0e0',
+                                                                        }}>
+                                                                            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                                                                                {msg.content}
+                                                                            </Typography>
+                                                                        </Paper>
+                                                                    </Box>
+                                                                );
+                                                            })}
+                                                        </Paper>
                                                     </Box>
                                                 )}
 
-                                                <Divider sx={{mt: 4, mb: 2}}/>
+                                                <Divider sx={{ mt: 4, mb: 2 }} />
                                             </Box>
                                         );
                                     })}
@@ -1052,9 +1137,10 @@ const ByParticipantTab = ({
                     })}
                 </Box>
             ) : (
-                <Paper sx={{p: 3, textAlign: 'center'}}>
-                    <Typography
-                        color="textSecondary">{t("select_participant_prompt") || "Selecione um participante para ver os detalhes"}</Typography>
+                <Paper sx={{ p: 3, textAlign: 'center' }}>
+                    <Typography color="textSecondary">
+                        {t("select_participant_prompt") || "Selecione um participante para ver os detalhes"}
+                    </Typography>
                 </Paper>
             )}
         </Box>
