@@ -1,4 +1,9 @@
 body,
+/* body {
+  background-image: url('./assets/background.png');
+  background-size: cover;
+} */
+
 html {
   margin: 0;
   padding: 0;

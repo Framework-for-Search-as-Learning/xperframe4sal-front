@@ -690,7 +690,7 @@ const CreateSurvey = ({isCreateQuestOpen, toggleCreateQuest, t, setExperimentSur
 
                             <Button type="submit" variant="contained" color="primary"
                                     disabled={!isValidFormSurvey || isLoadingSurvey}>
-                                {isLoadingSurvey ? <CircularProgress size={24}/> : t('createSurvey')}
+                                {isLoadingSurvey ? <CircularProgress size={24}/> : t('create_survey')}
                             </Button>
                         </Box>
                     </form>

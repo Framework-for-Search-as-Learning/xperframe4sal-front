@@ -419,7 +419,7 @@ const EditExperimentTask = () => {
                             onClick={toggleCreateTask}
                             sx={{ px: 4, py: 1.2, fontSize: "1rem", borderRadius: "6px" }}
                         >
-                            {t("create_task") || "Criar Tarefa"}
+                            {t("create_task")}
                         </Button>
                     </Box>
                 </Box>

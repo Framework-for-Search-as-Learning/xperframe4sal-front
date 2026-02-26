@@ -4,3 +4,4 @@ dist
 .env
 build
 pnpm-workspace.yaml
+.DS_Store
