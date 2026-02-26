@@ -200,7 +200,7 @@ const Task = () => {
             setShowSnackBar(true);
             setIsSuccess(true);
             setSeverity("success");
-            setMessage(t("taks_busc_sucess"));
+            setMessage(t("task_search_success"));
         } catch (error) {
             throw new Error(error.message);
         }
