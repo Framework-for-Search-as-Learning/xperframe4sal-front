@@ -12,8 +12,7 @@ import { MessageInput } from './MessageInput';
 import { marked } from "marked";
 import { useTranslation } from 'react-i18next';
 
-// Configurações da API
-const API_URL = 'http://localhost:3000/searching-as-learning'
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/searching-as-learning';
 
 const useStyles = makeStyles((theme) => ({
     chatContainer: {
@@ -35,20 +34,17 @@ const useStyles = makeStyles((theme) => ({
 
 const BOT_NAME = "XF4 Bot";
 
-// Adicionei taskId como prop, pois precisamos saber qual experimento iniciar
 const Chatbot = ({ taskId, user }) => {
     const { t } = useTranslation();
     const style = useStyles();
 
-    // Estado para guardar o ID da sessão atual criado pelo backend
     const [sessionId, setSessionId] = useState(null);
     const [isTyping, setIsTyping] = useState(false);
 
 
-    const sessionInitialized = useRef(false); // Trava para não duplicar sessão
-    const abortControllerRef = useRef(null);  // Para cancelar requisição se necessário
+    const sessionInitialized = useRef(false);
+    const abortControllerRef = useRef(null);
 
-    // Mensagem inicial estática (apenas visual)
     const [messages, setMessages] = useState([
         {
             id: 1,
@@ -60,7 +56,6 @@ const Chatbot = ({ taskId, user }) => {
         }
     ]);
 
-    // 1. Ao montar o componente, cria a sessão no Backend
     useEffect(() => {
 
         if (sessionInitialized.current || !taskId || !user || !user.accessToken) return;

@@ -22,7 +22,6 @@ import DownloadIcon from "@mui/icons-material/Download";
 
 import ParticipantsOverview from "../components/Monitoring/ParticipantsOverview";
 import QuestionnaireAnalysis from "../components/Monitoring/Questionnaireanalysis";
-import InteractionLogs from "../components/Monitoring/Interactionlogs";
 import InteractionMetrics from "../components/Monitoring/Interactionmetrics";
 import {useExperimentAuth} from "../hooks/useExperimentAuth";
 
@@ -301,15 +300,6 @@ const ExperimentMonitoring = () => {
                     />
                 )}
 
-                {/*{activeTab === 3 && (*/}
-                {/*    <InteractionLogs*/}
-                {/*        tasksExecution={tasksExecutionData}*/}
-                {/*        participants={participantsData}*/}
-                {/*        experimentId={experimentId}*/}
-                {/*        accessToken={user.accessToken}*/}
-                {/*        t={t}*/}
-                {/*    />*/}
-                {/*)}*/}
             </Box>
         </Box>
     );

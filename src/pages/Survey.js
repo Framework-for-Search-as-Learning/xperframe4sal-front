@@ -33,8 +33,7 @@ async function updateUserExperimentStatus(
             let answeredSurveys = await Promise.all(userSurveysApiCalls);
             answeredSurveys = answeredSurveys.reduce(
                 (accumulator, answeredSurvey) => {
-                    //Removi a verificação do length pois o data é objeto, não array
-                    if (answeredSurvey.data /*&& answeredSurvey.data.length > 0*/) {
+                    if (answeredSurvey.data ) {
                         
                         return accumulator.concat(answeredSurvey.data);
                     }

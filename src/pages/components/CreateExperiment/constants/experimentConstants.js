@@ -34,7 +34,6 @@ export const INITIAL_FORM_STATE = {
   scoreType: "",
 };
 
-//TODO: Alterar para buscar estes dados por api
 export const LLM_PROVIDERS = [
     { value: "google", label: "Google" },
 ];

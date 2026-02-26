@@ -8,7 +8,6 @@ import {useNavigate} from "react-router-dom";
 import {api} from "../../config/axios";
 import {Button, Typography, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from "@mui/material";
 import {useTranslation} from "react-i18next";
-import EditUser from "./EditUser";
 import {ExperimentAccordion} from "../../components/Researcher/ExperimentAccordion";
 import styles from "../../style/researcher.module.css";
 import {LoadingState} from "../../components/Researcher/LoadingState";
@@ -392,7 +391,6 @@ const Researcher = () => {
     };
 
     const handleEditUser = (experimentId) => {
-        console.log("experimentId: ", experimentId)
         navigate(`/experiments/${experimentId}/users`);
     };
 

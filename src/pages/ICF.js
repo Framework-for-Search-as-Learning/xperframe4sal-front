@@ -114,9 +114,6 @@ const ICF = () => {
             );
             navigate(`/experiments/${experimentId}/surveys`);
         } catch (error) {
-            /**
-             * TODO
-             */
             console.log(error);
         }
     };
@@ -144,18 +141,6 @@ const ICF = () => {
                         paragraph
                         dangerouslySetInnerHTML={{ __html: icf.description }}
                     />
-
-                    {/* 
-                    <Typography variant="h6" gutterBottom>
-                        {t("researchers_title")}
-                    </Typography>
-
-                    {icf.researchers.map((r, index) => (
-                        <Typography variant="body1" gutterBottom key={index}>
-                            {r}
-                        </Typography>
-                    ))} 
-                    */}
 
                     <Typography
                         variant="body1"
@@ -191,7 +176,7 @@ const ICF = () => {
                         variant="contained"
                         color="primary"
                         onClick={handleChange}
-                        disabled={!accepted} // Disable button until terms are accepted
+                        disabled={!accepted}
                     >
                         {t("accept_button")}
                     </Button>

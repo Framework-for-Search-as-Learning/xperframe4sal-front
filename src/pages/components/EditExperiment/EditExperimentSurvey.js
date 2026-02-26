@@ -232,7 +232,6 @@ const EditExperimentSurvey = () => {
         event.preventDefault();
 
         try {
-            // Create a clean copy of the survey with only the necessary properties
             const cleanSurveyData = {
                 name: editedSurvey.name,
                 title: editedSurvey.title,
@@ -251,7 +250,6 @@ const EditExperimentSurvey = () => {
                                 score: option.score || 0
                             };
 
-                            // Only include subquestion if it exists and is not null/undefined
                             if (option.subquestion && typeof option.subquestion === 'object') {
                                 cleanOption.subquestion = {
                                     statement: option.subquestion.statement || '',
@@ -320,7 +318,6 @@ const EditExperimentSurvey = () => {
         setIndexId(index);
         let surveyToEdit = ExperimentSurveys[index];
         if (surveyToEdit) {
-            // Create a deep copy and ensure all questions and options have IDs
             const surveyWithIds = {
                 ...surveyToEdit,
                 questions: surveyToEdit.questions.map(question => ({
@@ -332,7 +329,6 @@ const EditExperimentSurvey = () => {
                             id: option.id || generateRandomId(),
                         };
 
-                        // Handle subquestion properly
                         if (option.subquestion && typeof option.subquestion === 'object' && option.subquestion !== null) {
                             optionWithId.subquestion = {
                                 ...option.subquestion,

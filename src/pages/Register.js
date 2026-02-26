@@ -87,7 +87,6 @@ const Register = () => {
     try {
       let response = await api.post("/user", userData);
       if (response.data) {
-        // Auto-login after successful registration
         try {
           let loginResponse = await api.post("/login", { username: email, password: password });
           if (loginResponse.data) {
@@ -100,11 +99,9 @@ const Register = () => {
             setMessageType('success');
             navigate("/experiments");
           } else {
-            // If login response is empty for some reason, redirect to login
             navigate("/login");
           }
         } catch (loginError) {
-          // If auto-login fails, redirect to login page
           setAlertMessage(t("success_message"));
           setMessageType('success');
           navigate("/login");
