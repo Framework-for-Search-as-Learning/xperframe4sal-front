@@ -80,10 +80,6 @@ async function updateUserExperimentStatus(
 }
 
 async function separateUsersInGroup(api, user, userScore, experiment) {
-    /**
-     * TODO: think where to put this logic of select the tasks for the use
-     *
-     **/
     if (userScore) {
         let taskId;
         if (userScore < 2) {

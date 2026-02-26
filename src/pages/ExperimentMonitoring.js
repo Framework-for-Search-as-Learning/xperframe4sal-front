@@ -266,7 +266,6 @@ const ExperimentMonitoring = () => {
                     <Tab label={t("participants") || "Participantes"} />
                     <Tab label={t("questionnaires") || "Questionários"} />
                     <Tab label={t("interaction_metrics") || "Métricas de Interação"} />
-                    {/*<Tab label={t("interaction_logs") || "Logs de Interação"}/>*/}
                 </Tabs>
             </Paper>
 

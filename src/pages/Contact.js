@@ -60,38 +60,6 @@ const Contact = () => {
           </Box>
         </AccordionDetails>
       </Accordion>
-      {/* <Accordion
-        sx={{ marginBottom: '5px' }}
-        elevation={3}
-        expanded={expanded === `panel-1`}
-        onChange={handleChange(`panel-1`)}
-      >
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls={`panel-1bh-content`}
-          id={`panel-1bh-header`}
-          sx={{
-            '&:hover': {
-              backgroundColor: 'lightgray',
-            },
-          }}
-        >
-          <Typography component="div">
-            {t('ethicsCommittee')}
-          </Typography>
-        </AccordionSummary>
-        <Divider />
-        <AccordionDetails>
-          <Box sx={{ display: 'flex' }}>
-            <MailIcon />
-            <Typography noWrap sx={{ marginLeft: 1 }}>{t('cepEmail')}</Typography>
-          </Box>
-          <Box sx={{ display: 'flex' }}>
-            <LocalPhoneIcon />
-            <Typography noWrap sx={{ marginLeft: 1 }}>{t('cepPhone')}</Typography>
-          </Box>
-        </AccordionDetails>
-      </Accordion> */}
     </>
   );
 };

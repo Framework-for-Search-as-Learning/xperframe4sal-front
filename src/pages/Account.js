@@ -90,19 +90,6 @@ const Account = () => {
         setIsLoading={setIsLoading}
         setAlertMessage={setAlertMessage}
       />
-      {/*
-      <EditPassword
-        t={t}
-        user={user}
-        isLoading={isLoading}
-        alertMessage={alertMessage}
-        messageType={messageType}
-        setUser={setUser}
-        setMessageType={setMessageType}
-        setIsLoading={setIsLoading}
-        setAlertMessage={setAlertMessage}
-      />
-      */}
     </>
   );
 };

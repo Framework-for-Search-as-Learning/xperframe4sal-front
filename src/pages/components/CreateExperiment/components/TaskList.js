@@ -28,15 +28,6 @@ const TaskList = ({
 }) => {
   return (
     <FormControl fullWidth>
-      {/* <TextField
-        fullWidth
-        placeholder={t("search_task")}
-        variant="outlined"
-        value={searchTerm}
-        onChange={onSearchChange}
-        sx={{ marginBottom: 2 }}
-      /> */}
-
       <Box sx={{ maxHeight: 400, overflowY: "auto", marginTop: 2 }}>
         {tasks.map((task, index) => (
           <Box

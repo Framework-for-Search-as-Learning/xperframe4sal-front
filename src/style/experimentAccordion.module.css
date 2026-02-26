@@ -35,7 +35,6 @@
     color: white !important;
 }
 
-/* Responsividade */
 .mobileText { display: none; }
 .desktopText { display: block; }
 
