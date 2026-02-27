@@ -451,18 +451,18 @@ const Researcher = () => {
 
                 <div className={styles.buttonContainer}>
                     <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={handleImportExperiment}
-                    >
-                        {t("import")}
-                    </Button>
-                    <Button
                         variant="contained"
                         color="primary"
                         onClick={handleCreateExperiment}
                     >
                         {t("create_experiment_button")}
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={handleImportExperiment}
+                    >
+                        {t("import")}
                     </Button>
                     <input
                         type="file"
