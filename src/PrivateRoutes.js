@@ -28,7 +28,7 @@ import {
   IconButton,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import InfoIcon from '@mui/icons-material/Info';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import MailIcon from '@mui/icons-material/Mail';
 
 const drawerWidth = "240";
@@ -94,50 +94,47 @@ export function PrivateRoutes(props) {
   };
 
   const drawer = (
-    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-      <Toolbar color="primary">
-        <Typography variant="h6">
+    <Box onClick={handleDrawerToggle}>
+      <Toolbar
+          sx={{
+              backgroundColor: 'brand.main',
+              color: 'white',
+              display: 'flex',
+              justifyContent: 'center'
+          }}
+      >
+        <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
           {t('system_name')}
         </Typography>
       </Toolbar>
 
       <Divider />
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleGoHome}>
-            <HomeIcon />
-            <ListItemText primary="Home" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleGoInstruction}>
-            <InfoIcon />
-            <ListItemText primary={t('menu_instructions')} />
-          </ListItemButton>
-        </ListItem>
+        <List sx={{ px: 1 }}>
 
+            <ListItem disablePadding>
+                <ListItemButton onClick={handleGoHome} sx={{ borderRadius: 2, mb: 0.5 }}>
+                    <HomeIcon sx={{ mr: 2, color: 'brand.main' }} />
+                    <ListItemText primary="Home" />
+                </ListItemButton>
+            </ListItem>
 
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleGoCreateExperiment}>
-            <MailIcon />
-            <ListItemText primary={t('menu_experiments')} />
-          </ListItemButton>
-        </ListItem>
+            <ListItem disablePadding>
+                <ListItemButton onClick={handleGoInstruction} sx={{ borderRadius: 2, mb: 0.5 }}>
+                    <AutoStoriesIcon sx={{ mr: 2, color: 'brand.main' }} />
+                    <ListItemText primary={t('menu_instructions')} />
+                </ListItemButton>
+            </ListItem>
 
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleGoExperimentList}>
-            <MailIcon />
-            <ListItemText primary={t('menu_experimentlist')} />
-          </ListItemButton>
-        </ListItem>
+            <Divider sx={{ my: 1 }} />
 
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleGoContact}>
-            <HomeIcon />
-            <ListItemText primary={t('menu_contact')} />
-          </ListItemButton>
-        </ListItem>
-      </List>
+            <ListItem disablePadding>
+                <ListItemButton onClick={handleGoContact} sx={{ borderRadius: 2 }}>
+                    <MailIcon sx={{ mr: 2, color: 'brand.main' }} />
+                    <ListItemText primary={t('menu_contact')} />
+                </ListItemButton>
+            </ListItem>
+
+        </List>
     </Box>
   );
 
@@ -147,7 +144,7 @@ export function PrivateRoutes(props) {
   return isAuthenticated ? (
     <Box sx={{ display: "block" }}>
       <CssBaseline />
-      <AppBar color="primary" component="nav">
+      <AppBar sx={{backgroundColor: 'brand.main'}} component="nav">
         <Toolbar sx={{justifyContent: 'space-between'}}>
           <Box sx={{ display: { sm: 'none', xs: 'flex', md: 'none' } }}>
             <IconButton
