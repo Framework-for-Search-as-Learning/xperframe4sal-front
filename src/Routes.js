@@ -6,7 +6,6 @@
 import {Routes, Route, Navigate, Outlet} from 'react-router-dom';
 import {PrivateRoutes} from './PrivateRoutes';
 import {
-    Login,
     ICF,
     Tasks,
     Task,
@@ -23,7 +22,9 @@ import {
     Instructions,
     EditExperiment,
 } from './pages';
-import ExperimentMonitoring from './pages/ExperimentMonitoring';
+
+import { Login } from './pages/Auth/Login';
+import ExperimentMonitoring from './pages/Experiment/ExperimentMonitoring';
 import EditUser from "./pages/components/EditUser";
 
 const RoleGuard = ({ requireResearcher }) => {

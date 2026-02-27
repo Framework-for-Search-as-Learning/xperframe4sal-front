@@ -4,7 +4,7 @@
  */
 
 import { useNavigate } from 'react-router-dom'
-import { api } from "../config/axios.js"
+import { api } from "../../config/axios.js"
 import { useState, useEffect } from 'react'
 import {
   Container,
@@ -19,8 +19,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 
-import { ErrorMessage } from '../components/ErrorMessage';
-import { LoadingIndicator } from '../components/LoadIndicator';
+import { ErrorMessage } from '../../components/ErrorMessage.js';
 
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
@@ -224,4 +223,4 @@ const Login = () => {
   )
 };
 
-export { Login }
+export { Login };
