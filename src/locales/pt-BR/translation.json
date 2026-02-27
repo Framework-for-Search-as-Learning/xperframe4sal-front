@@ -276,7 +276,7 @@
   "surveyDescription": "Descrição do Questionário",
   "surveyTitle": "Título do Questionário",
   "surveyType": "Tipo do Questionário",
-  "system_name": "BUSCANDO E APRENDENDO",
+  "system_name": "SEARCHAT BEHAVIOR",
   "task": "Tarefa",
   "task_Desc": "Descrição da Tarefa",
   "task_Desc1": "Descrição da Tarefa*",
@@ -416,5 +416,6 @@
   "error_creating_experiment": "Erro ao conectar com o servidor. Tente enviar novamente.",
   "conversation_history": "Histórico da Conversa",
   "avg_time_seconds": "Tempo Médio (s)",
-  "task_search_success": "Busca bem-sucedida"
+  "task_search_success": "Busca bem-sucedida",
+  "select_task": "Selecionar Tarefa"
 }
