@@ -6,12 +6,21 @@
 import {useCallback, useEffect, useState, useRef} from "react";
 import {useNavigate} from "react-router-dom";
 import {api} from "../../config/axios";
-import {Button, Typography, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from "@mui/material";
+import {
+    Button,
+    Typography,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+    Tabs,
+    Tab
+} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {ExperimentAccordion} from "../../components/Researcher/ExperimentAccordion";
 import styles from "../../style/researcher.module.css";
 import {LoadingState} from "../../components/Researcher/LoadingState";
-import {TabView, TabPanel} from "primereact/tabview";
 
 const experimentStatus = Object.freeze({
     NOT_STARTED: "NOT_STARTED",
@@ -440,14 +449,16 @@ const Researcher = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-            <div className={styles.headerRow}>
-                <TabView
-                    activeIndex={activeTab}
-                    onTabChange={(e) => setActiveTab(e.index)}
+            <div className={styles.headerRow} style={{marginBottom:"10px"}}>
+                <Tabs
+                    value={activeTab}
+                    onChange={(e, newValue) => setActiveTab(newValue)}
+                    textColor="primary"
+                    indicatorColor="primary"
                 >
-                    <TabPanel header={t("researcher_experiments_title")}/>
-                    <TabPanel header={t("available_experiments_title")}/>
-                </TabView>
+                    <Tab label={t("researcher_experiments_title")}/>
+                    <Tab label={t("available_experiments_title")}/>
+                </Tabs>
 
                 <div className={styles.buttonContainer}>
                     <Button

@@ -275,7 +275,7 @@
   "surveyDescription": "Questionnaire Description",
   "surveyTitle": "Questionnaire Title",
   "surveyType": "Questionnaire Type",
-  "system_name": "SEARCHING AND LEARNING",
+  "system_name": "SEARCHAT BEHAVIOR",
   "task": "Task",
   "task_Desc": "Task Description",
   "task_Desc1": "Task Description*",
@@ -371,7 +371,7 @@
   "yes": "Yes",
   "youtube_video_title": "YouTube video player",
   "queries_and_results": "Queries and Results",
-  "individual": "individual",
+  "individual": "Individual",
   "experiments_empty_description": "It looks like you haven't started yet. You can set up a new research protocol or import existing data to analyze interaction metrics.",
   "experiments_empty_call_to_action": "Get started by creating or importing an experiment using the buttons above.",
   "total_participants": "Total Participants",
@@ -417,5 +417,6 @@
   "error_creating_experiment": "Error connecting to server. Please try sending again.",
   "conversation_history": "Conversation History",
   "avg_time_seconds": "Average Time (s)",
-  "task_search_success": "Search successful"
+  "task_search_success": "Search successful",
+  "select_task": "Select Task"
 }

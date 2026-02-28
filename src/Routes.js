@@ -17,60 +17,62 @@ import {
     ForgotPassword,
     NotFoundPage,
     Account,
-    CreateExperiment,
     ResetPassword,
     Instructions,
-    EditExperiment,
 } from './pages';
 
 import { Login } from './pages/Auth/Login';
-import ExperimentMonitoring from './pages/Experiment/ExperimentMonitoring';
+import { CreateExperiment, EditExperiment, ExperimentMonitoring } from './pages/Experiment';
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "./style/util/theme";
 import EditUser from "./pages/components/EditUser";
 
-const RoleGuard = ({ requireResearcher }) => {
+const RoleGuard = ({requireResearcher}) => {
     const user = JSON.parse(localStorage.getItem('user'));
 
     if (!user || (requireResearcher && !user.researcher)) {
-        return <Navigate to="/experiments" replace />;
+        return <Navigate to="/experiments" replace/>;
     }
 
-    return <Outlet />;
+    return <Outlet/>;
 };
 
 const Router = () => {
     return (
-        <Routes>
-            <Route path='/' element={<Login/>}/>
-            <Route path='/login' element={<Login/>}/>
-            <Route path='/register' element={<Register/>}/>
-            <Route path='/reset-password' element={<ResetPassword/>}/>
-            <Route path='/forgot-password' element={<ForgotPassword/>}/>
-            <Route path='/account' element={<PrivateRoutes/>}>
-                <Route index element={<Account/>}/>
-            </Route>
-            <Route path='/contact' element={<PrivateRoutes/>}>
-                <Route index element={<Contact/>}/>
-            </Route>
-            <Route path='/instructions' element={<PrivateRoutes/>}>
-                <Route index element={<Instructions/>}/>
-            </Route>
-
-            <Route path='/experiments' element={<PrivateRoutes/>}>
-                <Route index element={<Experiments/>}/>
-                <Route element={<RoleGuard requireResearcher={true}/>}>
-                    <Route path='new' element={<CreateExperiment/>}/>
-                    <Route path=':experimentId/edit' element={<EditExperiment/>}/>
-                    <Route path=':experimentId/users' element={<EditUser/>}/>
-                    <Route path=":experimentId/monitoring" element={<ExperimentMonitoring/>}/>
+        <ThemeProvider theme={theme}>
+            <Routes>
+                <Route path='/' element={<Login/>}/>
+                <Route path='/login' element={<Login/>}/>
+                <Route path='/register' element={<Register/>}/>
+                <Route path='/reset-password' element={<ResetPassword/>}/>
+                <Route path='/forgot-password' element={<ForgotPassword/>}/>
+                <Route path='/account' element={<PrivateRoutes/>}>
+                    <Route index element={<Account/>}/>
                 </Route>
-                <Route path=':experimentId/icf' element={<ICF/>}/>
-                <Route path=':experimentId/surveys' element={<Surveys/>}/>
-                <Route path=':experimentId/surveys/:surveyId' element={<Survey/>}/>
-                <Route path=':experimentId/tasks/' element={<Tasks/>}/>
-                <Route path=':experimentId/tasks/:taskId' element={<Task/>}/>
-            </Route>
-            <Route path="*" element={<NotFoundPage/>}/>
-        </Routes>
+                <Route path='/contact' element={<PrivateRoutes/>}>
+                    <Route index element={<Contact/>}/>
+                </Route>
+                <Route path='/instructions' element={<PrivateRoutes/>}>
+                    <Route index element={<Instructions/>}/>
+                </Route>
+
+                <Route path='/experiments' element={<PrivateRoutes/>}>
+                    <Route index element={<Experiments/>}/>
+                    <Route element={<RoleGuard requireResearcher={true}/>}>
+                        <Route path='new' element={<CreateExperiment/>}/>
+                        <Route path=':experimentId/edit' element={<EditExperiment/>}/>
+                        <Route path=':experimentId/users' element={<EditUser/>}/>
+                        <Route path=":experimentId/monitoring" element={<ExperimentMonitoring/>}/>
+                    </Route>
+                    <Route path=':experimentId/icf' element={<ICF/>}/>
+                    <Route path=':experimentId/surveys' element={<Surveys/>}/>
+                    <Route path=':experimentId/surveys/:surveyId' element={<Survey/>}/>
+                    <Route path=':experimentId/tasks/' element={<Tasks/>}/>
+                    <Route path=':experimentId/tasks/:taskId' element={<Task/>}/>
+                </Route>
+                <Route path="*" element={<NotFoundPage/>}/>
+            </Routes>
+        </ThemeProvider>
     )
 }
 
