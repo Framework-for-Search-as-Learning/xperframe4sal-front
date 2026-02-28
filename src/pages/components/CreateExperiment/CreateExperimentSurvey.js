@@ -297,7 +297,7 @@ const CreateExperimentSurvey = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexDirection: 'column',
-                    marginTop: 10,
+                    marginTop: 5,
                 }}
             >
                 <Box

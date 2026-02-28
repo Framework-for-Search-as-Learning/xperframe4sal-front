@@ -45,8 +45,14 @@ const ExperimentMetadataForm = () => {
     const { t } = useTranslation();
     const [isValidTitleExp, setIsValidTitleExp] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
+    const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
 
-    const isValidFormExperiment = ExperimentTitle.trim().length > 0;
+    const [isDescEmpty, setIsDescEmpty] = useState(
+        () => stripHtml(ExperimentDesc).length === 0
+    );
+
+    const isValidFormExperiment = ExperimentTitle.trim().length > 0 && !isDescEmpty;
+
     const handleNameChangeTitle = (e) => {
         const value = e.target.value;
         setExperimentTitle(value);
@@ -117,7 +123,10 @@ const ExperimentMetadataForm = () => {
                             <ReactQuill
                                 theme="snow"
                                 value={ExperimentDesc}
-                                onChange={setExperimentDesc}
+                                onChange={(value) => {
+                                    setExperimentDesc(value);
+                                    setIsDescEmpty(stripHtml(value).length === 0);
+                                }}
                                 placeholder={t('Experiment_Desc1')}
                             />
                         </CustomContainer>

@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import ReactQuill from 'react-quill';
 import StepContext from './context/StepContextCreate';
 import 'react-quill/dist/quill.snow.css';
+import {ArrowBack, ArrowForward} from "@mui/icons-material";
 
 const CustomContainer = styled('div')(({ theme }) => ({
     backgroundColor: '#fafafa',
@@ -48,9 +49,13 @@ const CreateExperimentICF = () => {
     const { t } = useTranslation();
     const [isValidTitleExp, setIsValidTitleExp] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
+    const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
 
+    const [isDescEmpty, setIsDescEmpty] = useState(
+        () => stripHtml(ExperimentDescICF).length === 0
+    );
 
-    const isValidFormExperiment = isValidTitleExp && ExperimentTitleICF;
+    const isValidFormExperiment = isValidTitleExp && ExperimentTitleICF && !isDescEmpty;
     const handleNameChangeTitle = (e) => {
         const value = e.target.value;
         setExperimentTitleICF(value);
@@ -78,7 +83,7 @@ const CreateExperimentICF = () => {
         >
             <Box
                 sx={{
-                    width: '60%',
+                    width: { xs: '100%', sm: '60%' },
                     padding: 2,
                     display: 'flex',
                     flexDirection: 'column',
@@ -122,7 +127,10 @@ const CreateExperimentICF = () => {
                             <ReactQuill
                                 theme="snow"
                                 value={ExperimentDescICF}
-                                onChange={setExperimentDescICF}
+                                onChange={(value) => {
+                                    setExperimentDescICF(value);
+                                    setIsDescEmpty(stripHtml(value).length === 0);
+                                }}
                                 placeholder={t('ICF_desc')}
                             />
                         </CustomContainer>
@@ -130,7 +138,7 @@ const CreateExperimentICF = () => {
 
                     <Box
                         sx={{
-                            display: 'flex',
+                            display: { xs: 'none', sm: 'flex' },
                             justifyContent: 'space-between',
                             marginTop: 2,
                             width: '100%',
@@ -153,6 +161,33 @@ const CreateExperimentICF = () => {
                             disabled={!isValidFormExperiment || isLoading}
                         >
                             {t('next')}
+                        </Button>
+                    </Box>
+                    <Box
+                        sx={{
+                            display: { xs: 'flex', sm: 'none' },
+                            justifyContent: 'space-between',
+                            marginTop: 2,
+                            width: '100%',
+                        }}
+                    >
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleBackResearcher}
+                            sx={{ maxWidth: '150px' }}
+                        >
+                            <ArrowBack />
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleNextExperiment}
+                            sx={{ maxWidth: '150px' }}
+                            disabled={!isValidFormExperiment || isLoading}
+                        >
+                            <ArrowForward />
                         </Button>
                     </Box>
                 </Box>
