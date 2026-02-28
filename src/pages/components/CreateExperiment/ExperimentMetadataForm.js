@@ -3,23 +3,14 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useState, useContext } from 'react';
-import {
-    Box,
-    TextField,
-    Button,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    styled,
-} from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import React, {useContext, useState} from 'react';
+import {Box, Button, styled, TextField,} from '@mui/material';
+import {useTranslation} from 'react-i18next';
 import ReactQuill from 'react-quill';
 import StepContext from './context/StepContextCreate';
 import 'react-quill/dist/quill.snow.css';
-import { useNavigate } from 'react-router-dom';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import {useNavigate} from 'react-router-dom';
+import {ArrowBack, ArrowForward} from '@mui/icons-material';
 
 const CustomContainer = styled('div')(({ theme }) => ({
     backgroundColor: '#fafafa',
@@ -41,16 +32,12 @@ const CustomContainer = styled('div')(({ theme }) => ({
     },
 }));
 
-const CreateExperimentForm = () => {
+const ExperimentMetadataForm = () => {
     const {
         step,
         setStep,
         ExperimentTitle,
         setExperimentTitle,
-        ExperimentType,
-        setExperimentType,
-        BtypeExperiment,
-        setBtypeExperiment,
         ExperimentDesc,
         setExperimentDesc,
     } = useContext(StepContext);
@@ -59,18 +46,7 @@ const CreateExperimentForm = () => {
     const [isValidTitleExp, setIsValidTitleExp] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
 
-    const ExperimentTypes = [
-        { value: 'between-subject', label: t('between-subject') },
-        { value: 'within-subject', label: t('within-subject') },
-    ];
-
-    const betweenExperimentTypes = [
-        { value: 'random', label: t('random') },
-        { value: 'rules_based', label: t('rules_based') },
-        { value: 'manual', label: t('manual') },
-    ];
-
-    const isValidFormExperiment = isValidTitleExp && ExperimentTitle;
+    const isValidFormExperiment = ExperimentTitle.trim().length > 0;
     const handleNameChangeTitle = (e) => {
         const value = e.target.value;
         setExperimentTitle(value);
@@ -84,7 +60,6 @@ const CreateExperimentForm = () => {
     const handleBackResearcher = () => {
         navigate('/experiments');
     };
-
 
     return (
         <Box
@@ -136,43 +111,6 @@ const CreateExperimentForm = () => {
                         onChange={handleNameChangeTitle}
                         required
                     />
-
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel>{t('Experiment_Type')}</InputLabel>
-                        <Select
-                            value={ExperimentType}
-                            onChange={(e) => setExperimentType(e.target.value)}
-                            label={t('Experiment_Type')}
-                        >
-                            {ExperimentTypes.map((stype) => (
-                                <MenuItem key={stype.value} value={stype.value}>
-                                    {stype.label}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-
-                    {ExperimentType === 'between-subject' && (
-                        <>
-                            <FormControl fullWidth margin="normal">
-                                <InputLabel>{t('Group_Separation_Method')}</InputLabel>
-                                <Select
-                                    value={BtypeExperiment}
-                                    onChange={(e) => setBtypeExperiment(e.target.value)}
-                                    label={t('Group_Separation_Method')}
-                                >
-                                    {betweenExperimentTypes.map((stype) => (
-                                        <MenuItem key={stype.value} value={stype.value}>
-                                            {stype.label}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                            {BtypeExperiment === "manual" && (
-                                <small style={{ color: 'red' }}>{t('manual_group_warning')}</small>
-                            )}
-                        </>
-                    )}
 
                     <div style={{ width: '100%', marginTop: '16.5px', marginBottom: '16px' }}>
                         <CustomContainer >
@@ -245,4 +183,4 @@ const CreateExperimentForm = () => {
     );
 };
 
-export default CreateExperimentForm;
+export default ExperimentMetadataForm;

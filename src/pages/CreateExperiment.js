@@ -3,19 +3,20 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useState, useEffect, useRef } from "react";
-import { api } from "../config/axios";
-import { Typography, Stepper, Step, StepLabel } from "@mui/material";
-import { useTranslation } from "react-i18next";
-import { Toast } from "primereact/toast";
-import { ProgressBar } from "primereact/progressbar";
+import React, {useState, useRef} from "react";
+import {api} from "../config/axios";
+import {Typography, Stepper, Step, StepLabel} from "@mui/material";
+import {useTranslation} from "react-i18next";
+import {Toast} from "primereact/toast";
+import {ProgressBar} from "primereact/progressbar";
 
-import CreateExperimentForm from "./components/CreateExperiment/CreateExperimentForm";
+import ExperimentMetadataForm from "./components/CreateExperiment/ExperimentMetadataForm";
 import CreateExperimentTask from "./components/CreateExperiment/CreateExperimentTask";
 import CreateExperimentSurvey from "./components/CreateExperiment/CreateExperimentSurvey";
 import StepContext from "./components/CreateExperiment/context/StepContextCreate";
 import ConfirmCreateExperiment from "./components/CreateExperiment/ConfirmCreateExperiment";
 import CreateExperimentICF from "./components/CreateExperiment/CreateExperimentICF";
+import StudyDesignForm from "./components/CreateExperiment/StudyDesignForm";
 
 const CreateExperiment = () => {
     const {t} = useTranslation();
@@ -30,15 +31,26 @@ const CreateExperiment = () => {
     const [ExperimentSurveys, setExperimentSurveys] = useState([]);
 
     const [step, setStep] = useState(0);
+    const [maxStep, setMaxStep] = useState(0);
     const toast = useRef(null);
 
     const STEPS = [
-        {index: 0, title: t("step_1")},
+        {index: 0, title: t("step_metadata")},
         {index: 1, title: t("ICF")},
-        {index: 2, title: t("step_3")},
-        {index: 3, title: t("step_2")},
-        {index: 4, title: t("step_5")},
+        {index: 2, title: t("step_questionnaires")},
+        {index: 3, title: t("step_design")},
+        {index: 4, title: t("step_tasks")},
+        {index: 5, title: t("step_review")},
     ]
+
+    const handleSetStep = (newStep) => {
+        setStep(newStep);
+        if (newStep > maxStep) setMaxStep(newStep);
+    };
+
+    const handleStepClick = (stepIndex) => {
+        if (stepIndex <= maxStep) setStep(stepIndex);
+    }
 
     const handleCreateExperiment = async () => {
         try {
@@ -141,26 +153,42 @@ const CreateExperiment = () => {
 
             <Stepper sx={{display: {xs: 'none', sm: 'flex'}}} activeStep={step} alternativeLabel>
                 {STEPS.map((step) => (
-                    <Step key={step.index}>
-                        <StepLabel>{step.title}</StepLabel>
+                    <Step key={step.index} completed={step.index < maxStep}>
+                        <StepLabel
+                            onClick={() => handleStepClick(step.index)}
+                            sx={{
+                                cursor: step.index <= maxStep ? 'pointer' : 'default',
+                                opacity: step.index <= maxStep ? 1 : 0.5,
+                            }}
+                        >
+                            {step.title}
+                        </StepLabel>
                     </Step>
                 ))}
             </Stepper>
-            <Stepper sx={{display: {xs: 'flex', sm: 'none'}}} activeStep={step == 0 ? 0 : 1} alternativeLabel nonLinear>
+            <Stepper sx={{display: {xs: 'flex', sm: 'none'}}} activeStep={step} alternativeLabel nonLinear>
                 {STEPS.map((s) => {
                     if (s.index >= (step - 1) && s.index <= (step + 1)) {
                         return (
-                            <Step key={s.index}>
-                                <StepLabel StepIconComponent={CustomStepIcon}>{s.title}</StepLabel>
+                            <Step key={s.index} completed={s.index < maxStep}>
+                                <StepLabel
+                                    StepIconComponent={CustomStepIcon}
+                                    onClick={() => handleStepClick(s.index)}
+                                    sx={{
+                                        cursor: s.index <= maxStep ? 'pointer' : 'default',
+                                    }}
+                                >
+                                    {s.title}
+                                </StepLabel>
                             </Step>
-                        )
+                        );
                     }
                 })}
             </Stepper>
             <StepContext.Provider
                 value={{
                     step,
-                    setStep,
+                    setStep: handleSetStep,
                     handleCreateExperiment,
                     ExperimentTitle,
                     setExperimentTitle,
@@ -180,11 +208,12 @@ const CreateExperiment = () => {
                     setExperimentDescICF,
                 }}
             >
-                {step === 0 && <CreateExperimentForm/>}
+                {step === 0 && <ExperimentMetadataForm/>}
                 {step === 1 && <CreateExperimentICF/>}
                 {step === 2 && <CreateExperimentSurvey/>}
-                {step === 3 && <CreateExperimentTask/>}
-                {step === 4 && <ConfirmCreateExperiment/>}
+                {step === 3 && <StudyDesignForm/>}
+                {step === 4 && <CreateExperimentTask/>}
+                {step === 5 && <ConfirmCreateExperiment/>}
             </StepContext.Provider>
         </>
     );
