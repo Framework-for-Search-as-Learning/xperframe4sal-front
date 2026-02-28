@@ -4,8 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import Researcher from './components/Researcher';
-import NotResearcher from './components/NotResearcher';
+import Researcher from '../components/Researcher';
+import NotResearcher from '../components/NotResearcher';
 
 
 const Experiments = () => {
@@ -26,4 +26,4 @@ const Experiments = () => {
   return <div>{user ? renderContent() : <p></p>}</div>;
 };
 
-export { Experiments };
+export default Experiments;

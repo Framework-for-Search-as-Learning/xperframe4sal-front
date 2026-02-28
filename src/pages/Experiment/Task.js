@@ -5,19 +5,19 @@
 
 import {useState, useEffect, useRef} from "react";
 import {useParams, useNavigate, useLocation} from "react-router-dom";
-import {api} from "../config/axios.js";
-import {ResultModal} from "../components/ResultModal.js";
+import {api} from "../../config/axios.js";
+import {ResultModal} from "../../components/ResultModal.js";
 import {Tooltip, IconButton, Box} from "@mui/material";
 import Pause from "@mui/icons-material/Pause";
 import Stop from "@mui/icons-material/Stop";
 import PlayArrow from "@mui/icons-material/PlayArrow";
-import {ErrorMessage} from "../components/ErrorMessage";
-import {ConfirmDialog} from "../components/ConfirmDialog.js";
-import {CustomSnackbar} from "../components/CustomSnackbar";
+import {ErrorMessage} from "../../components/ErrorMessage.js";
+import {ConfirmDialog} from "../../components/ConfirmDialog.js";
+import {CustomSnackbar} from "../../components/CustomSnackbar.js";
 import {useTranslation} from "react-i18next";
-import {Google} from "../components/SearchEngines/Google.js";
-import {Chatbot} from "../components/Chatbot/Chatbot.js";
-import useCookies from "../lib/useCookies.js";
+import {Google} from "../../components/SearchEngines/Google.js";
+import {Chatbot} from "../../components/Chatbot/Chatbot.js";
+import useCookies from "../../lib/useCookies.js";
 
 async function updateUserExperimentStatus(userExperiment, user, api) {
     try {
@@ -390,4 +390,4 @@ const Task = () => {
     );
 };
 
-export {Task};
+export default Task;

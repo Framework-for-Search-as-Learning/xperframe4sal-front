@@ -5,12 +5,12 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { api } from "../config/axios";
+import { api } from "../../config/axios";
 import { Button, Typography } from "@mui/material";
-import { Survey as SurveyComponent } from "../components/Survey/Survey";
-import { CustomSnackbar } from "../components/CustomSnackbar";
-import { ErrorMessage } from "../components/ErrorMessage";
-import { LoadingIndicator } from "../components/LoadIndicator";
+import { Questionnaire as SurveyComponent } from "../../components/Questionnaire/Questionnaire";
+import { CustomSnackbar } from "../../components/CustomSnackbar";
+import { ErrorMessage } from "../../components/ErrorMessage";
+import { LoadingIndicator } from "../../components/LoadIndicator";
 import { useTranslation } from "react-i18next";
 
 function wasAllRequiredQuestionsAnswered(formData, survey) {
@@ -130,7 +130,7 @@ async function separateUsersInGroup(api, user, userScore, experiment) {
     }
 }
 
-const Survey = () => {
+const Questionnaire = () => {
     const { experimentId, surveyId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -490,4 +490,4 @@ const Survey = () => {
     );
 };
 
-export { Survey };
+export default Questionnaire;

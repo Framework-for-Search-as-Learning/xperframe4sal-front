@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { api } from "../config/axios";
+import { api } from "../../config/axios";
 import {
     Button,
     Typography,
@@ -20,10 +20,10 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import DownloadIcon from "@mui/icons-material/Download";
 
-import ParticipantsOverview from "../components/Monitoring/ParticipantsOverview";
-import QuestionnaireAnalysis from "../components/Monitoring/Questionnaireanalysis";
-import InteractionMetrics from "../components/Monitoring/Interactionmetrics";
-import {useExperimentAuth} from "../hooks/useExperimentAuth";
+import ParticipantsOverview from "../../components/Monitoring/ParticipantsOverview";
+import QuestionnaireAnalysis from "../../components/Monitoring/Questionnaireanalysis";
+import InteractionMetrics from "../../components/Monitoring/Interactionmetrics";
+import {useExperimentAuth} from "../../hooks/useExperimentAuth";
 
 const ExperimentMonitoring = () => {
     const { experimentId } = useParams();

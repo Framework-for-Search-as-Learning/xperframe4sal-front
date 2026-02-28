@@ -7,12 +7,12 @@ import {
     Button,
     Typography,
 } from '@mui/material';
-import { api } from "../config/axios";
-import { ExperimentStatus } from '../components/ExperimentStatus';
+import { api } from "../../config/axios";
+import { ExperimentStatus } from '../../components/ExperimentStatus';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { t } from 'i18next';
-import styles from '../style/experimentTemplate.module.css'
+import styles from '../../style/experimentTemplate.module.css'
 
 const mountSteps = (steps, stepsCompleted) => {
     steps = Object.entries(steps);

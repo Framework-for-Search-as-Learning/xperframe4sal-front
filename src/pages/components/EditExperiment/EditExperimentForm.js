@@ -305,7 +305,7 @@ const EditExperimentForm = () => {
             severity="info"
             sx={{ width: '100%' }}
           >
-            {t('readonly_field_message') || 'Este campo não pode ser alterado durante a edição do experimento'}
+            {t('readonly_field_message') }
           </Alert>
         </Snackbar>
       </Box>

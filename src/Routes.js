@@ -6,13 +6,7 @@
 import {Routes, Route, Navigate, Outlet} from 'react-router-dom';
 import {PrivateRoutes} from './PrivateRoutes';
 import {
-    ICF,
-    Tasks,
-    Task,
     Contact,
-    Surveys,
-    Survey,
-    Experiments,
     Register,
     ForgotPassword,
     NotFoundPage,
@@ -22,10 +16,19 @@ import {
 } from './pages';
 
 import { Login } from './pages/Auth/Login';
-import { CreateExperiment, EditExperiment, ExperimentMonitoring } from './pages/Experiment';
+import { 
+    CreateExperiment, 
+    EditExperiment, 
+    Experiments,
+    ExperimentMonitoring,
+    ICF,
+    Questionnaire,
+    Questionnaires,
+    Task,
+    Tasks,
+} from './pages/Experiment';
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
-import ExperimentMonitoring from './pages/ExperimentMonitoring';
 import EditUser from "./pages/components/EditUser";
 
 const RoleGuard = ({requireResearcher}) => {
@@ -66,8 +69,8 @@ const Router = () => {
                         <Route path=":experimentId/monitoring" element={<ExperimentMonitoring/>}/>
                     </Route>
                     <Route path=':experimentId/icf' element={<ICF/>}/>
-                    <Route path=':experimentId/surveys' element={<Surveys/>}/>
-                    <Route path=':experimentId/surveys/:surveyId' element={<Survey/>}/>
+                    <Route path=':experimentId/surveys' element={<Questionnaires/>}/>
+                    <Route path=':experimentId/surveys/:surveyId' element={<Questionnaire/>}/>
                     <Route path=':experimentId/tasks/' element={<Tasks/>}/>
                     <Route path=':experimentId/tasks/:taskId' element={<Task/>}/>
                 </Route>

@@ -4,18 +4,18 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { api } from "../config/axios";
+import { api } from "../../config/axios";
 import { Typography, Stepper, Step, StepLabel } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { Toast } from "primereact/toast";
 import { ProgressBar } from "primereact/progressbar";
 
-import CreateExperimentForm from "./components/CreateExperiment/CreateExperimentForm";
-import CreateExperimentTask from "./components/CreateExperiment/CreateExperimentTask";
-import CreateExperimentSurvey from "./components/CreateExperiment/CreateExperimentSurvey";
-import StepContext from "./components/CreateExperiment/context/StepContextCreate";
-import ConfirmCreateExperiment from "./components/CreateExperiment/ConfirmCreateExperiment";
-import CreateExperimentICF from "./components/CreateExperiment/CreateExperimentICF";
+import CreateExperimentForm from "../components/CreateExperiment/CreateExperimentForm";
+import CreateExperimentTask from "../components/CreateExperiment/CreateExperimentTask";
+import CreateExperimentSurvey from "../components/CreateExperiment/CreateExperimentSurvey";
+import StepContext from "../components/CreateExperiment/context/StepContextCreate";
+import ConfirmCreateExperiment from "../components/CreateExperiment/ConfirmCreateExperiment";
+import CreateExperimentICF from "../components/CreateExperiment/CreateExperimentICF";
 
 const CreateExperiment = () => {
     const {t} = useTranslation();
@@ -190,4 +190,4 @@ const CreateExperiment = () => {
     );
 };
 
-export {CreateExperiment};
+export default CreateExperiment;

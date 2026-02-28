@@ -22,7 +22,7 @@ import {
 
 import { FunctionsToOptions } from './FunctionsToOptions';
 
-const Survey = ({ survey, callback, params }) => {
+const Questionnaire = ({ survey, callback, params }) => {
   const [formData, setFormData] = useState({});
 
   const joinResponses = (question, questionIndex, option, event, responseToOneQuestion) => {
@@ -294,4 +294,4 @@ const Question = ({ question, questionIndex, callback, params }) => {
   )
 }
 
-export { Survey };
+export { Questionnaire };

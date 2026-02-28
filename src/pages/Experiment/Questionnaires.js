@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { api } from "../config/axios";
+import { api } from "../../config/axios";
 import {
     Accordion,
     AccordionDetails,
@@ -15,9 +15,9 @@ import {
     Divider,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { CustomSnackbar } from "../components/CustomSnackbar";
-import { ErrorMessage } from "../components/ErrorMessage";
-import { LoadingIndicator } from "../components/LoadIndicator";
+import { CustomSnackbar } from "../../components/CustomSnackbar";
+import { ErrorMessage } from "../../components/ErrorMessage";
+import { LoadingIndicator } from "../../components/LoadIndicator";
 
 import { useTranslation } from "react-i18next";
 import { ExperimentTemplate, mountSteps } from "./ExperimentTemplate";
@@ -28,7 +28,7 @@ const SurveyType = {
     OTHER: "other",
 };
 
-const Surveys = () => {
+const Questionnaires = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { experimentId } = useParams();
@@ -422,4 +422,4 @@ const Surveys = () => {
     );
 };
 
-export { Surveys };
+export default Questionnaires ;

@@ -4,7 +4,7 @@
  */
 
 import React, {useCallback, useState, useEffect} from 'react';
-import {api} from '../config/axios';
+import {api} from '../../config/axios';
 import 'react-quill/dist/quill.snow.css';
 import {
     Box,
@@ -12,6 +12,7 @@ import {
     List,
     ListItemButton,
     ListItemIcon,
+    Divider,
     ListItemText,
     Drawer, CircularProgress
 } from '@mui/material';
@@ -22,12 +23,12 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 
-import EditExperimentForm from './components/EditExperiment/EditExperimentForm';
-import EditExperimentTask from './components/EditExperiment/EditExperimentTask';
-import EditExperimentSurvey from './components/EditExperiment/EditExperimentSurvey';
-import EditExperimentICF from './components/EditExperiment/EditExperimentICF';
-import StepContext from './components/EditExperiment/context/StepContext';
-import {useExperimentAuth} from "../hooks/useExperimentAuth";
+import EditExperimentForm from '../components/EditExperiment/EditExperimentForm';
+import EditExperimentTask from '../components/EditExperiment/EditExperimentTask';
+import EditExperimentSurvey from '../components/EditExperiment/EditExperimentSurvey';
+import EditExperimentICF from '../components/EditExperiment/EditExperimentICF';
+import StepContext from '../components/EditExperiment/context/StepContext';
+import {useExperimentAuth} from "../../hooks/useExperimentAuth";
 
 const drawerWidth = 300;
 const appBarHeight = 64;
@@ -95,6 +96,7 @@ const EditExperiment = () => {
         <Box sx={{display: 'flex'}}>
             <Drawer
                 variant="permanent"
+                
                 sx={{
                     width: {sx: '100vw', sm: drawerWidth},
                     flexShrink: 0,
@@ -113,6 +115,8 @@ const EditExperiment = () => {
                     display: 'flex',
                     flexDirection: {xs: 'row', sm: 'column'},
                 }}>
+                    <Typography align="center" variant="h6" sx={{p: 1, color: '#333'}}>Edit Experiment</Typography>
+                    <Divider />
                     {steps.map((step, index) => (
                         <ListItemButton
                             key={step.label}
@@ -162,4 +166,4 @@ const EditExperiment = () => {
     );
 };
 
-export {EditExperiment};
+export default EditExperiment;

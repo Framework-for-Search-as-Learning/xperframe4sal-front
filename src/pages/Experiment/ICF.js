@@ -10,7 +10,7 @@ import {
     Navigate,
     useLocation,
 } from "react-router-dom";
-import { api } from "../config/axios";
+import { api } from "../../config/axios";
 import {
     Typography,
     Container,
@@ -188,4 +188,4 @@ const ICF = () => {
     );
 };
 
-export { ICF };
+export default ICF;

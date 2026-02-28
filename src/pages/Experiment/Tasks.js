@@ -5,7 +5,7 @@
 
 import {useEffect, useState} from "react";
 import {useParams, useNavigate} from "react-router-dom";
-import {api} from "../config/axios";
+import {api} from "../../config/axios";
 import {
     Accordion,
     AccordionDetails,
@@ -17,7 +17,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PlayArrow from "@mui/icons-material/PlayArrow";
 import {useTranslation} from "react-i18next";
-import {LoadingIndicator} from "../components/LoadIndicator";
+import {LoadingIndicator} from "../../components/LoadIndicator";
 
 import {ExperimentTemplate, mountSteps} from "./ExperimentTemplate";
 
@@ -147,4 +147,4 @@ const Tasks = () => {
     );
 };
 
-export {Tasks};
+export default Tasks;
