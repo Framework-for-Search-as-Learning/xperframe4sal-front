@@ -6,7 +6,7 @@ services:
     stdin_open: true
     tty: true
     ports:
-      - "3001:3000"  
+      - "3001:3001"
     volumes:
       - .:/app
       - /app/node_modules
@@ -14,3 +14,4 @@ services:
     environment:
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
+      - PORT=3001
