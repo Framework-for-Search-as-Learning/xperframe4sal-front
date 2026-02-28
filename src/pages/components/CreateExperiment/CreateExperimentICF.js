@@ -10,13 +10,14 @@ import {
     Button,
     styled,
 } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 import ReactQuill from 'react-quill';
 import StepContext from './context/StepContextCreate';
 import 'react-quill/dist/quill.snow.css';
 import {ArrowBack, ArrowForward} from "@mui/icons-material";
+import FormStepContainer from "../../../components/forms/FormStepContainer";
 
-const CustomContainer = styled('div')(({ theme }) => ({
+const CustomContainer = styled('div')(({theme}) => ({
     backgroundColor: '#fafafa',
     borderRadius: '8px',
     padding: '0px',
@@ -46,7 +47,7 @@ const CreateExperimentICF = () => {
         setExperimentDescICF,
     } = useContext(StepContext);
 
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     const [isValidTitleExp, setIsValidTitleExp] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
@@ -70,129 +71,89 @@ const CreateExperimentICF = () => {
         setStep(step - 1);
     };
 
-
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection: 'column',
-                marginTop: 5,
-            }}
-        >
+        <FormStepContainer>
+            <TextField
+                label={t('Experiment_title_ICF')}
+                error={!isValidTitleExp}
+                helperText={!isValidTitleExp ? t('invalid_name_message') : ''}
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={ExperimentTitleICF}
+                onChange={handleNameChangeTitle}
+                required
+            />
+
+            <div style={{width: '100%', marginTop: '16.5px', marginBottom: '16px'}}>
+                <CustomContainer>
+                    <ReactQuill
+                        theme="snow"
+                        value={ExperimentDescICF}
+                        onChange={(value) => {
+                            setExperimentDescICF(value);
+                            setIsDescEmpty(stripHtml(value).length === 0);
+                        }}
+                        placeholder={t('ICF_desc')}
+                    />
+                </CustomContainer>
+            </div>
+
             <Box
                 sx={{
-                    width: { xs: '100%', sm: '60%' },
-                    padding: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: '#f9f9f9',
-                    borderRadius: '8px',
-                    boxShadow: 4,
-                    mx: 'auto',
+                    display: {xs: 'none', sm: 'flex'},
+                    justifyContent: 'space-between',
+                    marginTop: 2,
+                    width: '100%',
                 }}
             >
-                <Box
-                    sx={{
-                        width: '100%',
-                        margin: 0,
-                        padding: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        '& > *': {
-                            marginBottom: 2,
-                            width: '100%',
-                        },
-                    }}
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleBackResearcher}
+                    sx={{maxWidth: '150px'}}
                 >
-                    <TextField
-                        label={t('Experiment_title_ICF')}
-                        error={!isValidTitleExp}
-                        helperText={!isValidTitleExp ? t('invalid_name_message') : ''}
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        value={ExperimentTitleICF}
-                        onChange={handleNameChangeTitle}
-                        required
-                    />
+                    {t('back')}
+                </Button>
 
-                    <div style={{ width: '100%', marginTop: '16.5px', marginBottom: '16px' }}>
-                        <CustomContainer >
-                            <ReactQuill
-                                theme="snow"
-                                value={ExperimentDescICF}
-                                onChange={(value) => {
-                                    setExperimentDescICF(value);
-                                    setIsDescEmpty(stripHtml(value).length === 0);
-                                }}
-                                placeholder={t('ICF_desc')}
-                            />
-                        </CustomContainer>
-                    </div>
-
-                    <Box
-                        sx={{
-                            display: { xs: 'none', sm: 'flex' },
-                            justifyContent: 'space-between',
-                            marginTop: 2,
-                            width: '100%',
-                        }}
-                    >
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleBackResearcher}
-                            sx={{ maxWidth: '150px' }}
-                        >
-                            {t('back')}
-                        </Button>
-
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleNextExperiment}
-                            sx={{ maxWidth: '150px' }}
-                            disabled={!isValidFormExperiment || isLoading}
-                        >
-                            {t('next')}
-                        </Button>
-                    </Box>
-                    <Box
-                        sx={{
-                            display: { xs: 'flex', sm: 'none' },
-                            justifyContent: 'space-between',
-                            marginTop: 2,
-                            width: '100%',
-                        }}
-                    >
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleBackResearcher}
-                            sx={{ maxWidth: '150px' }}
-                        >
-                            <ArrowBack />
-                        </Button>
-
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleNextExperiment}
-                            sx={{ maxWidth: '150px' }}
-                            disabled={!isValidFormExperiment || isLoading}
-                        >
-                            <ArrowForward />
-                        </Button>
-                    </Box>
-                </Box>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleNextExperiment}
+                    sx={{maxWidth: '150px'}}
+                    disabled={!isValidFormExperiment || isLoading}
+                >
+                    {t('next')}
+                </Button>
             </Box>
-        </Box>
+            <Box
+                sx={{
+                    display: {xs: 'flex', sm: 'none'},
+                    justifyContent: 'space-between',
+                    marginTop: 2,
+                    width: '100%',
+                }}
+            >
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleBackResearcher}
+                    sx={{maxWidth: '150px'}}
+                >
+                    <ArrowBack/>
+                </Button>
+
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleNextExperiment}
+                    sx={{maxWidth: '150px'}}
+                    disabled={!isValidFormExperiment || isLoading}
+                >
+                    <ArrowForward/>
+                </Button>
+            </Box>
+        </FormStepContainer>
     );
 };
 
