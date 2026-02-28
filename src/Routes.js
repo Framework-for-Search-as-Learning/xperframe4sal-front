@@ -24,7 +24,8 @@ import {
 import { Login } from './pages/Auth/Login';
 import { CreateExperiment, EditExperiment, ExperimentMonitoring } from './pages/Experiment';
 import { ThemeProvider } from "@mui/material/styles";
-import theme from "./style/util/theme";
+import theme from "./theme";
+import ExperimentMonitoring from './pages/ExperimentMonitoring';
 import EditUser from "./pages/components/EditUser";
 
 const RoleGuard = ({requireResearcher}) => {
