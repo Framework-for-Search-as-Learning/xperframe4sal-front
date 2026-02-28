@@ -116,32 +116,61 @@ const CreateExperiment = () => {
         }
     };
 
-    const CustomStepIcon = (props) => {
-        let icon = props.icon - 1;
-        if (icon == 1 && step != 0)
-            icon = step
-        else if (icon == 2)
-            icon = step + 1
-        else if (icon == 0)
-            if (icon != step)
-                icon = step - 1
+    const CustomStepIcon = ({active, completed, icon}) => {
+        if (completed) {
+            return (
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 30,
+                    height: 30,
+                    borderRadius: '50%',
+                    backgroundColor: '#1976d2',
+                    color: '#fff',
+                    fontSize: 16,
+                }}>
+                    ✓
+                </div>
+            );
+        }
+
+        if (active) {
+            return (
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 30,
+                    height: 30,
+                    borderRadius: '50%',
+                    backgroundColor: '#f2912d',
+                    color: '#fff',
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    boxShadow: '0 0 0 4px rgba(242, 145, 45, 0.25)',
+                }}>
+                    {icon}
+                </div>
+            );
+        }
 
         return (
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: 24,
-                height: 24,
+                width: 30,
+                height: 30,
                 borderRadius: '50%',
-                backgroundColor: '#1976d2',
-                color: '#fff',
-                fontSize: 12,
+                backgroundColor: '#e0e0e0',
+                color: '#9e9e9e',
+                fontSize: 14,
             }}>
-                {icon + 1}
+                {icon}
             </div>
         );
-    }
+    };
 
     return (
         <>
@@ -152,16 +181,17 @@ const CreateExperiment = () => {
             </Typography>
 
             <Stepper sx={{display: {xs: 'none', sm: 'flex'}}} activeStep={step} alternativeLabel>
-                {STEPS.map((step) => (
-                    <Step key={step.index} completed={step.index < maxStep}>
+                {STEPS.map((s) => (
+                    <Step key={s.index} completed={s.index < step}>
                         <StepLabel
-                            onClick={() => handleStepClick(step.index)}
+                            StepIconComponent={CustomStepIcon}
+                            onClick={() => handleStepClick(s.index)}
                             sx={{
-                                cursor: step.index <= maxStep ? 'pointer' : 'default',
-                                opacity: step.index <= maxStep ? 1 : 0.5,
+                                cursor: s.index <= maxStep ? 'pointer' : 'default',
+                                opacity: s.index <= maxStep ? 1 : 0.5,
                             }}
                         >
-                            {step.title}
+                            {s.title}
                         </StepLabel>
                     </Step>
                 ))}
@@ -170,7 +200,7 @@ const CreateExperiment = () => {
                 {STEPS.map((s) => {
                     if (s.index >= (step - 1) && s.index <= (step + 1)) {
                         return (
-                            <Step key={s.index} completed={s.index < maxStep}>
+                            <Step key={s.index} completed={s.index < step}>
                                 <StepLabel
                                     StepIconComponent={CustomStepIcon}
                                     onClick={() => handleStepClick(s.index)}
