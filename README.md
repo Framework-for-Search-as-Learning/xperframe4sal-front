@@ -79,8 +79,7 @@ pnpm start
 
 ## 3️⃣ Accessing the Application
 
-- Frontend: http://localhost:3000/searching-as-learning\
-
+- Frontend: http://localhost:3001/
 > **⚠️ Note:** Make sure the backend API is running and accessible.
 
 ---
