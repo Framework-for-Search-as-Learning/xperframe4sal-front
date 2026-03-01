@@ -11,7 +11,7 @@ import { Toast } from "primereact/toast";
 import { ProgressBar } from "primereact/progressbar";
 
 import CreateExperimentTask from "../components/CreateExperiment/CreateExperimentTask";
-import CreateExperimentSurvey from "../components/CreateExperiment/CreateExperimentSurvey";
+import CreateExperimentQuestionnaire from "../components/CreateExperiment/CreateExperimentQuestionnaire";
 import StepContext from "../components/CreateExperiment/context/StepContextCreate";
 import ConfirmCreateExperiment from "../components/CreateExperiment/ConfirmCreateExperiment";
 import CreateExperimentICF from "../components/CreateExperiment/CreateExperimentICF";
@@ -240,7 +240,7 @@ const CreateExperiment = () => {
             >
                 {step === 0 && <ExperimentMetadataForm/>}
                 {step === 1 && <CreateExperimentICF/>}
-                {step === 2 && <CreateExperimentSurvey/>}
+                {step === 2 && <CreateExperimentQuestionnaire/>}
                 {step === 3 && <StudyDesignForm/>}
                 {step === 4 && <CreateExperimentTask/>}
                 {step === 5 && <ConfirmCreateExperiment/>}

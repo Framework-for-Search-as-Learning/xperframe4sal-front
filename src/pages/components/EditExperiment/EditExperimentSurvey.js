@@ -33,7 +33,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Add, Remove } from '@mui/icons-material';
 import { ExpandMore as ExpandMoreIcon, ExpandLess as ExpandLessIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { api } from '../../../config/axios';
-import CreateSurvey from '../../../components/Modals/CreateSurvey';
+import CreateQuestionnaire from '../../../components/Modals/CreateQuestionnaire';
 import NotFound from '../../../components/NotFound';
 import { useParams } from 'react-router-dom';
 
@@ -579,7 +579,7 @@ const EditExperimentSurvey = () => {
                     </DialogContent>
                 </Dialog>
 
-                <CreateSurvey
+                <CreateQuestionnaire
                     isCreateQuestOpen={isCreateQuestOpen}
                     toggleCreateQuest={toggleCreateQuest}
                     t={t}

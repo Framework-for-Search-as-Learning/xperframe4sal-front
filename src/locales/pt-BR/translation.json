@@ -200,7 +200,7 @@
   "not_found_message": "Oops, a página que você está procurando não existe.",
   "not_found_title": "404 - Página não encontrada",
   "open": "Questão Aberta",
-  "option": "Opção {{index}}",
+  "option": "Opção",
   "options": "Opções",
   "pausar": "Pausar",
   "password_helper": "Por favor, assegure-se de que sua senha seja composta por, no mínimo, 6 caracteres e inclua letras maiúsculas, minúsculas, números e caracteres especiais.",
@@ -425,5 +425,8 @@
   "explanation_between": "No design Entre sujeitos, cada participante realiza apenas um subconjunto de tarefas. Ao menos duas tarefas devem ser criadas.",
   "explanation_random": "Os participantes são alocados aleatoriamente entre os grupos de tarefas.",
   "explanation_rules": "Os participantes são separados em grupos com base em pesos atribuídos às respostas dos questionários.",
-  "explanation_manual": "Os participantes são alocados manualmente. Será necessário editar os participantes após a criação do experimento para atribuí-los às tarefas."
+  "explanation_manual": "Os participantes são alocados manualmente. Será necessário editar os participantes após a criação do experimento para atribuí-los às tarefas.",
+  "at_least_one_option_required": "Adicione ao menos uma opção",
+  "choice_questions_need_options": "Questões de múltipla escolha precisam de ao menos uma opção",
+  "error_creating_survey": "Erro ao criar questionário"
 }

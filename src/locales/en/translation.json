@@ -199,7 +199,7 @@
   "normal_user_label": "Experiment Participant",
   "not_found_message": "Oops, the page you are looking for does not exist.",
   "not_found_title": "404 - Page Not Found",
-  "option": "Option {{index}}",
+  "option": "Option",
   "options": "Options",
   "pausar": "Pause",
   "password_helper": "Please ensure your password is at least 6 characters long and includes uppercase letters, lowercase letters, numbers, and special characters.",
@@ -425,5 +425,8 @@
   "explanation_between": "In a between-subject design, each participant completes only a subset of tasks. At least two tasks must be created.",
   "explanation_random": "Participants are randomly allocated across task groups.",
   "explanation_rules": "Participants are separated into groups based on weights assigned to questionnaire responses.",
-  "explanation_manual": "Participants are manually allocated. You will need to edit participants after experiment creation to assign them to tasks."
+  "explanation_manual": "Participants are manually allocated. You will need to edit participants after experiment creation to assign them to tasks.",
+  "at_least_one_option_required": "Add at least one option",
+  "choice_questions_need_options": "Multiple choice questions need at least one option",
+  "error_creating_survey": "Error creating questionnaire"
 }

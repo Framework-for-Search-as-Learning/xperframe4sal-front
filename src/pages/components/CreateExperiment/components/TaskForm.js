@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, {useMemo, useEffect, useState} from "react";
 import {
     TextField,
     Button,
@@ -41,18 +41,12 @@ const CustomContainer = styled("div")(({ theme }) => ({
     },
 }));
 
-const TaskForm = ({
-                      config,
-                      onSubmit,
-                      onCancel,
-                      isLoading,
-                      experimentType,
-                      btypeExperiment,
-                      experimentSurveys,
-                      scoreType,
-                      setScoreType,
-                      t,
-                  }) => {
+const TaskForm = ({ config, onSubmit, onCancel, isLoading, experimentType, btypeExperiment, experimentSurveys, scoreType, setScoreType, t}) => {
+    const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
+    const [isDescEmpty, setIsDescEmpty] = useState(
+        () => stripHtml(config.description).length === 0
+    );
+
     const availableModels = useMemo(() => {
         if (!config.llmProvider) return [];
         return LLM_MODELS_BY_PROVIDER[config.llmProvider] || [];
@@ -429,7 +423,10 @@ const TaskForm = ({
                 <CustomContainer>
                     <ReactQuill
                         value={config.description}
-                        onChange={config.setDescription}
+                        onChange={(value) => {
+                            config.setDescription(value);
+                            setIsDescEmpty(stripHtml(value).length === 0);
+                        }}
                         placeholder={t("task_Desc1")}
                     />
                 </CustomContainer>
@@ -451,7 +448,7 @@ const TaskForm = ({
                     variant="contained"
                     color="primary"
                     type="submit"
-                    disabled={!config.isValidForm || isLoading}
+                    disabled={isDescEmpty || !config.isValidForm || isLoading}
                 >
                     {config.mode === "create" ? t("create") : t("save")}
                 </Button>
