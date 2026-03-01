@@ -10,12 +10,13 @@ import {
     Button,
     styled,
 } from '@mui/material';
+import FormStepContainer from '../../../components/Forms/FormStepContainer';
 import {useTranslation} from 'react-i18next';
 import ReactQuill from 'react-quill';
 import StepContext from './context/StepContextCreate';
 import 'react-quill/dist/quill.snow.css';
 import {ArrowBack, ArrowForward} from "@mui/icons-material";
-import FormStepContainer from "../../../components/forms/FormStepContainer";
+
 
 const CustomContainer = styled('div')(({theme}) => ({
     backgroundColor: '#fafafa',

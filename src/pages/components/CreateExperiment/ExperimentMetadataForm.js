@@ -11,7 +11,7 @@ import StepContext from './context/StepContextCreate';
 import 'react-quill/dist/quill.snow.css';
 import {useNavigate} from 'react-router-dom';
 import {ArrowBack, ArrowForward} from '@mui/icons-material';
-import FormStepContainer from "../../../components/forms/FormStepContainer";
+import FormStepContainer from "../../../components/Forms/FormStepContainer";
 
 const CustomContainer = styled('div')(({theme}) => ({
     backgroundColor: '#fafafa',

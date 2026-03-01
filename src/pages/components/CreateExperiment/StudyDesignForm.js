@@ -12,7 +12,7 @@ import {
 import {useTranslation} from 'react-i18next';
 import {ArrowBack, ArrowForward} from '@mui/icons-material';
 import StepContext from './context/StepContextCreate';
-import FormStepContainer from "../../../components/forms/FormStepContainer";
+import FormStepContainer from "../../../components/Forms/FormStepContainer";
 
 const StudyDesignForm = () => {
     const {t} = useTranslation();
