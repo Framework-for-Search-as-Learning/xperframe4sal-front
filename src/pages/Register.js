@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { api } from "../config/axios.js";
 import { useNavigate } from 'react-router-dom';
+import background from '../assets/background.png';
 import {
   Container,
   Paper,
@@ -118,122 +119,131 @@ const Register = () => {
   const isValidForm = isValidEmail && email && isValidPassword && password && isValidName && name && isValidLastName && lastName;
 
   return (
-    <Container maxWidth="xs" style={{
-      display: 'flex',
-      flexDirection: 'column',
-      boxSizing: 'border-box',
-      height: '100vh',
-      justifyContent: 'center',
-      position: 'relative',
+    <Box style={{
+      backgroundImage: `url(${background})`,
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
     }}>
-      <Paper elevation={3} style={{ padding: '16px' }}>
-        <Box component='form' disabled={isLoading}>
-          <Typography variant="h4" align="center"
-            style={{
-              fontFamily: '"Google Sans","Noto Sans Myanmar UI", arial,sans-serif',
-              fontWeight: 500,
-              color: 'rgb(103,99,99)'
-            }}
-            sx={{ fontSize: { xs: '2.2rem', sm: '2.4rem' } }}
-          >
-            {t('sign_up_label')}
-          </Typography>
-          {isLoading ? <LoadingIndicator size={50} /> : ""}
-          {alertMessage && <ErrorMessage message={alertMessage} messageType={messageType} onClose={() => setAlertMessage(null)} />}
-
-          <TextField
-            label={t('name_label')}
-            error={!isValidName}
-            helperText={!isValidName ? t('invalid_name_message') : ''}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            value={name}
-            onChange={handleNameChange}
-          />
-          <TextField
-            label={t('last_name_label')}
-            error={!isValidLastName}
-            helperText={!isValidLastName ? t('invalid_last_name_message') : ''}
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            value={lastName}
-            onChange={handleLastNameChange}
-          />
-          <TextField
-            label="E-mail"
-            type="email"
-            error={!isValidEmail}
-            helperText={!isValidEmail ? t('invalid_email_message') : ''}
-            fullWidth
-            autoComplete="email"
-            margin="normal"
-            variant="outlined"
-            value={email}
-            onChange={handleEmailChange}
-          />
-          <TextField
-            label={t('password_label')}
-            error={!isValidPassword}
-            helperText={!isValidPassword ? t('invalid_password_message') : ''}
-            fullWidth
-            autoComplete="current-password"
-            margin="normal"
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={handlePasswordChange}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={handleTogglePasswordVisibility}
-                    edge="end"
-                    title={showPassword ? t('hide_password') : t('show_password')}
-                  >
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={researcher}
-                onChange={(e) => setResearcher(e.target.checked)}
-                color="primary"
-              />
-            }
-            label={t('researcher_label')}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleRegister}
-            style={{ margin: '16px 0' }}
-            disabled={!isValidForm || isLoading}
-          >
-            {t('sign_up_label')}
-          </Button>
-          <Typography variant="body2" align="center" fontSize={15}>
-            {t('have_an_account_already')}{' '}
-            <Button onClick={() => navigate('/')} style={{
-              cursor: 'pointer',
-              fontWeight: 700,
-              backgroundColor: 'transparent',
-              textAlign: 'right',
-              padding: '2px 3px',
-            }}
-              sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}
+      <Container maxWidth="xs" style={{
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box',
+        height: '100vh',
+        justifyContent: 'center',
+        position: 'relative',
+      }}>
+        <Paper elevation={3} style={{ padding: '16px' }}>
+          <Box component='form' disabled={isLoading}>
+            <Typography variant="h4" align="center"
+              style={{
+                fontFamily: '"Google Sans","Noto Sans Myanmar UI", arial,sans-serif',
+                fontWeight: 500,
+                color: 'rgb(103,99,99)'
+              }}
+              sx={{ fontSize: { xs: '2.2rem', sm: '2.4rem' } }}
             >
-              {t('sign_in_title')}
+              {t('sign_up_label')}
+            </Typography>
+            {isLoading ? <LoadingIndicator size={50} /> : ""}
+            {alertMessage && <ErrorMessage message={alertMessage} messageType={messageType} onClose={() => setAlertMessage(null)} />}
+
+            <TextField
+              label={t('name_label')}
+              error={!isValidName}
+              helperText={!isValidName ? t('invalid_name_message') : ''}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              value={name}
+              onChange={handleNameChange}
+            />
+            <TextField
+              label={t('last_name_label')}
+              error={!isValidLastName}
+              helperText={!isValidLastName ? t('invalid_last_name_message') : ''}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              value={lastName}
+              onChange={handleLastNameChange}
+            />
+            <TextField
+              label="E-mail"
+              type="email"
+              error={!isValidEmail}
+              helperText={!isValidEmail ? t('invalid_email_message') : ''}
+              fullWidth
+              autoComplete="email"
+              margin="normal"
+              variant="outlined"
+              value={email}
+              onChange={handleEmailChange}
+            />
+            <TextField
+              label={t('password_label')}
+              error={!isValidPassword}
+              helperText={!isValidPassword ? t('invalid_password_message') : ''}
+              fullWidth
+              autoComplete="current-password"
+              margin="normal"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={handlePasswordChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleTogglePasswordVisibility}
+                      edge="end"
+                      title={showPassword ? t('hide_password') : t('show_password')}
+                    >
+                      {showPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={researcher}
+                  onChange={(e) => setResearcher(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label={t('researcher_label')}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={handleRegister}
+              style={{ margin: '16px 0' }}
+              disabled={!isValidForm || isLoading}
+            >
+              {t('sign_up_label')}
             </Button>
-          </Typography>
-        </Box>
-      </Paper>
-    </Container>
+            <Typography variant="body2" align="center" fontSize={15}>
+              {t('have_an_account_already')}{' '}
+              <Button onClick={() => navigate('/')} style={{
+                cursor: 'pointer',
+                fontWeight: 700,
+                backgroundColor: 'transparent',
+                textAlign: 'right',
+                padding: '2px 3px',
+              }}
+                sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}
+              >
+                {t('sign_in_title')}
+              </Button>
+            </Typography>
+          </Box>
+        </Paper>
+      </Container>
+
+    </Box>
+
   );
 };
 
