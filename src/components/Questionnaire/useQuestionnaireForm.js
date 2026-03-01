@@ -35,7 +35,6 @@ const useQuestionnaireForm = (initial = {}) => {
                 statement: '',
                 type: 'open',
                 required: false,
-                uniqueAnswer: false,
                 hasscore: false,
                 options: [],
             },
@@ -88,7 +87,8 @@ const useQuestionnaireForm = (initial = {}) => {
         setTitle('');
         setDescription('');
         setType('pre');
-        setQuestions([]);
+        setQuestions([])
+        setUniqueAnswer(false);
     };
 
     return {
