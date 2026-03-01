@@ -50,7 +50,7 @@ const StudyDesignForm = () => {
     return (
         <FormStepContainer>
             <Typography variant="h6" align="center" sx={{ mb: 2 }}>
-                {t('study_design')}
+                {t('step_design')}
             </Typography>
 
             <FormControl fullWidth margin="normal">

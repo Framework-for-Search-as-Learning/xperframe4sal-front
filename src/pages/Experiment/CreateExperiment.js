@@ -38,8 +38,8 @@ const CreateExperiment = () => {
     };
 
     const STEPS = [
-        {index: 0, title: t("step_metadata")},
-        {index: 1, title: t("ICF")},
+        {index: 0, title: t("ICF")},
+        {index: 1, title: t("step_metadata")},
         {index: 2, title: t("step_questionnaires")},
         {index: 3, title: t("step_design")},
         {index: 4, title: t("step_tasks")},
@@ -157,8 +157,8 @@ const CreateExperiment = () => {
                     ExperimentDescICF, setExperimentDescICF,
                 }}
             >
-                {step === 0 && <ExperimentMetadataForm/>}
-                {step === 1 && <ExperimentICF/>}
+                {step === 0 && <ExperimentICF/>}
+                {step === 1 && <ExperimentMetadataForm/>}
                 {step === 2 && <ExperimentQuestionnaire/>}
                 {step === 3 && <StudyDesignForm/>}
                 {step === 4 && <ExperimentTask/>}

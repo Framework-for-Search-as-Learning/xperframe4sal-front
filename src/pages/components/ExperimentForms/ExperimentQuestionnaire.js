@@ -7,7 +7,7 @@ import React, { useState, useContext } from 'react';
 import {
     Box, Button, FormControl, IconButton,
     ListItemText, Dialog, DialogContent, DialogTitle,
-    Snackbar, Alert
+    Snackbar, Alert, Typography
 } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import {
@@ -93,7 +93,9 @@ const ExperimentQuestionnaire = () => {
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', marginTop: 5 }}>
             <Box sx={{ width: { xs: '100%', sm: '60%' }, padding: { xs: 1, sm: 3 }, display: 'flex', flexDirection: 'column', backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: 4, mx: 'auto' }}>
-
+                <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+                    {t('step_questionnaires')}
+                </Typography>
                 {Array.isArray(ExperimentSurveys) && ExperimentSurveys.length > 0 ? (
                     <FormControl fullWidth sx={{ minHeight: 300, maxHeight: 300, overflowY: 'auto' }}>
                         {ExperimentSurveys.map((survey, index) => (

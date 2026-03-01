@@ -8,9 +8,10 @@ import {
     Box,
     TextField,
     Button,
-    styled,
+    styled, Typography,
 } from '@mui/material';
 import {useTranslation} from 'react-i18next';
+import {useNavigate} from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import StepContext from './context/StepContext';
 import 'react-quill/dist/quill.snow.css';
@@ -49,6 +50,7 @@ const ExperimentICF = () => {
         handleSaveExperiment
     } = useContext(StepContext);
 
+    const navigate = useNavigate();
     const {t} = useTranslation();
     const [isValidTitleExp, setIsValidTitleExp] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
@@ -70,11 +72,18 @@ const ExperimentICF = () => {
     };
 
     const handleBackResearcher = () => {
-        setStep(step - 1);
+        if (step === 0) {
+            navigate('/experiments');
+        } else {
+            setStep(step - 1);
+        }
     };
 
     return (
         <FormStepContainer>
+            <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+                {t('ICF')}
+            </Typography>
             <TextField
                 label={t('Experiment_title_ICF')}
                 error={!isValidTitleExp}

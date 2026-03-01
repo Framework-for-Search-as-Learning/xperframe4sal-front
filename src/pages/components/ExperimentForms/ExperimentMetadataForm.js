@@ -4,12 +4,11 @@
  */
 
 import React, {useContext, useState} from 'react';
-import {Box, Button, styled, TextField,} from '@mui/material';
+import {Box, Button, styled, TextField, Typography,} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import ReactQuill from 'react-quill';
 import StepContext from './context/StepContext';
 import 'react-quill/dist/quill.snow.css';
-import {useNavigate} from 'react-router-dom';
 import {ArrowBack, ArrowForward} from '@mui/icons-material';
 import FormStepContainer from "../../../components/forms/FormStepContainer";
 
@@ -44,7 +43,6 @@ const ExperimentMetadataForm = () => {
         isEditMode,
         handleSaveExperiment
     } = useContext(StepContext);
-    const navigate = useNavigate();
     const {t} = useTranslation();
     const [isValidTitleExp, setIsValidTitleExp] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
@@ -67,11 +65,14 @@ const ExperimentMetadataForm = () => {
     };
 
     const handleBackResearcher = () => {
-        navigate('/experiments');
+        setStep(step - 1);
     };
 
     return (
         <FormStepContainer>
+            <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+                {t('step_metadata')}
+            </Typography>
             <TextField
                 label={t('Experiment_title')}
                 error={!isValidTitleExp}

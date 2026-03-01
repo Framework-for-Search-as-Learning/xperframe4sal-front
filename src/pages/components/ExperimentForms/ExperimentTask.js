@@ -331,7 +331,9 @@ const ExperimentTask = () => {
         <Box>
             <Box sx={{ alignItems: "center", justifyContent: "center", marginTop: 5, display: "flex", flexDirection: "column" }}>
                 <Box sx={{ padding: 3, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", backgroundColor: "#f9f9f9", borderRadius: "8px", boxShadow: 4, width: {xs: "100%", sm: "60%"}, marginX: "auto" }}>
-
+                    <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+                        {t('task')}
+                    </Typography>
                     {isLoadingTask ? (
                         <CircularProgress/>
                     ) : Array.isArray(ExperimentTasks) && ExperimentTasks.length > 0 ? (
