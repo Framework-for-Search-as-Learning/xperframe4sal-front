@@ -47,8 +47,8 @@ need:
 ## 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/Framework-for-Search-as-Learning/searchat-behavior-front.git
-cd searchat-behavior-front
+git clone https://github.com/Framework-for-Search-as-Learning/searchat-behavior-ui.git
+cd searchat-behavior-ui
 ```
 
 ---
