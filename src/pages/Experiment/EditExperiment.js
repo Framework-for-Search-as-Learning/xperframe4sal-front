@@ -58,7 +58,7 @@ const EditExperiment = () => {
         { label: t('edit_icf'), icon: <AssignmentIndIcon /> },
         { label: t('edit_form'), icon: <EditNoteIcon /> },
         { label: t('step_questionnaires'), icon: <QuizIcon /> },
-        { label: t('study_design'), icon: <SettingsIcon /> },
+        { label: t('step_design'), icon: <SettingsIcon /> },
         { label: t('edit_task'), icon: <ListAltIcon /> },
     ];
 
