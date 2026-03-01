@@ -18,7 +18,7 @@ Built with **React**, this application communicates with the backend API to mana
 
 > **⚠️ Note:** If you want to run the full stack (Frontend + Backend +
 > Database) together, please refer to the [Searchat Behavior Parent
-> Repository](https://github.com/Framework-for-Search-as-Learning/xperframe4sal).
+> Repository](https://github.com/Framework-for-Search-as-Learning/searchat-behavior).
 > The instructions below are strictly for running the frontend
 > **independently** for isolated development or testing.
 
@@ -47,8 +47,8 @@ need:
 ## 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/Framework-for-Search-as-Learning/xperframe4sal-front.git
-cd xperframe4sal-front
+git clone https://github.com/Framework-for-Search-as-Learning/searchat-behavior-front.git
+cd searchat-behavior-front
 ```
 
 ---
