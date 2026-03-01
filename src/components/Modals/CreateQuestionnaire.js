@@ -6,8 +6,8 @@
 import React from 'react';
 import {
     Dialog, DialogContent, Box, Typography, TextField,
-    FormControl, InputLabel, Select, MenuItem,
-    Button, CircularProgress, Snackbar, Alert,
+    FormControl, InputLabel, Select, MenuItem, Switch,
+    FormControlLabel, Button, CircularProgress, Snackbar, Alert,
 } from '@mui/material';
 import { Add, CancelOutlined, Done } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +39,7 @@ const CreateQuestionnaire = ({ isCreateQuestOpen, toggleCreateQuest, setExperime
         title, setTitle,
         description, setDescription,
         type, setType,
+        uniqueAnswer, setUniqueAnswer,
         questions, addQuestion, removeQuestion, updateQuestion,
         isValid, hasInvalidChoiceQuestion,
         buildPayload, reset,
@@ -123,6 +124,16 @@ const CreateQuestionnaire = ({ isCreateQuestOpen, toggleCreateQuest, setExperime
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             fullWidth required multiline rows={3} margin="normal" variant="filled"
+                        />
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={Boolean(uniqueAnswer)}
+                                    onChange={(e) => setUniqueAnswer(e.target.checked)}
+                                />
+                            }
+                            label={<Typography variant="body2">{t('unique_answer')}</Typography>}
+                            sx={{ mt: 1 }}
                         />
                     </Box>
 

@@ -11,6 +11,7 @@ const useQuestionnaireForm = (initial = {}) => {
     const [description, setDescription] = useState(initial.description || '');
     const [type, setType] = useState(initial.type || 'pre');
     const [questions, setQuestions] = useState(initial.questions || []);
+    const [uniqueAnswer, setUniqueAnswer] = useState(initial.uniqueAnswer || false);
 
     const hasInvalidChoiceQuestion = questions.some(
         (q) =>
@@ -55,13 +56,13 @@ const useQuestionnaireForm = (initial = {}) => {
         uuid: uuidv4(),
         description,
         type,
+        uniqueAnswer,
         questions: questions.map((q) => {
             const question = {
                 statement: q.statement,
                 id: q.id,
                 type: q.type,
                 required: q.required,
-                uniqueAnswer: q.uniqueAnswer,
                 hasscore: q.hasscore,
             };
             if (q.type === 'open') {
@@ -103,6 +104,8 @@ const useQuestionnaireForm = (initial = {}) => {
         buildPayload,
         reset,
         hasEmptyStatement,
+        uniqueAnswer,
+        setUniqueAnswer,
     };
 };
 

@@ -18,12 +18,12 @@ import {
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../../config/axios';
-import StepContext from './context/StepContextCreate';
+import StepContext from './context/StepContext';
 import CreateQuestionnaire from '../../../components/Modals/CreateQuestionnaire';
 import EditQuestionnaireDialog from '../../../components/Modals/EditQuestionnaireDialog';
 import NotFound from '../../../components/NotFound';
 
-const CreateExperimentQuestionnaire = () => {
+const ExperimentQuestionnaire = () => {
     const { step, setStep, ExperimentSurveys, setExperimentSurveys, isEditMode } = useContext(StepContext);
     const { t } = useTranslation();
     const [user] = useState(JSON.parse(localStorage.getItem('user')));
@@ -122,7 +122,14 @@ const CreateExperimentQuestionnaire = () => {
                     {!isEditMode && <Button variant="contained" onClick={() => setStep(step - 1)}>{t('back')}</Button>}
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <Button variant="contained" onClick={() => setIsCreateOpen(true)}>{t('create_survey')}</Button>
-                        {!isEditMode && <Button variant="contained" onClick={() => setStep(step + 1)}>{t('next')}</Button>}
+                        {!isEditMode &&
+                            <Button
+                                variant="contained"
+                                onClick={() => setStep(step + 1)}
+                                disabled={!Array.isArray(ExperimentSurveys) || ExperimentSurveys.length === 0}
+                            >
+                                {t('next')}
+                            </Button>}
                     </Box>
                 </Box>
 
@@ -174,4 +181,4 @@ const CreateExperimentQuestionnaire = () => {
     );
 };
 
-export default CreateExperimentQuestionnaire;
+export default ExperimentQuestionnaire;

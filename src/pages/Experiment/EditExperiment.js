@@ -3,12 +3,13 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useCallback, useState, useEffect, useRef } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { api } from '../../config/axios';
 import 'react-quill/dist/quill.snow.css';
 import {
     Box, Typography, List, ListItemButton, ListItemIcon,
-    Divider, ListItemText, Drawer, CircularProgress
+    Divider, ListItemText, Drawer, CircularProgress,
+    Snackbar, Alert
 } from '@mui/material';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
@@ -18,14 +19,13 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useExperimentAuth } from "../../hooks/useExperimentAuth";
-import { Messages } from 'primereact/messages';
-import ExperimentMetadataForm from '../components/CreateExperiment/ExperimentMetadataForm';
-import StudyDesignForm from '../components/CreateExperiment/StudyDesignForm';
-import CreateExperimentICF from '../components/CreateExperiment/CreateExperimentICF';
-import CreateExperimentQuestionnaire from '../components/CreateExperiment/CreateExperimentQuestionnaire';
-import CreateExperimentTask from '../components/CreateExperiment/CreateExperimentTask';
 
-import StepContext from '../components/CreateExperiment/context/StepContextCreate';
+import ExperimentMetadataForm from '../components/ExperimentForms/ExperimentMetadataForm';
+import StudyDesignForm from '../components/ExperimentForms/StudyDesignForm';
+import ExperimentICF from '../components/ExperimentForms/ExperimentICF';
+import ExperimentQuestionnaire from '../components/ExperimentForms/ExperimentQuestionnaire';
+import ExperimentTask from '../components/ExperimentForms/ExperimentTask';
+import StepContext from '../components/ExperimentForms/context/StepContext';
 
 const drawerWidth = 300;
 const appBarHeight = 64;
@@ -33,7 +33,6 @@ const appBarHeight = 64;
 const EditExperiment = () => {
     const { t } = useTranslation();
     const { experimentId } = useParams();
-    const msgs = useRef(null);
     const [user] = useState(JSON.parse(localStorage.getItem('user')));
 
     const { isLoading, isAuthorized, data: experimentData } = useExperimentAuth(experimentId, user);
@@ -43,13 +42,17 @@ const EditExperiment = () => {
     const [ExperimentType, setExperimentType] = useState('within-subject');
     const [BtypeExperiment, setBtypeExperiment] = useState('random');
     const [ExperimentDesc, setExperimentDesc] = useState('');
-
     const [Icfid, setIcfid] = useState('');
     const [ExperimentTitleICF, setExperimentTitleICF] = useState('');
     const [ExperimentDescICF, setExperimentDescICF] = useState('');
-
     const [ExperimentTasks, setExperimentTasks] = useState([]);
     const [ExperimentSurveys, setExperimentSurveys] = useState([]);
+
+    const [feedback, setFeedback] = useState({ open: false, message: '', severity: 'success' });
+    const handleCloseFeedback = (event, reason) => {
+        if (reason === 'clickaway') return;
+        setFeedback({ ...feedback, open: false });
+    };
 
     const steps = [
         { label: t('edit_form'), icon: <EditNoteIcon /> },
@@ -67,7 +70,7 @@ const EditExperiment = () => {
             setExperimentDesc(experimentData.summary || '');
 
             fetchIcf();
-            fetchSurvey()
+            fetchSurvey();
             fetchTasks();
         }
     }, [isAuthorized, experimentData, experimentId]);
@@ -119,8 +122,7 @@ const EditExperiment = () => {
                 await api.patch(`/experiment/${experimentId}`, updatedExperiment, {
                     headers: { Authorization: `Bearer ${user.accessToken}` },
                 });
-            }
-            else if (step === 1) {
+            } else if (step === 1) {
                 const updatedIcf = {
                     title: ExperimentTitleICF,
                     description: ExperimentDescICF,
@@ -130,10 +132,10 @@ const EditExperiment = () => {
                 });
             }
 
-            if (msgs.current) msgs.current.show({ severity: 'success', summary: t('Success'), life: 3000 });
+            setFeedback({ open: true, message: t('Success_Edit') || "Salvo com sucesso!", severity: 'success' });
         } catch (error) {
-            if (msgs.current) msgs.current.show({ severity: 'error', summary: t('error'), life: 3000 });
             console.error('Erro ao salvar:', error);
+            setFeedback({ open: true, message: t('error') || "Erro ao salvar.", severity: 'error' });
         }
     };
 
@@ -156,10 +158,6 @@ const EditExperiment = () => {
             </Drawer>
 
             <Box component="main" sx={{ flexGrow: 1, p: 3, position: 'relative' }}>
-                <Box sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1000 }}>
-                    <Messages ref={msgs} />
-                </Box>
-
                 <StepContext.Provider
                     value={{
                         step, setStep,
@@ -176,11 +174,22 @@ const EditExperiment = () => {
                     }}
                 >
                     {step === 0 && <ExperimentMetadataForm />}
-                    {step === 1 && <CreateExperimentICF />}
-                    {step === 2 && <CreateExperimentQuestionnaire />}
+                    {step === 1 && <ExperimentICF />}
+                    {step === 2 && <ExperimentQuestionnaire />}
                     {step === 3 && <StudyDesignForm />}
-                    {step === 4 && <CreateExperimentTask />}
+                    {step === 4 && <ExperimentTask />}
                 </StepContext.Provider>
+
+                <Snackbar
+                    open={feedback.open}
+                    autoHideDuration={4000}
+                    onClose={handleCloseFeedback}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleCloseFeedback} severity={feedback.severity} sx={{ width: '100%' }}>
+                        {feedback.message}
+                    </Alert>
+                </Snackbar>
             </Box>
         </Box>
     );

@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
-import StepContext from './context/StepContextCreate';
+import StepContext from './context/StepContext';
 import FormStepContainer from "../../../components/forms/FormStepContainer";
 
 const StudyDesignForm = () => {
@@ -25,7 +25,8 @@ const StudyDesignForm = () => {
         BtypeExperiment,
         setBtypeExperiment,
         isEditMode,
-        handleSaveExperiment
+        handleSaveExperiment,
+        ExperimentTasks
     } = useContext(StepContext);
 
     const getMethodExplanation = () => {
@@ -40,6 +41,11 @@ const StudyDesignForm = () => {
                 return '';
         }
     };
+
+    const isBetweenSubject = ExperimentType === 'between-subject';
+    const minimumTasksRequired = isBetweenSubject ? 2 : 1;
+    const hasEnoughTasks = ExperimentTasks && ExperimentTasks.length >= minimumTasksRequired;
+    const isSaveDisabled = isEditMode && !hasEnoughTasks;
 
     return (
         <FormStepContainer>
@@ -88,6 +94,15 @@ const StudyDesignForm = () => {
                 </>
             )}
 
+            {isSaveDisabled && (
+                <Alert severity="warning" variant="filled" sx={{ mt: 3, width: '100%' }}>
+                    {isBetweenSubject
+                        ? (t('needs_at_least_2_tasks_to_save') || "Para salvar como 'Between-subject', é necessário ter pelo menos 2 tarefas cadastradas. Por favor, crie as tarefas na aba 'Tarefas' primeiro.")
+                        : (t('needs_at_least_1_task_to_save') || "Você precisa ter pelo menos 1 tarefa cadastrada para salvar o design.")
+                    }
+                </Alert>
+            )}
+
             <Box
                 sx={{
                     display: { xs: 'none', sm: 'flex' },
@@ -112,12 +127,12 @@ const StudyDesignForm = () => {
                     color={isEditMode ? "success" : "primary"}
                     onClick={isEditMode ? handleSaveExperiment : () => setStep(step + 1)}
                     sx={{ maxWidth: '150px' }}
+                    disabled={isSaveDisabled}
                 >
                     {isEditMode ? t('save') : t('next')}
                 </Button>
             </Box>
 
-            {/* BOTÕES MOBILE CORRIGIDOS */}
             <Box
                 sx={{
                     display: { xs: 'flex', sm: 'none' },
@@ -142,6 +157,7 @@ const StudyDesignForm = () => {
                     color={isEditMode ? "success" : "primary"}
                     onClick={isEditMode ? handleSaveExperiment : () => setStep(step + 1)}
                     sx={{ maxWidth: '150px' }}
+                    disabled={isSaveDisabled}
                 >
                     {isEditMode ? t('save') : <ArrowForward />}
                 </Button>

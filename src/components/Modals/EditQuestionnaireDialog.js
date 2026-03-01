@@ -6,7 +6,7 @@
 import React, {useEffect} from 'react';
 import {
     Dialog, DialogContent, Box, Typography, TextField,
-    FormControl, InputLabel, Select, MenuItem, Button,
+    FormControl, Switch, FormControlLabel, InputLabel, Select, MenuItem, Button,
 } from '@mui/material';
 import {Add} from '@mui/icons-material';
 import {useTranslation} from 'react-i18next';
@@ -33,6 +33,7 @@ const EditQuestionnaireDialog = ({open, onClose, survey, onSave}) => {
         title, setTitle,
         description, setDescription,
         type, setType,
+        uniqueAnswer, setUniqueAnswer,
         questions, addQuestion, removeQuestion, updateQuestion,
         isValid, hasInvalidChoiceQuestion,
         buildPayload,hasEmptyStatement
@@ -42,7 +43,8 @@ const EditQuestionnaireDialog = ({open, onClose, survey, onSave}) => {
         if (survey) {
             setTitle(survey.title);
             setDescription(survey.description);
-            setType(survey.type);
+            setType(survey.type)
+            setUniqueAnswer(survey.uniqueAnswer || false);
         }
     }, [survey?.uuid]);
 
@@ -105,6 +107,16 @@ const EditQuestionnaireDialog = ({open, onClose, survey, onSave}) => {
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             fullWidth required multiline rows={3} margin="normal" variant="filled"
+                        />
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={Boolean(uniqueAnswer)}
+                                    onChange={(e) => setUniqueAnswer(e.target.checked)}
+                                />
+                            }
+                            label={<Typography variant="body2">{t('unique_answer')}</Typography>}
+                            sx={{ mt: 1 }}
                         />
                     </Box>
 

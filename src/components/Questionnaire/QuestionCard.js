@@ -8,7 +8,7 @@ import {v4 as uuidv4} from 'uuid';
 import {
     Box, TextField, FormControl, InputLabel, Select, MenuItem,
     IconButton, Typography, Divider, FormControlLabel, Switch,
-    Chip, Tooltip, Radio, Checkbox,
+    Tooltip, Radio, Checkbox,
 } from '@mui/material';
 import {Delete as DeleteIcon} from '@mui/icons-material';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -156,15 +156,6 @@ const QuestionCard = ({q, index, questionTypes, t, onUpdate, onRemove}) => {
                             }
                             label={<Typography variant="caption">{t('score')}</Typography>}
                         />
-                        {q.type === 'multiple-choices' && (
-                            <Chip
-                                size="small"
-                                label={t('unique_answer')}
-                                color={q.uniqueAnswer ? 'primary' : 'default'}
-                                onClick={() => onUpdate(q.id, 'uniqueAnswer', !q.uniqueAnswer)}
-                                variant={q.uniqueAnswer ? 'filled' : 'outlined'}
-                            />
-                        )}
                     </>
                 )}
 

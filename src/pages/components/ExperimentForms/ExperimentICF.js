@@ -3,14 +3,18 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, {useContext, useState} from 'react';
-import {Box, Button, styled, TextField,} from '@mui/material';
+import React, { useState, useContext } from 'react';
+import {
+    Box,
+    TextField,
+    Button,
+    styled,
+} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import ReactQuill from 'react-quill';
-import StepContext from './context/StepContextCreate';
+import StepContext from './context/StepContext';
 import 'react-quill/dist/quill.snow.css';
-import {useNavigate} from 'react-router-dom';
-import {ArrowBack, ArrowForward} from '@mui/icons-material';
+import {ArrowBack, ArrowForward} from "@mui/icons-material";
 import FormStepContainer from "../../../components/forms/FormStepContainer";
 
 const CustomContainer = styled('div')(({theme}) => ({
@@ -33,32 +37,31 @@ const CustomContainer = styled('div')(({theme}) => ({
     },
 }));
 
-const ExperimentMetadataForm = () => {
+const ExperimentICF = () => {
     const {
         step,
         setStep,
-        ExperimentTitle,
-        setExperimentTitle,
-        ExperimentDesc,
-        setExperimentDesc,
+        ExperimentTitleICF,
+        setExperimentTitleICF,
+        ExperimentDescICF,
+        setExperimentDescICF,
         isEditMode,
         handleSaveExperiment
     } = useContext(StepContext);
-    const navigate = useNavigate();
+
     const {t} = useTranslation();
     const [isValidTitleExp, setIsValidTitleExp] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
 
     const [isDescEmpty, setIsDescEmpty] = useState(
-        () => stripHtml(ExperimentDesc).length === 0
+        () => stripHtml(ExperimentDescICF).length === 0
     );
 
-    const isValidFormExperiment = ExperimentTitle.trim().length > 0 && !isDescEmpty;
-
+    const isValidFormExperiment = isValidTitleExp && ExperimentTitleICF && !isDescEmpty;
     const handleNameChangeTitle = (e) => {
         const value = e.target.value;
-        setExperimentTitle(value);
+        setExperimentTitleICF(value);
         setIsValidTitleExp(value.trim().length > 0);
     };
 
@@ -67,19 +70,19 @@ const ExperimentMetadataForm = () => {
     };
 
     const handleBackResearcher = () => {
-        navigate('/experiments');
+        setStep(step - 1);
     };
 
     return (
         <FormStepContainer>
             <TextField
-                label={t('Experiment_title')}
+                label={t('Experiment_title_ICF')}
                 error={!isValidTitleExp}
                 helperText={!isValidTitleExp ? t('invalid_name_message') : ''}
                 variant="outlined"
                 fullWidth
                 margin="normal"
-                value={ExperimentTitle}
+                value={ExperimentTitleICF}
                 onChange={handleNameChangeTitle}
                 required
             />
@@ -88,12 +91,12 @@ const ExperimentMetadataForm = () => {
                 <CustomContainer>
                     <ReactQuill
                         theme="snow"
-                        value={ExperimentDesc}
+                        value={ExperimentDescICF}
                         onChange={(value) => {
-                            setExperimentDesc(value);
+                            setExperimentDescICF(value);
                             setIsDescEmpty(stripHtml(value).length === 0);
                         }}
-                        placeholder={t('Experiment_Desc1')}
+                        placeholder={t('ICF_desc')}
                     />
                 </CustomContainer>
             </div>
@@ -135,4 +138,4 @@ const ExperimentMetadataForm = () => {
     );
 };
 
-export default ExperimentMetadataForm;
+export default ExperimentICF;

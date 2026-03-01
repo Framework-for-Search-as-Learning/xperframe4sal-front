@@ -429,6 +429,12 @@
   "at_least_one_option_required": "Add at least one option",
   "choice_questions_need_options": "Multiple choice questions need at least one option",
   "error_creating_survey": "Error creating questionnaire",
-  "success_edit": "Success edit",
-  "success_delete": "Success delete"
+  "success_edit": "Success edit!",
+  "success_delete": "Success delete!",
+  "success_create": "Success create!",
+  "cannot_delete_min_2_tasks": "Cannot delete. 'Between-subject' experiments require at least 2 tasks.",
+  "cannot_delete_min_1_task": "Cannot delete the only task in the experiment.",
+  "Success_Delete": "Deleted successfully!",
+  "needs_at_least_2_tasks_to_save": "To save as 'Between-subject', you must have at least 2 registered tasks. Please create the tasks in the 'Tasks' tab first.",
+  "needs_at_least_1_task_to_save": "You must have at least 1 registered task to save the design."
 }

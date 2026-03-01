@@ -429,6 +429,12 @@
   "at_least_one_option_required": "Adicione ao menos uma opção",
   "choice_questions_need_options": "Questões de múltipla escolha precisam de ao menos uma opção",
   "error_creating_survey": "Erro ao criar questionário",
-  "success_edit": "Editado com sucesso",
-  "success_delete": "Deletado com sucesso"
+  "success_create": "Criado com sucesso!",
+  "success_edit": "Editado com sucesso!",
+  "success_delete": "Deletado com sucesso!",
+  "cannot_delete_min_2_tasks": "Não é possível excluir. Experimentos 'Entre sujeitos' exigem pelo menos 2 tarefas.",
+  "cannot_delete_min_1_task": "Não é possível excluir a única tarefa do experimento.",
+  "Success_Delete": "Excluído com sucesso!",
+  "needs_at_least_2_tasks_to_save": "Para salvar como 'Entre sujeitos', é necessário ter pelo menos 2 tarefas cadastradas. Por favor, crie as tarefas na aba 'Tarefas' primeiro.",
+  "needs_at_least_1_task_to_save": "Você precisa ter pelo menos 1 tarefa cadastrada para salvar o design."
 }

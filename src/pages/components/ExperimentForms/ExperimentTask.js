@@ -10,15 +10,15 @@ import { useTranslation } from "react-i18next";
 import { useParams } from 'react-router-dom';
 import { api } from "../../../config/axios";
 
-import StepContext from "./context/StepContextCreate";
+import StepContext from "./context/StepContext";
 import NotFound from "../../../components/NotFound";
-import TaskList from "./components/TaskList";
-import TaskDialog from "./components/TaskDialog";
-import DeleteConfirmDialog from "./components/DeleteConfirmDialog";
-import { useTaskForm } from "./hooks/useTaskForm";
-import { handleTextChange, filterTasks } from "./utils/formHelpers";
+import TaskList from "./TaskStep/TaskList";
+import TaskDialog from "./TaskStep/TaskDialog";
+import DeleteConfirmDialog from "./TaskStep/DeleteConfirmDialog";
+import { useTaskForm } from "./TaskStep/useTaskForm";
+import { handleTextChange, filterTasks } from "./TaskStep/formHelpers";
 
-const CreateExperimentTask = () => {
+const ExperimentTask = () => {
     const { t } = useTranslation();
     const { experimentId } = useParams();
 
@@ -76,6 +76,20 @@ const CreateExperimentTask = () => {
     };
 
     const handleDeleteTask = async () => {
+        const minimal_tasks = ExperimentType === 'between-subject' ? 2 : 1;
+
+        if (ExperimentTasks.length <= minimal_tasks) {
+            setFeedback({
+                open: true,
+                message: ExperimentType === 'between-subject'
+                    ? (t('cannot_delete_min_2_tasks') || "Não é possível excluir. Experimentos 'Between-subject' exigem pelo menos 2 tarefas.")
+                    : (t('cannot_delete_min_1_task') || "Não é possível excluir a única tarefa do experimento."),
+                severity: 'warning'
+            });
+            handleCloseDeleteDialog();
+            return;
+        }
+
         if (isEditMode) {
             try {
                 const taskToDelete = ExperimentTasks[taskToDeleteIndex];
@@ -382,4 +396,4 @@ const CreateExperimentTask = () => {
     );
 };
 
-export default CreateExperimentTask;
+export default ExperimentTask;
