@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Box, Typography, Grid, Button, CircularProgress, Alert } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import StepContext from './context/StepContextCreate';
+import StepContext from './context/StepContext';
 import { Add, ArrowBack } from '@mui/icons-material';
 
 const ConfirmCreateExperiment = () => {

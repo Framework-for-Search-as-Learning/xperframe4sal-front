@@ -3,20 +3,14 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useState, useContext } from 'react';
-import {
-    Box,
-    TextField,
-    Button,
-    styled,
-} from '@mui/material';
-import FormStepContainer from '../../../components/Forms/FormStepContainer';
+import React, {useContext, useState} from 'react';
+import {Box, Button, styled, TextField, Typography,} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import ReactQuill from 'react-quill';
-import StepContext from './context/StepContextCreate';
+import StepContext from './context/StepContext';
 import 'react-quill/dist/quill.snow.css';
-import {ArrowBack, ArrowForward} from "@mui/icons-material";
-
+import {ArrowBack, ArrowForward} from '@mui/icons-material';
+import FormStepContainer from "../../../components/Forms/FormStepContainer";
 
 const CustomContainer = styled('div')(({theme}) => ({
     backgroundColor: '#fafafa',
@@ -38,29 +32,31 @@ const CustomContainer = styled('div')(({theme}) => ({
     },
 }));
 
-const CreateExperimentICF = () => {
+const ExperimentMetadataForm = () => {
     const {
         step,
         setStep,
-        ExperimentTitleICF,
-        setExperimentTitleICF,
-        ExperimentDescICF,
-        setExperimentDescICF,
+        ExperimentTitle,
+        setExperimentTitle,
+        ExperimentDesc,
+        setExperimentDesc,
+        isEditMode,
+        handleSaveExperiment
     } = useContext(StepContext);
-
     const {t} = useTranslation();
     const [isValidTitleExp, setIsValidTitleExp] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
 
     const [isDescEmpty, setIsDescEmpty] = useState(
-        () => stripHtml(ExperimentDescICF).length === 0
+        () => stripHtml(ExperimentDesc).length === 0
     );
 
-    const isValidFormExperiment = isValidTitleExp && ExperimentTitleICF && !isDescEmpty;
+    const isValidFormExperiment = ExperimentTitle.trim().length > 0 && !isDescEmpty;
+
     const handleNameChangeTitle = (e) => {
         const value = e.target.value;
-        setExperimentTitleICF(value);
+        setExperimentTitle(value);
         setIsValidTitleExp(value.trim().length > 0);
     };
 
@@ -74,14 +70,17 @@ const CreateExperimentICF = () => {
 
     return (
         <FormStepContainer>
+            <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+                {t('step_metadata')}
+            </Typography>
             <TextField
-                label={t('Experiment_title_ICF')}
+                label={t('Experiment_title')}
                 error={!isValidTitleExp}
                 helperText={!isValidTitleExp ? t('invalid_name_message') : ''}
                 variant="outlined"
                 fullWidth
                 margin="normal"
-                value={ExperimentTitleICF}
+                value={ExperimentTitle}
                 onChange={handleNameChangeTitle}
                 required
             />
@@ -90,72 +89,51 @@ const CreateExperimentICF = () => {
                 <CustomContainer>
                     <ReactQuill
                         theme="snow"
-                        value={ExperimentDescICF}
+                        value={ExperimentDesc}
                         onChange={(value) => {
-                            setExperimentDescICF(value);
+                            setExperimentDesc(value);
                             setIsDescEmpty(stripHtml(value).length === 0);
                         }}
-                        placeholder={t('ICF_desc')}
+                        placeholder={t('Experiment_Desc1')}
                     />
                 </CustomContainer>
             </div>
 
-            <Box
-                sx={{
-                    display: {xs: 'none', sm: 'flex'},
-                    justifyContent: 'space-between',
-                    marginTop: 2,
-                    width: '100%',
-                }}
-            >
+            <Box sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent: isEditMode ? 'flex-end' : 'space-between', mt: 2, width: '100%' }}>
+                {!isEditMode && (
+                    <Button variant="contained" color="primary" onClick={handleBackResearcher} sx={{ maxWidth: '150px' }}>
+                        {t('back')}
+                    </Button>
+                )}
                 <Button
                     variant="contained"
-                    color="primary"
-                    onClick={handleBackResearcher}
-                    sx={{maxWidth: '150px'}}
-                >
-                    {t('back')}
-                </Button>
-
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleNextExperiment}
-                    sx={{maxWidth: '150px'}}
+                    color={isEditMode ? "success" : "primary"}
+                    onClick={isEditMode ? handleSaveExperiment : handleNextExperiment}
+                    sx={{ maxWidth: '150px' }}
                     disabled={!isValidFormExperiment || isLoading}
                 >
-                    {t('next')}
+                    {isEditMode ? t('save') : t('next')}
                 </Button>
             </Box>
-            <Box
-                sx={{
-                    display: {xs: 'flex', sm: 'none'},
-                    justifyContent: 'space-between',
-                    marginTop: 2,
-                    width: '100%',
-                }}
-            >
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleBackResearcher}
-                    sx={{maxWidth: '150px'}}
-                >
-                    <ArrowBack/>
-                </Button>
 
+            <Box sx={{ display: { xs: 'flex', sm: 'none' }, justifyContent: isEditMode ? 'flex-end' : 'space-between', mt: 2, width: '100%' }}>
+                {!isEditMode && (
+                    <Button variant="contained" color="primary" onClick={handleBackResearcher} sx={{ maxWidth: '150px' }}>
+                        <ArrowBack />
+                    </Button>
+                )}
                 <Button
                     variant="contained"
-                    color="primary"
-                    onClick={handleNextExperiment}
-                    sx={{maxWidth: '150px'}}
+                    color={isEditMode ? "success" : "primary"}
+                    onClick={isEditMode ? handleSaveExperiment : handleNextExperiment}
+                    sx={{ maxWidth: '150px' }}
                     disabled={!isValidFormExperiment || isLoading}
                 >
-                    <ArrowForward/>
+                    {isEditMode ? t('save') : <ArrowForward />}
                 </Button>
             </Box>
         </FormStepContainer>
     );
 };
 
-export default CreateExperimentICF;
+export default ExperimentMetadataForm;

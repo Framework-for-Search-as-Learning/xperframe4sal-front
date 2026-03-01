@@ -4,7 +4,7 @@
  */
 
 import React, { createContext } from 'react';
-const StepContextCreate = createContext({
+const StepContext = createContext({
     step: 0,
     setStep: () => {},
     ExperimentTitle: '',
@@ -26,4 +26,4 @@ const StepContextCreate = createContext({
 });
 
 
-export default StepContextCreate;
+export default StepContext;
