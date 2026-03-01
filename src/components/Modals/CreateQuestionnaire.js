@@ -15,6 +15,7 @@ import { useParams } from 'react-router-dom';
 import { api } from '../../config/axios';
 import useQuestionnaireForm from "../Questionnaire/useQuestionnaireForm";
 import QuestionCard from "../Questionnaire/QuestionCard";
+import { useState  } from "react";
 
 const SURVEY_TYPES = (t) => [
     { value: 'pre', label: t('pre') },
@@ -32,6 +33,7 @@ const CreateQuestionnaire = ({ isCreateQuestOpen, toggleCreateQuest, setExperime
     const { experimentId } = useParams();
     const [isLoading, setIsLoading] = React.useState(false);
     const [snackbar, setSnackbar] = React.useState({ open: false, message: '', severity: 'success' });
+    const [user] = useState(JSON.parse(localStorage.getItem('user')));
 
     const {
         title, setTitle,
@@ -53,15 +55,25 @@ const CreateQuestionnaire = ({ isCreateQuestOpen, toggleCreateQuest, setExperime
         setIsLoading(true);
         const payload = buildPayload();
 
-        setExperimentSurveys((prev) => [...prev, payload]);
-
         if (fetch) {
             try {
-                await api.post('/survey', { ...payload, experimentId });
+                payload.experimentId = experimentId;
+
+                const response = await api.post('/survey', payload, {
+                    headers: { Authorization: `Bearer ${user.accessToken}` }
+                });
+
+                payload._id = response.data._id || response.data.id;
+                setExperimentSurveys((prev) => [...prev, payload]);
+
             } catch (error) {
                 console.error('Erro ao criar questionário:', error);
                 setSnackbar({ open: true, message: t('error_creating_survey'), severity: 'error' });
+                setIsLoading(false);
+                return;
             }
+        } else {
+            setExperimentSurveys((prev) => [...prev, payload]);
         }
 
         setIsLoading(false);

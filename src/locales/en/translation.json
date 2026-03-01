@@ -428,5 +428,7 @@
   "explanation_manual": "Participants are manually allocated. You will need to edit participants after experiment creation to assign them to tasks.",
   "at_least_one_option_required": "Add at least one option",
   "choice_questions_need_options": "Multiple choice questions need at least one option",
-  "error_creating_survey": "Error creating questionnaire"
+  "error_creating_survey": "Error creating questionnaire",
+  "success_edit": "Success edit",
+  "success_delete": "Success delete"
 }

@@ -45,6 +45,8 @@ const CreateExperimentICF = () => {
         setExperimentTitleICF,
         ExperimentDescICF,
         setExperimentDescICF,
+        isEditMode,
+        handleSaveExperiment
     } = useContext(StepContext);
 
     const {t} = useTranslation();
@@ -99,58 +101,37 @@ const CreateExperimentICF = () => {
                 </CustomContainer>
             </div>
 
-            <Box
-                sx={{
-                    display: {xs: 'none', sm: 'flex'},
-                    justifyContent: 'space-between',
-                    marginTop: 2,
-                    width: '100%',
-                }}
-            >
+            <Box sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent: isEditMode ? 'flex-end' : 'space-between', mt: 2, width: '100%' }}>
+                {!isEditMode && (
+                    <Button variant="contained" color="primary" onClick={handleBackResearcher} sx={{ maxWidth: '150px' }}>
+                        {t('back')}
+                    </Button>
+                )}
                 <Button
                     variant="contained"
-                    color="primary"
-                    onClick={handleBackResearcher}
-                    sx={{maxWidth: '150px'}}
-                >
-                    {t('back')}
-                </Button>
-
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleNextExperiment}
-                    sx={{maxWidth: '150px'}}
+                    color={isEditMode ? "success" : "primary"}
+                    onClick={isEditMode ? handleSaveExperiment : handleNextExperiment}
+                    sx={{ maxWidth: '150px' }}
                     disabled={!isValidFormExperiment || isLoading}
                 >
-                    {t('next')}
+                    {isEditMode ? t('save') : t('next')}
                 </Button>
             </Box>
-            <Box
-                sx={{
-                    display: {xs: 'flex', sm: 'none'},
-                    justifyContent: 'space-between',
-                    marginTop: 2,
-                    width: '100%',
-                }}
-            >
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleBackResearcher}
-                    sx={{maxWidth: '150px'}}
-                >
-                    <ArrowBack/>
-                </Button>
 
+            <Box sx={{ display: { xs: 'flex', sm: 'none' }, justifyContent: isEditMode ? 'flex-end' : 'space-between', mt: 2, width: '100%' }}>
+                {!isEditMode && (
+                    <Button variant="contained" color="primary" onClick={handleBackResearcher} sx={{ maxWidth: '150px' }}>
+                        <ArrowBack />
+                    </Button>
+                )}
                 <Button
                     variant="contained"
-                    color="primary"
-                    onClick={handleNextExperiment}
-                    sx={{maxWidth: '150px'}}
+                    color={isEditMode ? "success" : "primary"}
+                    onClick={isEditMode ? handleSaveExperiment : handleNextExperiment}
+                    sx={{ maxWidth: '150px' }}
                     disabled={!isValidFormExperiment || isLoading}
                 >
-                    <ArrowForward/>
+                    {isEditMode ? t('save') : <ArrowForward />}
                 </Button>
             </Box>
         </FormStepContainer>

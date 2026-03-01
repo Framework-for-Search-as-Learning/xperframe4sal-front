@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import {
     Box,
     Button,
@@ -9,20 +9,23 @@ import {
     Typography,
     Alert,
 } from '@mui/material';
-import {useTranslation} from 'react-i18next';
-import {ArrowBack, ArrowForward} from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
+import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import StepContext from './context/StepContextCreate';
 import FormStepContainer from "../../../components/forms/FormStepContainer";
 
 const StudyDesignForm = () => {
-    const {t} = useTranslation();
+    const { t } = useTranslation();
+
     const {
         step,
         setStep,
         ExperimentType,
         setExperimentType,
         BtypeExperiment,
-        setBtypeExperiment
+        setBtypeExperiment,
+        isEditMode,
+        handleSaveExperiment
     } = useContext(StepContext);
 
     const getMethodExplanation = () => {
@@ -40,7 +43,7 @@ const StudyDesignForm = () => {
 
     return (
         <FormStepContainer>
-            <Typography variant="h6" align="center" sx={{mb: 2}}>
+            <Typography variant="h6" align="center" sx={{ mb: 2 }}>
                 {t('study_design')}
             </Typography>
 
@@ -58,7 +61,7 @@ const StudyDesignForm = () => {
             </FormControl>
 
             {ExperimentType === 'within-subject' && (
-                <Alert severity="info" variant="outlined" sx={{mt: 1, width: '100%'}}>
+                <Alert severity="info" variant="outlined" sx={{ mt: 1, width: '100%' }}>
                     {t('explanation_within')}
                 </Alert>
             )}
@@ -79,63 +82,68 @@ const StudyDesignForm = () => {
                         </Select>
                     </FormControl>
 
-                    <Alert
-                        severity="info" variant="outlined" sx={{mt: 1, width: '100%'}}>
+                    <Alert severity="info" variant="outlined" sx={{ mt: 1, width: '100%' }}>
                         {getMethodExplanation()}
                     </Alert>
                 </>
             )}
+
             <Box
                 sx={{
-                    display: {xs: 'none', sm: 'flex'},
-                    justifyContent: 'space-between',
+                    display: { xs: 'none', sm: 'flex' },
+                    justifyContent: isEditMode ? 'flex-end' : 'space-between',
                     marginTop: 2,
                     width: '100%',
                 }}
             >
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setStep(step - 1)}
-                    sx={{maxWidth: '150px'}}
-                >
-                    {t('back')}
-                </Button>
+                {!isEditMode && (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => setStep(step - 1)}
+                        sx={{ maxWidth: '150px' }}
+                    >
+                        {t('back')}
+                    </Button>
+                )}
 
                 <Button
                     variant="contained"
-                    color="primary"
-                    onClick={() => setStep(step + 1)}
-                    sx={{maxWidth: '150px'}}
+                    color={isEditMode ? "success" : "primary"}
+                    onClick={isEditMode ? handleSaveExperiment : () => setStep(step + 1)}
+                    sx={{ maxWidth: '150px' }}
                 >
-                    {t('next')}
+                    {isEditMode ? t('save') : t('next')}
                 </Button>
             </Box>
 
+            {/* BOTÕES MOBILE CORRIGIDOS */}
             <Box
                 sx={{
-                    display: {xs: 'flex', sm: 'none'},
-                    justifyContent: 'space-between',
+                    display: { xs: 'flex', sm: 'none' },
+                    justifyContent: isEditMode ? 'flex-end' : 'space-between',
                     marginTop: 2,
                     width: '100%',
                 }}
             >
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setStep(step - 1)}
-                    sx={{maxWidth: '150px'}}
-                >
-                    <ArrowBack/>
-                </Button>
+                {!isEditMode && (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => setStep(step - 1)}
+                        sx={{ maxWidth: '150px' }}
+                    >
+                        <ArrowBack />
+                    </Button>
+                )}
 
                 <Button
                     variant="contained"
-                    color="primary"
-                    onClick={() => setStep(step + 1)}
-                    sx={{maxWidth: '150px'}}
+                    color={isEditMode ? "success" : "primary"}
+                    onClick={isEditMode ? handleSaveExperiment : () => setStep(step + 1)}
+                    sx={{ maxWidth: '150px' }}
                 >
-                    <ArrowForward/>
+                    {isEditMode ? t('save') : <ArrowForward />}
                 </Button>
             </Box>
         </FormStepContainer>

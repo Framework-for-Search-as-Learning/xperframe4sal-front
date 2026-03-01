@@ -49,7 +49,12 @@ const EditQuestionnaireDialog = ({open, onClose, survey, onSave}) => {
     const handleSave = (e) => {
         e.preventDefault();
         if (!isValid) return;
-        onSave({...buildPayload(), uuid: survey.uuid});
+        onSave({
+            ...buildPayload(),
+            _id: survey._id,
+            id: survey.id,
+            uuid: survey.uuid
+        });
     };
 
     return (

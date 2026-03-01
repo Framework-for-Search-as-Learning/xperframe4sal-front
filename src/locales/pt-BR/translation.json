@@ -428,5 +428,7 @@
   "explanation_manual": "Os participantes são alocados manualmente. Será necessário editar os participantes após a criação do experimento para atribuí-los às tarefas.",
   "at_least_one_option_required": "Adicione ao menos uma opção",
   "choice_questions_need_options": "Questões de múltipla escolha precisam de ao menos uma opção",
-  "error_creating_survey": "Erro ao criar questionário"
+  "error_creating_survey": "Erro ao criar questionário",
+  "success_edit": "Editado com sucesso",
+  "success_delete": "Deletado com sucesso"
 }
