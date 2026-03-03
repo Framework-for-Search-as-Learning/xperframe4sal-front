@@ -55,8 +55,8 @@ const EditExperiment = () => {
     };
 
     const steps = [
-        { label: t('edit_icf'), icon: <AssignmentIndIcon /> },
         { label: t('edit_form'), icon: <EditNoteIcon /> },
+        { label: t('edit_icf'), icon: <AssignmentIndIcon /> },
         { label: t('step_questionnaires'), icon: <QuizIcon /> },
         { label: t('step_design'), icon: <SettingsIcon /> },
         { label: t('edit_task'), icon: <ListAltIcon /> },
@@ -173,8 +173,8 @@ const EditExperiment = () => {
                         ExperimentTasks, setExperimentTasks,
                     }}
                 >
-                    {step === 0 && <ExperimentICF />}
-                    {step === 1 && <ExperimentMetadataForm />}
+                    {step === 0 && <ExperimentMetadataForm />}
+                    {step === 1 && <ExperimentICF />}
                     {step === 2 && <ExperimentQuestionnaire />}
                     {step === 3 && <StudyDesignForm />}
                     {step === 4 && <ExperimentTask />}
