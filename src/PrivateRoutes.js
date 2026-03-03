@@ -14,6 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useTranslation } from 'react-i18next';
+import logo from './assets/SearchatBehaviorLogo.png';
 
 import {
   Typography,
@@ -103,9 +104,16 @@ export function PrivateRoutes(props) {
               justifyContent: 'center'
           }}
       >
-        <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
-          {t('system_name')}
-        </Typography>
+          <Box
+              onClick={handleGoHome}
+              sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          >
+              <img
+                  src={logo}
+                  alt={t('system_name')}
+                  style={{ height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+              />
+          </Box>
       </Toolbar>
 
       <Divider />
@@ -157,21 +165,16 @@ export function PrivateRoutes(props) {
               <MenuIcon />
             </IconButton>
           </Box>
-
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            onClick={handleGoHome}
-            sx={{
-              flexGrow: 1, minWidth: 190,
-              display: { xs: 'none', sm: 'block' },
-              fontSize: { xs: '1.0rem', sm: '1.2rem' },
-              cursor: 'pointer'
-            }}
-          >
-            {t('system_name')}
-          </Typography>
+            <Box
+                onClick={handleGoHome}
+                sx={{ flexGrow: 1, cursor: 'pointer', alignItems: 'center',  display: { xs: 'none', sm: 'flex' }, }}
+            >
+                <img
+                    src={logo}
+                    alt={t('system_name')}
+                    style={{ height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+                />
+            </Box>
           <Box 
             sx={{ 
               display: { xs: 'none', sm: 'flex' },  

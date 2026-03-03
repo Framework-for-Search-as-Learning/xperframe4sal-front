@@ -1,5 +1,5 @@
 /**
- * Utility functions for CreateExperimentTask
+ * Utility functions for ExperimentTask
  */
 
 /**

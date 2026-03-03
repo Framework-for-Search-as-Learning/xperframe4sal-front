@@ -9,20 +9,23 @@ import {
     Typography,
     Alert,
 } from '@mui/material';
-import {useTranslation} from 'react-i18next';
-import {ArrowBack, ArrowForward} from '@mui/icons-material';
-import StepContext from './context/StepContextCreate';
+import { useTranslation } from 'react-i18next';
+import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import StepContext from './context/StepContext';
 import FormStepContainer from "../../../components/Forms/FormStepContainer";
 
 const StudyDesignForm = () => {
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     const {
         step,
         setStep,
         ExperimentType,
         setExperimentType,
         BtypeExperiment,
-        setBtypeExperiment
+        setBtypeExperiment,
+        isEditMode,
+        handleSaveExperiment,
+        ExperimentTasks
     } = useContext(StepContext);
 
     const getMethodExplanation = () => {
@@ -38,10 +41,15 @@ const StudyDesignForm = () => {
         }
     };
 
+    const isBetweenSubject = ExperimentType === 'between-subject';
+    const minimumTasksRequired = isBetweenSubject ? 2 : 1;
+    const hasEnoughTasks = ExperimentTasks && ExperimentTasks.length >= minimumTasksRequired;
+    const isSaveDisabled = isEditMode && !hasEnoughTasks;
+
     return (
         <FormStepContainer>
-            <Typography variant="h6" align="center" sx={{mb: 2}}>
-                {t('study_design')}
+            <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+                {t('step_design')}
             </Typography>
 
             <FormControl fullWidth margin="normal">
@@ -58,7 +66,7 @@ const StudyDesignForm = () => {
             </FormControl>
 
             {ExperimentType === 'within-subject' && (
-                <Alert severity="info" variant="outlined" sx={{mt: 1, width: '100%'}}>
+                <Alert severity="info" variant="outlined" sx={{ mt: 1, width: '100%' }}>
                     {t('explanation_within')}
                 </Alert>
             )}
@@ -79,63 +87,77 @@ const StudyDesignForm = () => {
                         </Select>
                     </FormControl>
 
-                    <Alert
-                        severity="info" variant="outlined" sx={{mt: 1, width: '100%'}}>
+                    <Alert severity="info" variant="outlined" sx={{ mt: 1, width: '100%' }}>
                         {getMethodExplanation()}
                     </Alert>
                 </>
             )}
+
+            {isSaveDisabled && (
+                <Alert severity="warning" variant="filled" sx={{ mt: 3, width: '100%' }}>
+                    {isBetweenSubject
+                        ? (t('needs_at_least_2_tasks_to_save') || "Para salvar como 'Between-subject', é necessário ter pelo menos 2 tarefas cadastradas. Por favor, crie as tarefas na aba 'Tarefas' primeiro.")
+                        : (t('needs_at_least_1_task_to_save') || "Você precisa ter pelo menos 1 tarefa cadastrada para salvar o design.")
+                    }
+                </Alert>
+            )}
             <Box
                 sx={{
-                    display: {xs: 'none', sm: 'flex'},
-                    justifyContent: 'space-between',
+                    display: { xs: 'none', sm: 'flex' },
+                    justifyContent: isEditMode ? 'flex-end' : 'space-between',
                     marginTop: 2,
                     width: '100%',
                 }}
             >
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setStep(step - 1)}
-                    sx={{maxWidth: '150px'}}
-                >
-                    {t('back')}
-                </Button>
+                {!isEditMode && (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => setStep(step - 1)}
+                        sx={{ maxWidth: '150px' }}
+                    >
+                        {t('back')}
+                    </Button>
+                )}
 
                 <Button
                     variant="contained"
-                    color="primary"
-                    onClick={() => setStep(step + 1)}
-                    sx={{maxWidth: '150px'}}
+                    color={isEditMode ? "success" : "primary"}
+                    onClick={isEditMode ? handleSaveExperiment : () => setStep(step + 1)}
+                    sx={{ maxWidth: '150px' }}
+                    disabled={isSaveDisabled}
                 >
-                    {t('next')}
+                    {isEditMode ? t('save') : t('next')}
                 </Button>
             </Box>
 
             <Box
                 sx={{
-                    display: {xs: 'flex', sm: 'none'},
-                    justifyContent: 'space-between',
+                    display: { xs: 'flex', sm: 'none' },
+                    justifyContent: isEditMode ? 'flex-end' : 'space-between',
                     marginTop: 2,
                     width: '100%',
                 }}
             >
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setStep(step - 1)}
-                    sx={{maxWidth: '150px'}}
-                >
-                    <ArrowBack/>
-                </Button>
+                {!isEditMode && (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => setStep(step - 1)}
+                        sx={{ maxWidth: '150px' }}
+                    >
+                        <ArrowBack />
+                    </Button>
+                )}
 
                 <Button
                     variant="contained"
-                    color="primary"
-                    onClick={() => setStep(step + 1)}
-                    sx={{maxWidth: '150px'}}
+                    color={isEditMode ? "success" : "primary"}
+                    onClick={isEditMode ? handleSaveExperiment : () => setStep(step + 1)}
+                    sx={{ maxWidth: '150px' }}
+                    disabled={isSaveDisabled}
                 >
-                    <ArrowForward/>
+                    {isEditMode ? t('save') : <ArrowForward />}
                 </Button>
             </Box>
         </FormStepContainer>

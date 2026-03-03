@@ -29,9 +29,9 @@ const SurveyType = {
 };
 
 const Questionnaires = () => {
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     const navigate = useNavigate();
-    const { experimentId } = useParams();
+    const {experimentId} = useParams();
 
     const [user] = useState(JSON.parse(localStorage.getItem("user")));
     const [steps, setSteps] = useState([]);
@@ -61,17 +61,11 @@ const Questionnaires = () => {
                 const [experimentResponse, userExperimentResponse] =
                     await Promise.all([
                         api.get(`experiment/${experimentId}`, {
-                            headers: {
-                                Authorization: `Bearer ${user.accessToken}`,
-                            },
+                            headers: {Authorization: `Bearer ${user.accessToken}`},
                         }),
                         api.get(
                             `user-experiment?experimentId=${experimentId}&userId=${user.id}`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${user.accessToken}`,
-                                },
-                            }
+                            {headers: {Authorization: `Bearer ${user.accessToken}`}}
                         ),
                     ]);
 
@@ -80,6 +74,7 @@ const Questionnaires = () => {
 
                 if (!userExperimentResult) {
                     navigate(`/experiments`);
+                    return;
                 }
 
                 if (!userExperimentResult.stepsCompleted) {
@@ -91,74 +86,58 @@ const Questionnaires = () => {
                     return;
                 }
 
-                setHasFinishedTasks(
-                    userExperimentResult?.stepsCompleted["task"]
-                );
+                setHasFinishedTasks(userExperimentResult?.stepsCompleted["task"]);
+
+                const surveysResponse = await api.get(`survey/experiment/${experimentId}`, {
+                    headers: {Authorization: `Bearer ${user.accessToken}`},
+                });
 
                 let surveyList = [];
                 let localPre = [];
                 let localPost = [];
-                const surveys = await api.get(`survey/experiment/${experimentId}`, {
-                    headers: {
-                        Authorization: `Bearer ${user.accessToken}`,
-                    },
-                });
+                let localAnsweredPre = {};
+                let localAnsweredPost = {};
 
-                for (const survey of surveys.data) {
-
+                for (const survey of surveysResponse.data) {
                     if (survey.isActive) {
                         surveyList.push(survey);
 
                         const response = await api.get(
                             `survey-answer?userId=${user.id}&surveyId=${survey._id}`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${user.accessToken}`,
-                                },
-                            }
+                            {headers: {Authorization: `Bearer ${user.accessToken}`}}
                         );
 
-                        const answeredSurvey = response?.data;
+                        const hasAnswered = !!response?.data;
 
-                        let hasAnswered = false;
-                        if (answeredSurvey) {
-                            hasAnswered = true;
-                        }
                         if (survey.type === SurveyType.PRE) {
                             localPre.push(survey);
-
-                            if (hasAnswered) {
-                                setAnsweredPreSurveys((prev) => ({ ...prev, [survey._id]: true }));
-                            }
+                            if (hasAnswered) localAnsweredPre[survey._id] = true;
                         } else if (survey.type === SurveyType.POST) {
                             localPost.push(survey);
-
-                            if (hasAnswered) {
-                                setAnsweredPostSurveys((prev) => ({ ...prev, [survey._id]: true }));
-                            }
+                            if (hasAnswered) localAnsweredPost[survey._id] = true;
                         }
                     }
                 }
 
                 setPreSurveys(localPre);
                 setPostSurveys(localPost);
+                setAnsweredPreSurveys(localAnsweredPre);
+                setAnsweredPostSurveys(localAnsweredPost);
 
                 if (surveyList.length === 0) {
                     navigate(`/experiments/${experimentId}/tasks`);
+                    return;
                 }
 
-                const activate =
-                    userExperimentResult.stepsCompleted["pre"] || false;
-                setShowWarning(!activate);
-                setShouldActivateTask(activate);
+                const allPreAnswered = localPre.every((survey) => localAnsweredPre[survey._id]);
+                setShowWarning(!allPreAnswered);
+                setShouldActivateTask(allPreAnswered);
 
-                const steps = await api.get(`experiment/${experimentId}/step`, {
-                    headers: {
-                        Authorization: `Bearer ${user.accessToken}`,
-                    },
+                const stepsResponse = await api.get(`experiment/${experimentId}/step`, {
+                    headers: {Authorization: `Bearer ${user.accessToken}`},
                 });
                 const experimentSteps = mountSteps(
-                    steps.data,
+                    stepsResponse.data,
                     userExperimentResult.stepsCompleted
                 );
 
@@ -196,25 +175,16 @@ const Questionnaires = () => {
                 experiment: experiment,
             },
         });
-
-
     };
 
     return (
-        <ExperimentTemplate
-            headerTitle={t("questionnaire_list_header")}
-            steps={steps}
-        >
-            <CustomSnackbar
-                open={open}
-                time={1500}
-                message={message}
-                severity={severity}
-            />
-            <div style={{ display: "flex", marginBottom: 10 }}>
+        <ExperimentTemplate headerTitle={t("questionnaire_list_header")} steps={steps}>
+            <CustomSnackbar open={open} time={1500} message={message} severity={severity}/>
+
+            <div style={{display: "flex", marginBottom: 10}}>
                 {showWarning && (
                     <ErrorMessage
-                        style={{ flex: 1 }}
+                        style={{flex: 1}}
                         message={t("attention_message")}
                         messageType={"warning"}
                     />
@@ -223,10 +193,7 @@ const Questionnaires = () => {
                     <Button
                         variant="contained"
                         color="primary"
-                        style={{
-                            justifyContent: "flex-end",
-                            marginLeft: "auto",
-                        }}
+                        style={{justifyContent: "flex-end", marginLeft: "auto"}}
                         onClick={handleEnterTasks}
                         disabled={!shouldActivateTask}
                     >
@@ -234,81 +201,56 @@ const Questionnaires = () => {
                     </Button>
                 )}
             </div>
-            {!surveys && (
-                <Typography variant="body1">{t("loading_surveys")}</Typography>
-            )}
-            {!surveys && isLoading && <LoadingIndicator size={70} />}
-            {surveys?.length === 0 && (
-                <Typography variant="body1">{t("no_surveys")}</Typography>
-            )}
+
+            {!surveys && <Typography variant="body1">{t("loading_surveys")}</Typography>}
+            {!surveys && isLoading && <LoadingIndicator size={70}/>}
+            {surveys?.length === 0 && <Typography variant="body1">{t("no_surveys")}</Typography>}
 
             <div>
                 {!hasFinishedTasks &&
                     preSurveys?.map((survey, index) => (
                         <Accordion
-                            sx={{ marginBottom: "5px" }}
+                            sx={{marginBottom: "5px"}}
                             key={survey._id}
                             elevation={3}
                             expanded={expanded === `panel-${index}`}
                             onChange={handleChange(`panel-${index}`)}
-                            disabled={
-                                answeredPreSurveys[survey._id] &&
-                                survey?.uniqueAnswer
-                            }
+                            disabled={answeredPreSurveys[survey._id] && survey?.uniqueAnswer}
                         >
                             <AccordionSummary
-                                expandIcon={<ExpandMoreIcon />}
+                                expandIcon={<ExpandMoreIcon/>}
                                 aria-controls={`panel-${index}bh-content`}
                                 id={`panel-${index}bh-header`}
-                                sx={{
-                                    "&:hover": {
-                                        backgroundColor: "lightgray",
-                                    },
-                                }}
+                                sx={{"&:hover": {backgroundColor: "lightgray"}}}
                             >
                                 <Typography>
                                     <span>{survey.title}</span>
-                                    {answeredPreSurveys[survey._id] &&
-                                        survey?.uniqueAnswer ? (
-                                        <span
-                                            style={{
-                                                color: "red",
-                                                display: "flex",
-                                                justifyContent: "end",
-                                            }}
-                                        >
-                                            {" "}
-                                            Você já respondeu este questionário.
+                                    {answeredPreSurveys[survey._id] && survey?.uniqueAnswer && (
+                                        <span style={{color: "red", display: "flex", justifyContent: "end"}}>
+                                            {t('already_answered')}
                                         </span>
-                                    ) : (
-                                        ""
                                     )}
                                 </Typography>
                             </AccordionSummary>
-                            <Divider />
+                            <Divider/>
                             <AccordionDetails>
                                 <Typography>{survey.description}</Typography>
-                                <div style={{ textAlign: "right" }}>
-                                    {answeredPreSurveys[survey._id] &&
-                                        !survey?.uniqueAnswer && (
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                style={{ margin: "16px" }}
-                                                onClick={() =>
-                                                    handleEnterSurvey(survey._id)
-                                                }
-                                            >
-                                                Editar
-                                            </Button>
-                                        )}
+                                <div style={{textAlign: "right"}}>
+                                    {answeredPreSurveys[survey._id] && !survey?.uniqueAnswer && (
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            style={{margin: "16px"}}
+                                            onClick={() => handleEnterSurvey(survey._id)}
+                                        >
+                                            {t('edit_label')}
+                                        </Button>
+                                    )}
                                     <Button
                                         variant="contained"
                                         color="primary"
-                                        style={{ margin: "16px" }}
-                                        onClick={() =>
-                                            handleEnterSurvey(survey._id)
-                                        }
+                                        style={{margin: "16px"}}
+                                        onClick={() => handleEnterSurvey(survey._id)}
                                         disabled={answeredPreSurveys[survey._id]}
                                     >
                                         {t('enter_label')}
@@ -322,99 +264,58 @@ const Questionnaires = () => {
             {hasFinishedTasks && (
                 <div>
                     {postSurveys?.map((survey, index) =>
-                        (!answeredPostSurveys[survey._id] ||
-                            (answeredPostSurveys[survey._id] &&
-                                !experiment?.surveysProps?.[survey._id]
-                                    ?.uniqueAnswer)) && (
-                            <Accordion
-                                sx={{ marginBottom: "5px" }}
-                                key={survey._id}
-                                elevation={3}
-                                expanded={expanded === `panel-${index}`}
-                                onChange={handleChange(`panel-${index}`)}
-                                disabled={
-                                    answeredPostSurveys[survey._id] &&
-                                    experiment?.surveysProps?.[survey._id]
-                                        ?.uniqueAnswer
-                                }
-                            >
-                                <AccordionSummary
-                                    expandIcon={<ExpandMoreIcon />}
-                                    aria-controls={`panel-${index}bh-content`}
-                                    id={`panel-${index}bh-header`}
-                                    csx={{
-                                        "&:hover": {
-                                            backgroundColor: "lightgray",
-                                        },
-                                    }}
+                            (!answeredPostSurveys[survey._id] ||
+                                (answeredPostSurveys[survey._id] && !survey?.uniqueAnswer)) && (
+                                <Accordion
+                                    sx={{marginBottom: "5px"}}
+                                    key={survey._id}
+                                    elevation={3}
+                                    expanded={expanded === `panel-${index}`}
+                                    onChange={handleChange(`panel-${index}`)}
+                                    disabled={answeredPostSurveys[survey._id] && survey?.uniqueAnswer}
                                 >
-                                    <Typography>
-                                        <span>{survey.title}</span>
-                                        {answeredPostSurveys[survey._id] &&
-                                            experiment?.surveysProps?.[survey._id]
-                                                ?.uniqueAnswer ? (
-                                            <span
-                                                style={{
-                                                    color: "red",
-                                                    display: "flex",
-                                                    justifyContent: "end",
-                                                }}
-                                            >
-                                                {" "}
-                                                Você já respondeu este
-                                                questionário.
+                                    <AccordionSummary
+                                        expandIcon={<ExpandMoreIcon/>}
+                                        aria-controls={`panel-${index}bh-content`}
+                                        id={`panel-${index}bh-header`}
+                                        sx={{"&:hover": {backgroundColor: "lightgray"}}}
+                                    >
+                                        <Typography>
+                                            <span>{survey.title}</span>
+                                            {answeredPostSurveys[survey._id] && survey?.uniqueAnswer && (
+                                                <span style={{color: "red", display: "flex", justifyContent: "end"}}>
+                                                {t('already_answered')}
                                             </span>
-                                        ) : (
-                                            ""
-                                        )}
-                                    </Typography>
-                                </AccordionSummary>
-                                <Divider />
-                                <AccordionDetails>
-                                    <Typography>
-                                        {survey.description}
-                                    </Typography>
-                                    <div style={{ textAlign: "right" }}>
-                                        {answeredPostSurveys[survey._id] &&
-                                            !experiment?.surveysProps?.[
-                                                survey._id
-                                            ]?.uniqueAnswer && (
+                                            )}
+                                        </Typography>
+                                    </AccordionSummary>
+                                    <Divider/>
+                                    <AccordionDetails>
+                                        <Typography>{survey.description}</Typography>
+                                        <div style={{textAlign: "right"}}>
+                                            {answeredPostSurveys[survey._id] && !survey?.uniqueAnswer && (
                                                 <Button
                                                     variant="contained"
                                                     color="primary"
-                                                    style={{
-                                                        margin: "16px",
-                                                    }}
-                                                    onClick={() =>
-                                                        handleEnterSurvey(
-                                                            survey._id
-                                                        )
-                                                    }
+                                                    style={{margin: "16px"}}
+                                                    onClick={() => handleEnterSurvey(survey._id)}
                                                 >
-                                                    Editar
+                                                    {t('edit_label')}
                                                 </Button>
                                             )}
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            style={{ margin: "16px" }}
-                                            onClick={() =>
-                                                handleEnterSurvey(
-                                                    survey._id
-                                                )
-                                            }
-                                            disabled={
-                                                answeredPostSurveys[
-                                                survey._id
-                                                ]
-                                            }
-                                        >
-                                            Entrar
-                                        </Button>
-                                    </div>
-                                </AccordionDetails>
-                            </Accordion>
-                        )
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                style={{margin: "16px"}}
+                                                onClick={() => handleEnterSurvey(survey._id)}
+                                                disabled={answeredPostSurveys[survey._id]}
+                                            >
+                                                {t('enter_label')}
+                                            </Button>
+                                        </div>
+                                    </AccordionDetails>
+                                </Accordion>
+                            )
                     )}
                 </div>
             )}
@@ -422,4 +323,4 @@ const Questionnaires = () => {
     );
 };
 
-export default Questionnaires ;
+export default Questionnaires;
