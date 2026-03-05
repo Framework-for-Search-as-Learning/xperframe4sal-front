@@ -34,7 +34,7 @@ const EditUser = () => {
     }, [isAuthorized, experimentData]);
 
     const STEPS = [
-        {label: 'edit_users', icon: (<Person/>)},
+        {label: 'edit_participants', icon: (<Person/>)},
         {label: 'edit_groups', icon: (<People/>)},
     ];
 
@@ -64,7 +64,7 @@ const EditUser = () => {
     return (
         <div className={styles.fullPage}>
             <Typography variant="h4" component="h1" gutterBottom align="center" marginBottom={0}>
-                {t('edit_user')}
+                {t('edit_participants')}
             </Typography>
 
             {actualStep != null ? (
