@@ -191,7 +191,7 @@ const OwnerActions = ({experiment, status, hasActiveParticipants, onEdit, onEdit
             />
             <ActionButton
                 onClick={() => onEdituser(experiment._id)}
-                desktopText={t?.('edit_user') ?? 'USUÁRIOS'}
+                desktopText={t?.('participants') ?? 'PARTICIPANTES'}
                 Icon={PersonIcon}
                 className={styles.actionButton}
             />
