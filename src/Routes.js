@@ -65,7 +65,7 @@ const Router = () => {
                     <Route element={<RoleGuard requireResearcher={true}/>}>
                         <Route path='new' element={<CreateExperiment/>}/>
                         <Route path=':experimentId/edit' element={<EditExperiment/>}/>
-                        <Route path=':experimentId/users' element={<EditUser/>}/>
+                        <Route path=':experimentId/participants' element={<EditUser/>}/>
                         <Route path=":experimentId/monitoring" element={<ExperimentMonitoring/>}/>
                     </Route>
                     <Route path=':experimentId/icf' element={<ICF/>}/>
