@@ -452,7 +452,16 @@ const Researcher = () => {
             <div className={styles.headerRow} style={{marginBottom:"10px"}}>
                 <Tabs
                     value={activeTab}
-                    onChange={(e, newValue) => setActiveTab(newValue)}
+                    onChange={(e, newValue) => {
+                        setActiveTab(newValue);
+                        if (newValue === 0 && experimentsOwner?.length > 0) {
+                            setExpanded("panel-owner-0");
+                        } else if (newValue === 1 && experiments?.length > 0) {
+                            setExpanded("panel-0");
+                        } else {
+                            setExpanded(null);
+                        }
+                    }}
                     textColor="primary"
                     indicatorColor="primary"
                 >
