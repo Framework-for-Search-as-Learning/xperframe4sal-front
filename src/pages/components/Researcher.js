@@ -400,7 +400,7 @@ const Researcher = () => {
     };
 
     const handleEditUser = (experimentId) => {
-        navigate(`/experiments/${experimentId}/users`);
+        navigate(`/experiments/${experimentId}/participants`);
     };
 
     return (

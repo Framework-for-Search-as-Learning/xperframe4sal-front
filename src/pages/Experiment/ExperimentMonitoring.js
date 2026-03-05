@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, lapic-ufjf
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../config/axios";
@@ -21,7 +26,7 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import DownloadIcon from "@mui/icons-material/Download";
 
 import ParticipantsOverview from "../../components/Monitoring/ParticipantsOverview";
-import QuestionnaireAnalysis from "../../components/Monitoring/Questionnaireanalysis";
+import QuestionnaireAnalysis from "../../components/Monitoring/QuestionnaireAnalysis";
 import InteractionMetrics from "../../components/Monitoring/Interactionmetrics";
 import {useExperimentAuth} from "../../hooks/useExperimentAuth";
 

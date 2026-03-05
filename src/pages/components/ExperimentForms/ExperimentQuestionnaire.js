@@ -128,7 +128,7 @@ const ExperimentQuestionnaire = () => {
                             <Button
                                 variant="contained"
                                 onClick={() => setStep(step + 1)}
-                                disabled={!Array.isArray(ExperimentSurveys) || ExperimentSurveys.length === 0}
+                                // disabled={!Array.isArray(ExperimentSurveys) || ExperimentSurveys.length === 0}
                             >
                                 {t('next')}
                             </Button>}

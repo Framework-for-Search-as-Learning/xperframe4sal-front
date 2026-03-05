@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, lapic-ufjf
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 export const SCORE_TYPES = [
   { value: "unic", label: "unic" },
   { value: "min_max", label: "min_max" },

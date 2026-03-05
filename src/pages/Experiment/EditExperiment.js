@@ -132,7 +132,7 @@ const EditExperiment = () => {
                 });
             }
 
-            setFeedback({ open: true, message: t('Success_Edit') || "Salvo com sucesso!", severity: 'success' });
+            setFeedback({ open: true, message: t('success_edit') || "Salvo com sucesso!", severity: 'success' });
         } catch (error) {
             console.error('Erro ao salvar:', error);
             setFeedback({ open: true, message: t('error') || "Erro ao salvar.", severity: 'error' });

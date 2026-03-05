@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, lapic-ufjf
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import React from "react";
 import {Box, Button} from "@mui/material";
 import {ArrowBack, ArrowForward} from "@mui/icons-material";

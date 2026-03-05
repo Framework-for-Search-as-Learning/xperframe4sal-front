@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026, lapic-ufjf
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 export { default as CreateExperiment } from './CreateExperiment';
 export { default as ExperimentMonitoring } from './ExperimentMonitoring';
 export { default as EditExperiment } from './EditExperiment';
