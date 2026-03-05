@@ -53,7 +53,10 @@ const normalizeStatus = (status) => {
 
 const isStatusInactive = (status) => {
     const normalized = normalizeStatus(status);
-    return normalized === EXPERIMENT_STATUS.FINISHED;
+    return (
+        normalized === EXPERIMENT_STATUS.FINISHED ||
+        normalized === EXPERIMENT_STATUS.NOT_STARTED
+    );
 };
 
 const getStatusConfig = (status, t) => {
