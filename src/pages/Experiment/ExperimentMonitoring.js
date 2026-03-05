@@ -13,7 +13,7 @@ import {
     Tab,
     CircularProgress,
     Alert,
-    Divider,
+    Divider, Tooltip, IconButton,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -170,16 +170,25 @@ const ExperimentMonitoring = () => {
                     <Button
                         variant="contained"
                         color="primary"
-                        startIcon={
-                            exportingData ? <CircularProgress size={20} /> : <DownloadIcon />
-                        }
+                        startIcon={exportingData ? <CircularProgress size={20}/> : <DownloadIcon/>}
                         onClick={handleExportAllData}
                         disabled={exportingData}
+                        sx={{display: {xs: 'none', sm: 'flex'}, whiteSpace: 'nowrap', px: 3, py: 1, flexShrink: 0, minWidth: '180px'}}
                     >
-                        {exportingData
-                            ? t("exporting") || "Exportando..."
-                            : t("export_all_data") || "Exportar Todos os Dados"}
+                        {exportingData ? t("exporting") : t("export_all_data")}
                     </Button>
+                    <Tooltip title={t("export_all_data")}>
+                        <span>
+                            <IconButton
+                                color="primary"
+                                onClick={handleExportAllData}
+                                disabled={exportingData}
+                                sx={{display: {xs: 'flex', sm: 'none'}}}
+                            >
+                                {exportingData ? <CircularProgress size={24}/> : <DownloadIcon/>}
+                            </IconButton>
+                        </span>
+                    </Tooltip>
                 </Box>
             </Box>
 
@@ -240,7 +249,7 @@ const ExperimentMonitoring = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <Card>
                         <CardContent>
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Box sx={{display: "flex", alignItems: "center"}}>
                                 <Box>
                                     <Typography variant="h4" color="primary">
                                         {statsData?.completionPercentage?.toFixed(1) || 0}%

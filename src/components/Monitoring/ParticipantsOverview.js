@@ -11,7 +11,7 @@ import {
     TableRow,
     Chip,
     Button,
-    CircularProgress,
+    CircularProgress, IconButton, Tooltip,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 
@@ -115,18 +115,41 @@ const ParticipantsOverview = ({participants, stats, experimentId, t}) => {
                 <Typography variant="h6">
                     {t("participants_list") || "Lista de Participantes"}
                 </Typography>
-                <Button
-                    variant="outlined"
-                    startIcon={
-                        exporting ? <CircularProgress size={16}/> : <DownloadIcon/>
-                    }
-                    onClick={handleExportParticipants}
-                    disabled={exporting}
-                >
-                    {exporting
-                        ? t("exporting") || "Exportando..."
-                        : t("export_csv") || "Exportar CSV"}
-                </Button>
+                <Box>
+
+                    <Button
+                        variant="outlined"
+                        startIcon={
+                            exporting ? <CircularProgress size={16}/> : <DownloadIcon/>
+                        }
+                        onClick={handleExportParticipants}
+                        disabled={exporting}
+                        sx={{
+                            display: {xs: 'none', sm: 'flex'},
+                            whiteSpace: 'nowrap',
+                            px: 3,
+                            py: 1,
+                            flexShrink: 0,
+                            minWidth: '180px'
+                        }}
+                    >
+                        {exporting
+                            ? t("exporting") || "Exportando..."
+                            : t("export_csv") || "Exportar CSV"}
+                    </Button>
+                    <Tooltip title={t("export_csv")}>
+                        <span>
+                            <IconButton
+                                color="primary"
+                                onClick={handleExportParticipants}
+                                disabled={exporting}
+                                sx={{display: {xs: 'flex', sm: 'none'}}}
+                            >
+                                {exporting ? <CircularProgress size={24}/> : <DownloadIcon/>}
+                            </IconButton>
+                        </span>
+                    </Tooltip>
+                </Box>
             </Box>
 
             <TableContainer>
