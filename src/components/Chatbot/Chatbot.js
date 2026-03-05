@@ -12,7 +12,7 @@ import { MessageInput } from './MessageInput';
 import { marked } from "marked";
 import { useTranslation } from 'react-i18next';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/searching-as-learning';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/searchat-behavior';
 
 const useStyles = makeStyles((theme) => ({
     chatContainer: {
