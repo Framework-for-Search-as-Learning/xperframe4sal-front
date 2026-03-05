@@ -112,7 +112,7 @@ const EditExperiment = () => {
 
     const handleSaveExperiment = async () => {
         try {
-            if (step === 1 || step === 3) {
+            if (step === 0 || step === 3) {
                 const updatedExperiment = {
                     name: ExperimentTitle,
                     summary: ExperimentDesc,

@@ -7,6 +7,7 @@ import React, {useContext, useState} from 'react';
 import {Box, Button, styled, TextField, Typography,} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import ReactQuill from 'react-quill';
+import {useNavigate} from 'react-router-dom';
 import StepContext from './context/StepContext';
 import 'react-quill/dist/quill.snow.css';
 import {ArrowBack, ArrowForward} from '@mui/icons-material';
@@ -43,6 +44,7 @@ const ExperimentMetadataForm = () => {
         isEditMode,
         handleSaveExperiment
     } = useContext(StepContext);
+    const navigate = useNavigate();
     const {t} = useTranslation();
     const [isValidTitleExp, setIsValidTitleExp] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
@@ -65,7 +67,7 @@ const ExperimentMetadataForm = () => {
     };
 
     const handleBackResearcher = () => {
-        setStep(step - 1);
+        navigate('/experiments');
     };
 
     return (
