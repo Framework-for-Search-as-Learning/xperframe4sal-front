@@ -4,19 +4,11 @@
  */
 
 import React, { useState } from 'react';
-import { api } from "../config/axios.js";
+import { api } from '../config/axios.js';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import {
-  Container,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Divider,
-  Box,
-} from '@mui/material';
+import { Container, Paper, Typography, TextField, Button, Divider, Box } from '@mui/material';
 
 import { ErrorMessage } from '../components/ErrorMessage';
 import { LoadingIndicator } from '../components/LoadIndicator';
@@ -59,36 +51,47 @@ const ForgotPassword = () => {
   };
 
   return (
-    <Container maxWidth="xs" sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      boxSizing: 'border-box',
-      height: '100vh',
-      justifyContent: 'center',
-      position: 'relative',
-    }}>
-      <Paper elevation={3} sx={{
-        padding: '48px 40px 36px',
-        minWidth: 500,
-        width: '100%',
-        overflowY: 'hidden',
-        margin: '0 auto'
-      }}>
-        <Typography variant="h4" align="center"
+    <Container
+      maxWidth="xs"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box',
+        height: '100vh',
+        justifyContent: 'center',
+        position: 'relative',
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          padding: '48px 40px 36px',
+          minWidth: 500,
+          width: '100%',
+          overflowY: 'hidden',
+          margin: '0 auto',
+        }}
+      >
+        <Typography
+          variant="h4"
+          align="center"
           sx={{ fontSize: { xs: '1.8rem', sm: '2rem' } }}
           style={{
             fontFamily: '"Google Sans","Noto Sans Myanmar UI", arial,sans-serif',
             fontWeight: 500,
-            color: 'rgb(103,99,99)'
-          }}>
+            color: 'rgb(103,99,99)',
+          }}
+        >
           {t('forgot_password_title')}
         </Typography>
         {isLoading && <LoadingIndicator size={50} />}
-        {alertMessage && <ErrorMessage
-          message={alertMessage}
-          messageType={messageType}
-          onClose={() => setAlertMessage(null)}
-        />}
+        {alertMessage && (
+          <ErrorMessage
+            message={alertMessage}
+            messageType={messageType}
+            onClose={() => setAlertMessage(null)}
+          />
+        )}
         <Divider style={{ margin: '16px 0' }} />
         <Box component="form">
           <TextField
@@ -100,7 +103,7 @@ const ForgotPassword = () => {
             value={email}
             required
             onChange={handleEmailChange}
-            error={!isValid && (email.length > 0)}
+            error={!isValid && email.length > 0}
             helperText={!isValid && email ? t('invalid_email') : ''}
             margin="normal"
           />
@@ -114,13 +117,15 @@ const ForgotPassword = () => {
           >
             {t('recover_button')}
           </Button>
-          <Button onClick={() => navigate('/')} style={{
-            cursor: 'pointer',
-            fontWeight: 700,
-            backgroundColor: 'transparent',
-            textAlign: 'right',
-            padding: '2px 3px',
-          }}
+          <Button
+            onClick={() => navigate('/')}
+            style={{
+              cursor: 'pointer',
+              fontWeight: 700,
+              backgroundColor: 'transparent',
+              textAlign: 'right',
+              padding: '2px 3px',
+            }}
             sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}
           >
             {t('login_link')}

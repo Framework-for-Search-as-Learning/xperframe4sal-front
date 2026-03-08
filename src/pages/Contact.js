@@ -44,19 +44,21 @@ const Contact = () => {
             },
           }}
         >
-          <Typography component="div">
-            {t('researchers')}
-          </Typography>
+          <Typography component="div">{t('researchers')}</Typography>
         </AccordionSummary>
         <Divider />
         <AccordionDetails>
           <Box sx={{ display: 'flex' }}>
             <MailIcon />
-            <Typography noWrap sx={{ marginLeft: 1 }}>Marcelo Machado - marcelo.machado@ufjf.br</Typography>
+            <Typography noWrap sx={{ marginLeft: 1 }}>
+              Marcelo Machado - marcelo.machado@ufjf.br
+            </Typography>
           </Box>
           <Box sx={{ display: 'flex' }}>
             <MailIcon />
-            <Typography noWrap sx={{ marginLeft: 1 }}>Jairo Francisco de Souza - jairo.souza@ufjf.br</Typography>
+            <Typography noWrap sx={{ marginLeft: 1 }}>
+              Jairo Francisco de Souza - jairo.souza@ufjf.br
+            </Typography>
           </Box>
         </AccordionDetails>
       </Accordion>

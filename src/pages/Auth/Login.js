@@ -3,10 +3,10 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import background from '../../assets/background.png';
-import { api } from "../../config/axios.js"
-import { useState, useEffect } from 'react'
+import { api } from '../../config/axios.js';
+import { useState, useEffect } from 'react';
 import {
   Container,
   Paper,
@@ -20,7 +20,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 
-import SearchatBehavior from "../../assets/SearchatBehaviorDown.png";
+import SearchatBehavior from '../../assets/SearchatBehaviorDown.png';
 
 import { ErrorMessage } from '../../components/ErrorMessage.js';
 
@@ -41,11 +41,15 @@ const Login = () => {
   const [messageType, setMessageType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const isAuthenticated = !!(user && user.expirationTime && new Date().getTime() < user.expirationTime);
+  const isAuthenticated = !!(
+    user &&
+    user.expirationTime &&
+    new Date().getTime() < user.expirationTime
+  );
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/experiments");
+      navigate('/experiments');
     }
   }, [isAuthenticated, navigate]);
 
@@ -69,7 +73,7 @@ const Login = () => {
   const handleEmailLogin = async () => {
     setIsLoading(true);
     try {
-      let response = await api.post("/login", { username: email, password: password });
+      let response = await api.post('/login', { username: email, password: password });
       setIsLoading(false);
       if (response.data) {
         let user = response.data;
@@ -77,7 +81,7 @@ const Login = () => {
         const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
         localStorage.setItem('user', JSON.stringify({ ...user, expirationTime }));
         setUser(user);
-        navigate("/experiments");
+        navigate('/experiments');
       } else {
         setAlertMessage(t('data_retrieval_error'));
         setMessageType('fail');
@@ -91,7 +95,7 @@ const Login = () => {
 
   const handleRegister = async (event) => {
     event.preventDefault();
-    navigate("/register");
+    navigate('/register');
   };
 
   const handleForgotPassword = () => {
@@ -101,20 +105,25 @@ const Login = () => {
   const isValidForm = isValid && email && password;
 
   return (
-    <Box style={{
+    <Box
+      style={{
         backgroundImage: `url(${background})`,
-        backgroundRepeat: 'no-repeat', 
+        backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-      }}>
-      <Container maxWidth="xs" style={{
-        display: 'flex',
-        flexDirection: 'column',
-        boxSizing: 'border-box',
-        height: '100vh',
-        justifyContent: 'center',
-        position: 'relative',
-      }}>
+      }}
+    >
+      <Container
+        maxWidth="xs"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          boxSizing: 'border-box',
+          height: '100vh',
+          justifyContent: 'center',
+          position: 'relative',
+        }}
+      >
         <Paper
           elevation={3}
           sx={{
@@ -122,7 +131,7 @@ const Login = () => {
             minHeight: 350,
             width: '100%',
             overflowY: 'hidden',
-            margin: '0 auto'
+            margin: '0 auto',
           }}
         >
           <Box component="form" disabled={isLoading}>
@@ -135,14 +144,16 @@ const Login = () => {
               }}>
               {t('sign_in_title')}
             </Typography> */}
-            <img 
-              src={SearchatBehavior} 
-              alt="Searchat Behavior" 
-              style={{ 
-                width: '100%',  
-                display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'center' }} />
+            <img
+              src={SearchatBehavior}
+              alt="Searchat Behavior"
+              style={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+              }}
+            />
             {alertMessage && (
               <ErrorMessage
                 message={alertMessage}
@@ -160,9 +171,9 @@ const Login = () => {
               autoComplete="email"
               value={email}
               onChange={handleEmailChange}
-              error={!isValid && (email.length > 0)}
+              error={!isValid && email.length > 0}
               helperText={!isValid && email ? t('invalid_email') : ''}
-              margin='normal'
+              margin="normal"
             />
             <TextField
               label={t('password_label')}
@@ -188,24 +199,29 @@ const Login = () => {
               margin="normal"
             />
             <div>
-              <Button onClick={handleForgotPassword} style={{
-                cursor: 'pointer',
-                fontWeight: 700,
-                backgroundColor: 'transparent',
-                textAlign: 'left',
-                padding: '2px 3px',
-                fontSize: 11,
-              }}>
+              <Button
+                onClick={handleForgotPassword}
+                style={{
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  backgroundColor: 'transparent',
+                  textAlign: 'left',
+                  padding: '2px 3px',
+                  fontSize: 11,
+                }}
+              >
                 {t('forgot_password')}
               </Button>
             </div>
 
-            <div style={{
-              display: 'flex',
-              flexDirection: 'row-reverse',
-              marginTop: 50,
-              width: '100%',
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row-reverse',
+                marginTop: 50,
+                width: '100%',
+              }}
+            >
               <Button
                 onClick={handleEmailLogin}
                 variant="contained"
@@ -229,8 +245,9 @@ const Login = () => {
                   backgroundColor: 'transparent',
                   flexGrow: 1,
                   padding: '2px 3px',
-                  display: 'inline-block'
-                }}>
+                  display: 'inline-block',
+                }}
+              >
                 {t('sign_up_label')}
               </Button>
             </div>
@@ -238,8 +255,7 @@ const Login = () => {
         </Paper>
       </Container>
     </Box>
-
-  )
+  );
 };
 
 export { Login };

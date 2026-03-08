@@ -4,12 +4,22 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { api } from "../../config/axios.js";
+import { api } from '../../config/axios.js';
 import { Container, Paper, TextField, Button } from '@mui/material';
 import { ErrorMessage } from '../ErrorMessage.js';
 import { LoadingIndicator } from '../LoadIndicator.js';
 
-const EditAccount = ({ t, isLoading, setIsLoading, alertMessage, messageType, setMessageType, setAlertMessage, user, setUser }) => {
+const EditAccount = ({
+  t,
+  isLoading,
+  setIsLoading,
+  alertMessage,
+  messageType,
+  setMessageType,
+  setAlertMessage,
+  user,
+  setUser,
+}) => {
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -63,18 +73,18 @@ const EditAccount = ({ t, isLoading, setIsLoading, alertMessage, messageType, se
 
   const handleEdit = async () => {
     if (!isValidEmail) {
-      setAlertMessage(t("E-mail inválido. Verifique e tente novamente."));
-      setMessageType("fail");
+      setAlertMessage(t('E-mail inválido. Verifique e tente novamente.'));
+      setMessageType('fail');
       return;
     }
     if (!isValidName) {
-      setAlertMessage(t("Preencha seu nome."));
-      setMessageType("fail");
+      setAlertMessage(t('Preencha seu nome.'));
+      setMessageType('fail');
       return;
     }
     if (!isValidLastName) {
-      setAlertMessage(t("Preencha seu sobrenome."));
-      setMessageType("fail");
+      setAlertMessage(t('Preencha seu sobrenome.'));
+      setMessageType('fail');
       return;
     }
 
@@ -98,23 +108,18 @@ const EditAccount = ({ t, isLoading, setIsLoading, alertMessage, messageType, se
       setIsLoading(false);
       const expirationTime = user.expirationTime;
       setUser({ ...userData, expirationTime });
-      localStorage.setItem(
-        "user",
-        JSON.stringify({ ...userData, expirationTime })
-      );
+      localStorage.setItem('user', JSON.stringify({ ...userData, expirationTime }));
       if (response.data) {
-        setAlertMessage(t("Seu cadastro foi atualizado com sucesso!"));
-        setMessageType("success");
+        setAlertMessage(t('Seu cadastro foi atualizado com sucesso!'));
+        setMessageType('success');
         setEnableEditButton(false);
       }
     } catch (e) {
       setIsLoading(false);
       setAlertMessage(
-        t(
-          "Não foi possível atualizar o cadastro. Verifique todos os campos e tente novamente."
-        )
+        t('Não foi possível atualizar o cadastro. Verifique todos os campos e tente novamente.'),
       );
-      setMessageType("fail");
+      setMessageType('fail');
     }
   };
 
@@ -122,12 +127,12 @@ const EditAccount = ({ t, isLoading, setIsLoading, alertMessage, messageType, se
     <Container
       maxWidth="xs"
       style={{
-        display: "flex",
-        flexDirection: "column",
-        boxSizing: "border-box",
-        height: "80vh",
-        justifyContent: "center",
-        position: "relative",
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box',
+        height: '80vh',
+        justifyContent: 'center',
+        position: 'relative',
       }}
     >
       <Paper elevation={3} sx={{ padding: 2 }}>
@@ -141,9 +146,9 @@ const EditAccount = ({ t, isLoading, setIsLoading, alertMessage, messageType, se
         )}
         <form onSubmit={handleEdit} disabled={isLoading}>
           <TextField
-            label={t("Nome")}
+            label={t('Nome')}
             error={!isValidName}
-            helperText={!isValidName ? t("Preencha o campo nome.") : ""}
+            helperText={!isValidName ? t('Preencha o campo nome.') : ''}
             fullWidth
             margin="normal"
             variant="outlined"
@@ -151,11 +156,9 @@ const EditAccount = ({ t, isLoading, setIsLoading, alertMessage, messageType, se
             onChange={handleNameChange}
           />
           <TextField
-            label={t("Sobrenome")}
+            label={t('Sobrenome')}
             error={!isValidLastName}
-            helperText={
-              !isValidLastName ? t("Preencha o campo sobrenome.") : ""
-            }
+            helperText={!isValidLastName ? t('Preencha o campo sobrenome.') : ''}
             fullWidth
             margin="normal"
             variant="outlined"
@@ -163,11 +166,11 @@ const EditAccount = ({ t, isLoading, setIsLoading, alertMessage, messageType, se
             onChange={handleLastNameChange}
           />
           <TextField
-            label={t("E-mail")}
+            label={t('E-mail')}
             type="email"
             autoComplete="email"
             error={!isValidEmail}
-            helperText={!isValidEmail ? t("E-mail inválido.") : ""}
+            helperText={!isValidEmail ? t('E-mail inválido.') : ''}
             fullWidth
             margin="normal"
             variant="outlined"
@@ -179,10 +182,10 @@ const EditAccount = ({ t, isLoading, setIsLoading, alertMessage, messageType, se
             color="primary"
             fullWidth
             type="submit"
-            style={{ margin: "16px 0" }}
+            style={{ margin: '16px 0' }}
             disabled={!enableEditButton || isLoading}
           >
-            {t("edit")}
+            {t('edit')}
           </Button>
         </form>
       </Paper>

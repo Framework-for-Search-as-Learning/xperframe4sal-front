@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { api } from "../config/axios.js";
+import { api } from '../config/axios.js';
 import { useNavigate } from 'react-router-dom';
 import background from '../assets/background.png';
 import {
@@ -52,7 +52,8 @@ const Register = () => {
   const handlePasswordChange = (e) => {
     const inputPassword = e.target.value;
     setPassword(inputPassword);
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\]*@#$%^<>'";|}{:,./?~()`&\-_+=![]).{6,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\]*@#$%^<>'";|}{:,./?~()`&\-_+=![]).{6,}$/;
     setIsValidPassword(passwordRegex.test(inputPassword));
   };
 
@@ -74,7 +75,7 @@ const Register = () => {
 
   const handleRegister = async () => {
     if (!isValidEmail || !isValidName || !isValidLastName || !isValidPassword) {
-      setAlertMessage(t("form_invalid_message"));
+      setAlertMessage(t('form_invalid_message'));
       setMessageType('fail');
       return;
     }
@@ -86,67 +87,88 @@ const Register = () => {
     const userData = { name, lastName, email, password, researcher };
     setIsLoading(true);
     try {
-      let response = await api.post("/user", userData);
+      let response = await api.post('/user', userData);
       if (response.data) {
         try {
-          let loginResponse = await api.post("/login", { username: email, password: password });
+          let loginResponse = await api.post('/login', { username: email, password: password });
           if (loginResponse.data) {
             let user = loginResponse.data;
             user.email = email;
             const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
             localStorage.setItem('user', JSON.stringify({ ...user, expirationTime }));
 
-            setAlertMessage(t("success_message"));
+            setAlertMessage(t('success_message'));
             setMessageType('success');
-            navigate("/experiments");
+            navigate('/experiments');
           } else {
-            navigate("/login");
+            navigate('/login');
           }
         } catch (loginError) {
-          setAlertMessage(t("success_message"));
+          setAlertMessage(t('success_message'));
           setMessageType('success');
-          navigate("/login");
+          navigate('/login');
         }
       }
     } catch (e) {
-      setAlertMessage(t("register_fail_message"));
+      setAlertMessage(t('register_fail_message'));
       setMessageType('fail');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const isValidForm = isValidEmail && email && isValidPassword && password && isValidName && name && isValidLastName && lastName;
+  const isValidForm =
+    isValidEmail &&
+    email &&
+    isValidPassword &&
+    password &&
+    isValidName &&
+    name &&
+    isValidLastName &&
+    lastName;
 
   return (
-    <Box style={{
-      backgroundImage: `url(${background})`,
-      backgroundRepeat: 'no-repeat',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    }}>
-      <Container maxWidth="xs" style={{
-        display: 'flex',
-        flexDirection: 'column',
-        boxSizing: 'border-box',
-        height: '100vh',
-        justifyContent: 'center',
-        position: 'relative',
-      }}>
+    <Box
+      style={{
+        backgroundImage: `url(${background})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <Container
+        maxWidth="xs"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          boxSizing: 'border-box',
+          height: '100vh',
+          justifyContent: 'center',
+          position: 'relative',
+        }}
+      >
         <Paper elevation={3} style={{ padding: '16px' }}>
-          <Box component='form' disabled={isLoading}>
-            <Typography variant="h4" align="center"
+          <Box component="form" disabled={isLoading}>
+            <Typography
+              variant="h4"
+              align="center"
               style={{
                 fontFamily: '"Google Sans","Noto Sans Myanmar UI", arial,sans-serif',
                 fontWeight: 500,
-                color: 'rgb(103,99,99)'
+                color: 'rgb(103,99,99)',
               }}
               sx={{ fontSize: { xs: '2.2rem', sm: '2.4rem' } }}
             >
               {t('sign_up_label')}
             </Typography>
-            {isLoading ? <LoadingIndicator size={50} /> : ""}
-            {alertMessage && <ErrorMessage message={alertMessage} messageType={messageType} onClose={() => setAlertMessage(null)} />}
+            {isLoading ? <LoadingIndicator size={50} /> : ''}
+            {alertMessage && (
+              <ErrorMessage
+                message={alertMessage}
+                messageType={messageType}
+                onClose={() => setAlertMessage(null)}
+              />
+            )}
 
             <TextField
               label={t('name_label')}
@@ -226,13 +248,15 @@ const Register = () => {
             </Button>
             <Typography variant="body2" align="center" fontSize={15}>
               {t('have_an_account_already')}{' '}
-              <Button onClick={() => navigate('/')} style={{
-                cursor: 'pointer',
-                fontWeight: 700,
-                backgroundColor: 'transparent',
-                textAlign: 'right',
-                padding: '2px 3px',
-              }}
+              <Button
+                onClick={() => navigate('/')}
+                style={{
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  backgroundColor: 'transparent',
+                  textAlign: 'right',
+                  padding: '2px 3px',
+                }}
                 sx={{ fontSize: { xs: '0.7rem', sm: '0.8rem' } }}
               >
                 {t('sign_in_title')}
@@ -241,9 +265,7 @@ const Register = () => {
           </Box>
         </Paper>
       </Container>
-
     </Box>
-
   );
 };
 

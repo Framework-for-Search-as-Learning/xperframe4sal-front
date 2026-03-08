@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { api } from "../config/axios.js";
+import { api } from '../config/axios.js';
 import { Button, Box } from '@mui/material';
 import { ConfirmDialog } from '../components/ConfirmDialog.js';
 import { CustomSnackbar } from '../components/CustomSnackbar';
@@ -43,17 +43,17 @@ const Account = () => {
 
   const openDeleteDialog = () => {
     setConfirmDialogOpen(true);
-  }
+  };
 
   const closeDeleteDialog = () => {
     setConfirmDialogOpen(false);
-  }
+  };
 
   const handleCloseSuccessSnackbar = async () => {
     setShowSnackBar(false);
     if (isSuccess) {
       setIsSuccess(false);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       setRedirect(true);
     }
   };
@@ -66,7 +66,16 @@ const Account = () => {
 
   return (
     <>
-      <CustomSnackbar open={showSnackBar} handleClose={handleCloseSuccessSnackbar} time={1500} message={message} severity={severity} slide={true} variant="filled" showLinear={true} />
+      <CustomSnackbar
+        open={showSnackBar}
+        handleClose={handleCloseSuccessSnackbar}
+        time={1500}
+        message={message}
+        severity={severity}
+        slide={true}
+        variant="filled"
+        showLinear={true}
+      />
       <ConfirmDialog
         open={confirmDialogOpen}
         onClose={closeDeleteDialog}
@@ -75,7 +84,7 @@ const Account = () => {
         content={t('Você terá todos os seus dados de experimentos apagados.')}
       />
       <Box sx={{ flexFlow: 1, textAlign: 'right' }}>
-        <Button color='error' variant='contained' onClick={openDeleteDialog}>
+        <Button color="error" variant="contained" onClick={openDeleteDialog}>
           {t('Apagar todos meus dados')}
         </Button>
       </Box>

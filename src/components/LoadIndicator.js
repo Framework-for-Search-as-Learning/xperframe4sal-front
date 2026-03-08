@@ -16,7 +16,6 @@ const LoadingIndicator = ({ size }) => (
   >
     <CircularProgress size={size} />
   </Box>
-
 );
 
 export { LoadingIndicator };

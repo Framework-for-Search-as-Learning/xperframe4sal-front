@@ -7,11 +7,7 @@ import { makeStyles } from '@mui/styles';
 import Link from '@mui/material/Link';
 import React from 'react';
 
-import {
-  Typography,
-  Box,
-} from '@mui/material';
-
+import { Typography, Box } from '@mui/material';
 
 const useStyles = makeStyles((theme) => ({
   linkCite: {
@@ -23,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   snippet: {
     fontSize: '14px',
     fontFamily: 'arial,sans-serif',
-    color: '#4d5156'
+    color: '#4d5156',
   },
   supertitle: {
     color: '#202124',
@@ -37,32 +33,40 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: 'arial,sans-serif',
     fontSize: '20px',
     fontWeight: 400,
-    color: '#1a0dab'
-  }
+    color: '#1a0dab',
+  },
 }));
 
 const SearchResult = (props) => {
-
   let { userId, rank, title, snippet, link, openModalHandle, taskId } = props;
   const classes = useStyles();
 
   const urlObject = new URL(link);
   const host = urlObject.host;
-  const pathSegments = urlObject.pathname.split('/').filter(segment => segment !== '');
-
+  const pathSegments = urlObject.pathname.split('/').filter((segment) => segment !== '');
 
   return (
     <Box sx={{ marginBottom: '20px', paddingLeft: '10%', paddingRight: '45%', paddingTop: 3 }}>
-      <Link rel="noopener noreferrer" color="primary" style={{ cursor: 'pointer', textDecoration: 'none' }} onClick={() => {
-        openModalHandle(link, rank, title);
-      }}>
-        <span className={classes.supertitle}>{host.replace('www.', '').charAt(0).toUpperCase() + host.replace('www.', '').slice(1)}</span>
+      <Link
+        rel="noopener noreferrer"
+        color="primary"
+        style={{ cursor: 'pointer', textDecoration: 'none' }}
+        onClick={() => {
+          openModalHandle(link, rank, title);
+        }}
+      >
+        <span className={classes.supertitle}>
+          {host.replace('www.', '').charAt(0).toUpperCase() + host.replace('www.', '').slice(1)}
+        </span>
         <br></br>
-        <Typography variant="subtitle2" color="textSecondary" className={classes.linkCite}
-
+        <Typography
+          variant="subtitle2"
+          color="textSecondary"
+          className={classes.linkCite}
           sx={{
-            flexGrow: 1, minWidth: '270px',
-            fontSize: { xs: '0.7rem', sm: '0.8rem' }
+            flexGrow: 1,
+            minWidth: '270px',
+            fontSize: { xs: '0.7rem', sm: '0.8rem' },
           }}
         >
           <cite>
@@ -76,29 +80,38 @@ const SearchResult = (props) => {
           </cite>
         </Typography>
       </Link>
-      <Link rel="noopener noreferrer" color="primary" style={{ cursor: 'pointer' }} onClick={() => {
-        openModalHandle(link, rank, title);
-      }}>
-        <Typography variant="h6" component="div"
+      <Link
+        rel="noopener noreferrer"
+        color="primary"
+        style={{ cursor: 'pointer' }}
+        onClick={() => {
+          openModalHandle(link, rank, title);
+        }}
+      >
+        <Typography
+          variant="h6"
+          component="div"
           sx={{
-            flexGrow: 1, minWidth: '270px',
-            fontSize: { xs: '0.9rem', sm: '1.2rem' }
+            flexGrow: 1,
+            minWidth: '270px',
+            fontSize: { xs: '0.9rem', sm: '1.2rem' },
           }}
         >
           {title}
         </Typography>
       </Link>
-      <Typography className={classes.snippet}
+      <Typography
+        className={classes.snippet}
         sx={{
-          flexGrow: 1, minWidth: '270px',
-          fontSize: { xs: '0.8rem', sm: '1rem' }
+          flexGrow: 1,
+          minWidth: '270px',
+          fontSize: { xs: '0.8rem', sm: '1rem' },
         }}
       >
         {snippet}
       </Typography>
-    </Box >
-  )
+    </Box>
+  );
+};
 
-}
-
-export { SearchResult }
+export { SearchResult };

@@ -3,9 +3,9 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import { useState, React } from "react";
-import { Outlet, useNavigate, Navigate } from 'react-router-dom'
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import { useState, React } from 'react';
+import { Outlet, useNavigate, Navigate } from 'react-router-dom';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import ListItemButton from '@mui/material/ListItemButton';
 import Menu from '@mui/material/Menu';
@@ -32,7 +32,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import MailIcon from '@mui/icons-material/Mail';
 
-const drawerWidth = "240";
+const drawerWidth = '240';
 
 export function PrivateRoutes(props) {
   const { t } = useTranslation();
@@ -43,7 +43,11 @@ export function PrivateRoutes(props) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { window } = props;
 
-  const isAuthenticated = !!(user && user.expirationTime && new Date().getTime() < user.expirationTime);
+  const isAuthenticated = !!(
+    user &&
+    user.expirationTime &&
+    new Date().getTime() < user.expirationTime
+  );
 
   if (!isAuthenticated) {
     localStorage.removeItem('user');
@@ -56,36 +60,36 @@ export function PrivateRoutes(props) {
   const handleLogout = () => {
     localStorage.clear();
     setUser(null);
-    navigate('/')
-  }
+    navigate('/');
+  };
 
   const handleEditProfile = () => {
     navigate('/account');
     setAnchorEl(null);
-  }
+  };
   const handleGoHome = () => {
     navigate('/experiments');
     setAnchorEl(null);
-  }
+  };
 
   const handleGoContact = () => {
     navigate('/contact');
     setAnchorEl(null);
-  }
+  };
 
   const handleGoInstruction = () => {
     navigate('/instructions');
     setAnchorEl(null);
-  }
+  };
 
   const handleGoCreateExperiment = () => {
     navigate('/experiments/new');
     setAnchorEl(null);
-  }
-  const handleGoExperimentList= () => {
+  };
+  const handleGoExperimentList = () => {
     navigate('/experiments');
     setAnchorEl(null);
-  }
+  };
   const handleAccountButtonEnter = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -97,63 +101,60 @@ export function PrivateRoutes(props) {
   const drawer = (
     <Box onClick={handleDrawerToggle}>
       <Toolbar
-          sx={{
-              backgroundColor: 'brand.main',
-              color: 'white',
-              display: 'flex',
-              justifyContent: 'center'
-          }}
+        sx={{
+          backgroundColor: 'brand.main',
+          color: 'white',
+          display: 'flex',
+          justifyContent: 'center',
+        }}
       >
-          <Box
-              onClick={handleGoHome}
-              sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-          >
-              <img
-                  src={logo}
-                  alt={t('system_name')}
-                  style={{ height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-              />
-          </Box>
+        <Box
+          onClick={handleGoHome}
+          sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+        >
+          <img
+            src={logo}
+            alt={t('system_name')}
+            style={{ height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+          />
+        </Box>
       </Toolbar>
 
       <Divider />
-        <List sx={{ px: 1 }}>
+      <List sx={{ px: 1 }}>
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleGoHome} sx={{ borderRadius: 2, mb: 0.5 }}>
+            <HomeIcon sx={{ mr: 2, color: 'brand.main' }} />
+            <ListItemText primary="Home" />
+          </ListItemButton>
+        </ListItem>
 
-            <ListItem disablePadding>
-                <ListItemButton onClick={handleGoHome} sx={{ borderRadius: 2, mb: 0.5 }}>
-                    <HomeIcon sx={{ mr: 2, color: 'brand.main' }} />
-                    <ListItemText primary="Home" />
-                </ListItemButton>
-            </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleGoInstruction} sx={{ borderRadius: 2, mb: 0.5 }}>
+            <AutoStoriesIcon sx={{ mr: 2, color: 'brand.main' }} />
+            <ListItemText primary={t('menu_instructions')} />
+          </ListItemButton>
+        </ListItem>
 
-            <ListItem disablePadding>
-                <ListItemButton onClick={handleGoInstruction} sx={{ borderRadius: 2, mb: 0.5 }}>
-                    <AutoStoriesIcon sx={{ mr: 2, color: 'brand.main' }} />
-                    <ListItemText primary={t('menu_instructions')} />
-                </ListItemButton>
-            </ListItem>
+        <Divider sx={{ my: 1 }} />
 
-            <Divider sx={{ my: 1 }} />
-
-            <ListItem disablePadding>
-                <ListItemButton onClick={handleGoContact} sx={{ borderRadius: 2 }}>
-                    <MailIcon sx={{ mr: 2, color: 'brand.main' }} />
-                    <ListItemText primary={t('menu_contact')} />
-                </ListItemButton>
-            </ListItem>
-
-        </List>
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleGoContact} sx={{ borderRadius: 2 }}>
+            <MailIcon sx={{ mr: 2, color: 'brand.main' }} />
+            <ListItemText primary={t('menu_contact')} />
+          </ListItemButton>
+        </ListItem>
+      </List>
     </Box>
   );
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
-
   return isAuthenticated ? (
-    <Box sx={{ display: "block" }}>
+    <Box sx={{ display: 'block' }}>
       <CssBaseline />
-      <AppBar sx={{backgroundColor: 'brand.main'}} component="nav">
-        <Toolbar sx={{justifyContent: 'space-between'}}>
+      <AppBar sx={{ backgroundColor: 'brand.main' }} component="nav">
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Box sx={{ display: { sm: 'none', xs: 'flex', md: 'none' } }}>
             <IconButton
               color="inherit"
@@ -165,31 +166,42 @@ export function PrivateRoutes(props) {
               <MenuIcon />
             </IconButton>
           </Box>
-            <Box
-                onClick={handleGoHome}
-                sx={{ flexGrow: 1, cursor: 'pointer', alignItems: 'center',  display: { xs: 'none', sm: 'flex' }, }}
-            >
-                <img
-                    src={logo}
-                    alt={t('system_name')}
-                    style={{ height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-                />
-            </Box>
-          <Box 
-            sx={{ 
-              display: { xs: 'none', sm: 'flex' },  
-              gap: 1,  
-              justifyContent: 'flex-start',
-              alignItems: 'center',  
+          <Box
+            onClick={handleGoHome}
+            sx={{
+              flexGrow: 1,
+              cursor: 'pointer',
+              alignItems: 'center',
+              display: { xs: 'none', sm: 'flex' },
             }}
           >
-            <Button sx={{ color: '#fff', display: 'flex', alignItems: 'center' }} onClick={handleGoHome}>
+            <img
+              src={logo}
+              alt={t('system_name')}
+              style={{ height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+            />
+          </Box>
+          <Box
+            sx={{
+              display: { xs: 'none', sm: 'flex' },
+              gap: 1,
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+            }}
+          >
+            <Button
+              sx={{ color: '#fff', display: 'flex', alignItems: 'center' }}
+              onClick={handleGoHome}
+            >
               {t('menu_home')}
             </Button>
-            <Button sx={{ color: '#fff', display: 'flex', alignItems: 'center' }} onClick={handleGoInstruction}>
+            <Button
+              sx={{ color: '#fff', display: 'flex', alignItems: 'center' }}
+              onClick={handleGoInstruction}
+            >
               {t('menu_instructions')}
             </Button>
-            
+
             <Button sx={{ color: '#fff', width: '85px' }} onClick={handleGoContact}>
               {t('menu_contact')}
             </Button>
@@ -204,7 +216,9 @@ export function PrivateRoutes(props) {
               aria-haspopup="true"
               size="large"
             >
-              <Typography noWrap style={{ marginRight: 4 }}>{t('hello')}, {`${user?.name.charAt(0).toUpperCase()}${user?.name.slice(1)} `}</Typography>
+              <Typography noWrap style={{ marginRight: 4 }}>
+                {t('hello')}, {`${user?.name.charAt(0).toUpperCase()}${user?.name.slice(1)} `}
+              </Typography>
               <AccountCircle />
             </IconButton>
             <Menu
@@ -222,8 +236,14 @@ export function PrivateRoutes(props) {
               open={Boolean(anchorEl)}
               onClose={handleAccountButtonLeave}
             >
-              <MenuItem onClick={handleEditProfile}><AccountCircle />{t('My_profile')}</MenuItem>
-              <MenuItem onClick={handleLogout}><ExitToAppIcon />{t('Logout')}</MenuItem>
+              <MenuItem onClick={handleEditProfile}>
+                <AccountCircle />
+                {t('My_profile')}
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <ExitToAppIcon />
+                {t('Logout')}
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>
@@ -235,7 +255,7 @@ export function PrivateRoutes(props) {
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true
+            keepMounted: true,
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
@@ -249,6 +269,8 @@ export function PrivateRoutes(props) {
         <Toolbar />
         <Outlet />
       </Box>
-    </Box >
-  ) : <Navigate to="/" />
+    </Box>
+  ) : (
+    <Navigate to="/" />
+  );
 }

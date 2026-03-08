@@ -7,7 +7,6 @@ import React, { useEffect, useState } from 'react';
 import Researcher from '../components/Researcher';
 import NotResearcher from '../components/NotResearcher';
 
-
 const Experiments = () => {
   const [user, setUser] = useState(null);
 

@@ -3,80 +3,84 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-let UserProfile = (function() {
-  let name = "";
+let UserProfile = (function () {
+  let name = '';
   let answredICF = false;
-  let email = "";
+  let email = '';
   let userName = email;
   let researcher = false;
-  let token = "";
+  let token = '';
 
-  let user = {}
+  let user = {};
 
-  let getResearcher = function() {
+  let getResearcher = function () {
     return researcher;
   };
 
-  let getName = function() {
+  let getName = function () {
     return name;
   };
 
-  let setName = function(userName) {
+  let setName = function (userName) {
     name = userName;
   };
-  let setResearcher = function(researcher) {
+  let setResearcher = function (researcher) {
     researcher = researcher;
   };
 
-  let getEmail = function() {
+  let getEmail = function () {
     return email;
   };
 
-  let setEmail = function(userEmail) {
+  let setEmail = function (userEmail) {
     email = userEmail;
   };
 
-  let getToken = function() {
+  let getToken = function () {
     return token;
   };
 
-  let setToken = function(userToken) {
+  let setToken = function (userToken) {
     token = userToken;
   };
 
-  let getUserName = function() {
+  let getUserName = function () {
     return userName;
   };
 
-  let setUserName = function(userEmail) {
+  let setUserName = function (userEmail) {
     userName = userEmail;
   };
 
-  let getAnswredICF = function() {
+  let getAnswredICF = function () {
     return answredICF;
   };
 
-  let setAnswredICF = function(userAnswredICF) {
+  let setAnswredICF = function (userAnswredICF) {
     answredICF = userAnswredICF;
   };
 
-
-  let setUser = function({name, researcher: researcher, email, answredICF, token}) {
+  let setUser = function ({ name, researcher: researcher, email, answredICF, token }) {
     setResearcher(researcher);
     setName(name);
     setEmail(email);
     setAnswredICF(answredICF);
     setToken(token);
-    user = {name: name, researcher:researcher, email: email, answredICF: answredICF, token: token}
-  }
+    user = {
+      name: name,
+      researcher: researcher,
+      email: email,
+      answredICF: answredICF,
+      token: token,
+    };
+  };
 
-  let getUser = function() {
+  let getUser = function () {
     return user;
-  }
-
+  };
 
   return {
-    getResearcher : getResearcher,
+    getResearcher: getResearcher,
     setResearcher: setResearcher,
     getName: getName,
     setName: setName,
@@ -88,9 +92,8 @@ let UserProfile = (function() {
     getToken: getToken,
     setToken: setToken,
     getUser: getUser,
-    setUser: setUser
-  }
-
+    setUser: setUser,
+  };
 })();
 
 export default UserProfile;
