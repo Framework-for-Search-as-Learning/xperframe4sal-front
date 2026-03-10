@@ -183,7 +183,7 @@ const ActionButton = ({
   if (tooltip && disabled) {
     return (
       <Tooltip title={tooltip}>
-        <span>{button}</span>
+        <span style={{ display: 'contents' }}>{button}</span>
       </Tooltip>
     );
   }

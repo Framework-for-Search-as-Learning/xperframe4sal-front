@@ -62,6 +62,12 @@
     align-items: center;
   }
   .buttonContainer {
-    justify-content: space-between;
+    justify-content: center;
+  }
+  .actionButton {
+    flex: 0 0 calc(28% - 6px);
+    justify-content: center;
+    min-width: unset !important;
+    padding: 4px 8px !important;
   }
 }
