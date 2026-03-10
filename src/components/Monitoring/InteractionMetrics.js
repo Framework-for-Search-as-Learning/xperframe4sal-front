@@ -349,8 +349,10 @@ const SummaryTab = ({ stats, tasksExecution, handleExportMetrics, exporting, for
       <Box
         sx={{
           display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          gap: 2,
           mb: 3,
         }}
       >
@@ -362,6 +364,7 @@ const SummaryTab = ({ stats, tasksExecution, handleExportMetrics, exporting, for
           startIcon={exporting ? <CircularProgress size={16} /> : <DownloadIcon />}
           onClick={handleExportMetrics}
           disabled={exporting}
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
         >
           {exporting
             ? t('exporting') || 'Exportando...'
@@ -851,7 +854,13 @@ const ByParticipantTab = ({
         <Box>
           <Card sx={{ mb: 3, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
             <CardContent
-              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'space-between',
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                gap: 2,
+              }}
             >
               <Box>
                 <Typography variant="h6">{selectedParticipant?.name}</Typography>
@@ -866,7 +875,7 @@ const ByParticipantTab = ({
                   color: 'primary.main',
                   '&:hover': { bgcolor: 'grey.100' },
                   fontWeight: 'bold',
-                  textTransform: 'none',
+                  width: { xs: '100%', sm: 'auto' },
                 }}
               >
                 {t('export_data') || 'Exportar Dados'}

@@ -383,6 +383,7 @@ const SummaryTab = ({ survey, handleExportCSV, exporting, renderQuestionChart, t
           startIcon={exporting ? <CircularProgress size={16} /> : <DownloadIcon />}
           onClick={() => handleExportCSV(survey)}
           disabled={exporting}
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
         >
           {t('export_data') || 'Exportar Dados'}
         </Button>

@@ -112,42 +112,23 @@ const ParticipantsOverview = ({ participants, stats, experimentId, t }) => {
       <Box
         sx={{
           display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          gap: 2,
           mb: 3,
         }}
       >
         <Typography variant="h6">{t('participants_list') || 'Lista de Participantes'}</Typography>
-        <Box>
-          <Button
-            variant="outlined"
-            startIcon={exporting ? <CircularProgress size={16} /> : <DownloadIcon />}
-            onClick={handleExportParticipants}
-            disabled={exporting}
-            sx={{
-              display: { xs: 'none', sm: 'flex' },
-              whiteSpace: 'nowrap',
-              px: 3,
-              py: 1,
-              flexShrink: 0,
-              minWidth: '180px',
-            }}
-          >
-            {exporting ? t('exporting') || 'Exportando...' : t('export_csv') || 'Exportar CSV'}
-          </Button>
-          <Tooltip title={t('export_csv')}>
-            <span>
-              <IconButton
-                color="primary"
-                onClick={handleExportParticipants}
-                disabled={exporting}
-                sx={{ display: { xs: 'flex', sm: 'none' } }}
-              >
-                {exporting ? <CircularProgress size={24} /> : <DownloadIcon />}
-              </IconButton>
-            </span>
-          </Tooltip>
-        </Box>
+        <Button
+          variant="outlined"
+          startIcon={exporting ? <CircularProgress size={16} /> : <DownloadIcon />}
+          onClick={handleExportParticipants}
+          disabled={exporting}
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
+        >
+          {exporting ? t('exporting') || 'Exportando...' : t('export_csv') || 'Exportar CSV'}
+        </Button>
       </Box>
 
       <TableContainer>

@@ -28,8 +28,8 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import DownloadIcon from '@mui/icons-material/Download';
 
 import ParticipantsOverview from '../../components/Monitoring/ParticipantsOverview';
-import Questionnaireanalysis from '../../components/Monitoring/Questionnaireanalysis';
-import InteractionMetrics from '../../components/Monitoring/Interactionmetrics';
+import QuestionnaireAnalysis from '../../components/Monitoring/QuestionnaireAnalysis';
+import InteractionMetrics from '../../components/Monitoring/InteractionMetrics';
 import { useExperimentAuth } from '../../hooks/useExperimentAuth';
 
 const ExperimentMonitoring = () => {
@@ -167,24 +167,44 @@ const ExperimentMonitoring = () => {
           {t('back') || 'Voltar'}
         </Button>
 
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-          }}
-        >
-          <Box>
-            <Typography variant="h4" gutterBottom>
-              <AssessmentIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-              {t('experiment_monitoring') || 'Monitoramento do Experimento'}
-            </Typography>
-            <Typography variant="h6" color="textSecondary">
-              {experimentData?.name}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-              {experimentData?.summary?.replace(/<[^>]*>/g, '')}
-            </Typography>
+        <Box>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+            }}
+          >
+            <Box>
+              <Typography variant="h4" gutterBottom>
+                <AssessmentIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                {t('experiment_monitoring') || 'Monitoramento do Experimento'}
+              </Typography>
+              <Typography variant="h6" color="textSecondary">
+                {experimentData?.name}
+              </Typography>
+              <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                {experimentData?.summary?.replace(/<[^>]*>/g, '')}
+              </Typography>
+            </Box>
+
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={exportingData ? <CircularProgress size={20} /> : <DownloadIcon />}
+              onClick={handleExportAllData}
+              disabled={exportingData}
+              sx={{
+                display: { xs: 'none', sm: 'flex' },
+                whiteSpace: 'nowrap',
+                px: 3,
+                py: 1,
+                flexShrink: 0,
+                minWidth: '180px',
+              }}
+            >
+              {exportingData ? t('exporting') : t('export_all_data')}
+            </Button>
           </Box>
 
           <Button
@@ -194,28 +214,13 @@ const ExperimentMonitoring = () => {
             onClick={handleExportAllData}
             disabled={exportingData}
             sx={{
-              display: { xs: 'none', sm: 'flex' },
-              whiteSpace: 'nowrap',
-              px: 3,
-              py: 1,
-              flexShrink: 0,
-              minWidth: '180px',
+              display: { xs: 'flex', sm: 'none' },
+              mt: 2,
+              width: '100%',
             }}
           >
             {exportingData ? t('exporting') : t('export_all_data')}
           </Button>
-          <Tooltip title={t('export_all_data')}>
-            <span>
-              <IconButton
-                color="primary"
-                onClick={handleExportAllData}
-                disabled={exportingData}
-                sx={{ display: { xs: 'flex', sm: 'none' } }}
-              >
-                {exportingData ? <CircularProgress size={24} /> : <DownloadIcon />}
-              </IconButton>
-            </span>
-          </Tooltip>
         </Box>
       </Box>
 
@@ -299,9 +304,18 @@ const ExperimentMonitoring = () => {
           textColor="primary"
           variant="fullWidth"
         >
-          <Tab label={t('participants') || 'Participantes'} />
-          <Tab label={t('questionnaires') || 'Questionários'} />
-          <Tab label={t('interaction_metrics') || 'Métricas de Interação'} />
+          <Tab
+            label={t('participants') || 'Participantes'}
+            sx={{ fontSize: { xs: '0.65rem', sm: '0.875rem' }, minWidth: 0, px: { xs: 1, sm: 2 } }}
+          />
+          <Tab
+            label={t('questionnaires') || 'Questionários'}
+            sx={{ fontSize: { xs: '0.65rem', sm: '0.875rem' }, minWidth: 0, px: { xs: 1, sm: 2 } }}
+          />
+          <Tab
+            label={t('interaction_metrics') || 'Métricas de Interação'}
+            sx={{ fontSize: { xs: '0.65rem', sm: '0.875rem' }, minWidth: 0, px: { xs: 1, sm: 2 } }}
+          />
         </Tabs>
       </Paper>
 
