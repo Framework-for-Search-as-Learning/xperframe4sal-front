@@ -5,7 +5,7 @@
 A standardized framework for capturing authentic human behavior in search and AI-chat experiments.
 </p>
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.0-004b8d" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.1.0-004b8d" alt="Version">
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-2fb594" alt="License"></a>
   <img src="https://img.shields.io/badge/Research-Tool-orange" alt="Tool">
 </p>
