@@ -52,8 +52,20 @@ cd searchat-behavior-ui
 ```
 
 ---
+## 2️⃣ Configure Environment Variables
 
-## 2️⃣ Run the Application
+Copy the example environment file and adjust as needed:
+```bash
+cp .env.example .env
+```
+
+| Variable            | Default                                   | Description          |
+|---------------------|-------------------------------------------|----------------------|
+| `PORT`              | `3001`                                    | Frontend server port |
+| `REACT_APP_API_URL` | `http://localhost:3000/searchat-behavior` | Backend API base URL |
+
+---
+## 3️⃣ Run the Application
 
 ### 🐳 Method A: Docker
 
@@ -77,7 +89,7 @@ pnpm start
 ```
 ---
 
-## 3️⃣ Accessing the Application
+## 4️⃣ Accessing the Application
 
 - Frontend: http://localhost:3001/
 > **⚠️ Note:** Make sure the backend API is running and accessible.

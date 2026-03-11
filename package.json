@@ -48,7 +48,7 @@
     "node": "20"
   },
   "scripts": {
-    "start": "cross-env PORT=3001 craco start",
+    "start": "craco start",
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
