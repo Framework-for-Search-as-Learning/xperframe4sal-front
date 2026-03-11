@@ -19,9 +19,7 @@ const NotFoundPage = () => {
         <Typography variant="h4" gutterBottom>
           {t('not_found_title')}
         </Typography>
-        <Typography variant="body1">
-          {t('not_found_message')}
-        </Typography>
+        <Typography variant="body1">{t('not_found_message')}</Typography>
         <Link to="/">
           <Button variant="contained" color="primary">
             {t('back_home_button')}

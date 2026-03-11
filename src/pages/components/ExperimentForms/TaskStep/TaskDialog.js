@@ -3,9 +3,9 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React from "react";
-import {Dialog, DialogTitle, DialogContent, Typography} from "@mui/material";
-import TaskForm from "./TaskForm";
+import React from 'react';
+import { Dialog, DialogTitle, DialogContent, Typography } from '@mui/material';
+import TaskForm from './TaskForm';
 
 /**
  * Reusable Task Dialog for Create/Edit
@@ -31,17 +31,17 @@ const TaskDialog = ({
       fullWidth
       maxWidth="lg"
       sx={{
-        "& .MuiDialog-paper": {
-          backgroundColor: "#ffffff",
-          borderRadius: "8px",
+        '& .MuiDialog-paper': {
+          backgroundColor: '#ffffff',
+          borderRadius: '8px',
           boxShadow: 3,
           padding: 4,
         },
       }}
     >
-        <Typography fontSize={40} variant="h6" align="center" gutterBottom>
-            {mode === "create" ? t("task_creation") : t("edit_task")}
-        </Typography>
+      <Typography fontSize={40} variant="h6" align="center" gutterBottom>
+        {mode === 'create' ? t('task_creation') : t('edit_task')}
+      </Typography>
 
       <DialogContent>
         <TaskForm

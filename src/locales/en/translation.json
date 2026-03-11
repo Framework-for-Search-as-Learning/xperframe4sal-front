@@ -105,6 +105,7 @@
   "edit_form": "Metadata",
   "edit_groups": "Edit Groups",
   "edit_icf": "Consent Form",
+  "edit_label": "Edit",
   "edit_survey": "Questionnaires",
   "edit_task": "Tasks",
   "participants": "Participants",
@@ -381,7 +382,7 @@
   "not_started": "Not Started",
   "completion_rate": "Completion Rate",
   "participants_list": "Participants List",
-  "export_all_data": "Export All Data",
+  "export_all_data": "Export All",
   "export_data": "Export Data",
   "export_metrics": "Export Metrics",
   "export_csv": "Export CSV",
@@ -436,5 +437,6 @@
   "cannot_delete_min_1_task": "Cannot delete the only task in the experiment.",
   "Success_Delete": "Deleted successfully!",
   "needs_at_least_2_tasks_to_save": "To save as 'Between-subject', you must have at least 2 registered tasks. Please create the tasks in the 'Tasks' tab first.",
-  "needs_at_least_1_task_to_save": "You must have at least 1 registered task to save the design."
+  "needs_at_least_1_task_to_save": "You must have at least 1 registered task to save the design.",
+  "total_queries": "Total Queries"
 }

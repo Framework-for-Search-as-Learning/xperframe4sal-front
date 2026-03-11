@@ -9,203 +9,202 @@ import { makeStyles } from '@mui/styles';
 import { ChatHeader } from './ChatHeader';
 import { MessageArea } from './MessageArea';
 import { MessageInput } from './MessageInput';
-import { marked } from "marked";
+import { marked } from 'marked';
 import { useTranslation } from 'react-i18next';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/searchat-behavior';
 
 const useStyles = makeStyles((theme) => ({
-    chatContainer: {
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: '#f5f5f5',
-        padding: '0 !important',
-        maxWidth: '100% !important',
-    },
-    chatPaper: {
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        borderRadius: '0 !important',
-        backgroundColor: '#ffffff',
-    },
+  chatContainer: {
+    height: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: '#f5f5f5',
+    padding: '0 !important',
+    maxWidth: '100% !important',
+  },
+  chatPaper: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    borderRadius: '0 !important',
+    backgroundColor: '#ffffff',
+  },
 }));
 
 const BOT_NAME = "Search Behavior Bot";
 
 const Chatbot = ({ taskId, user }) => {
-    const { t } = useTranslation();
-    const style = useStyles();
+  const { t } = useTranslation();
+  const style = useStyles();
 
-    const [sessionId, setSessionId] = useState(null);
-    const [isTyping, setIsTyping] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
+  const [isTyping, setIsTyping] = useState(false);
 
+  const sessionInitialized = useRef(false);
+  const abortControllerRef = useRef(null);
 
-    const sessionInitialized = useRef(false);
-    const abortControllerRef = useRef(null);
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      text: `${t('chatbot_wellcome_part1')} ${BOT_NAME} ${t('chatbot_wellcome_part2')}`,
+      sender: 'bot',
+      role: 'model',
+      timestamp: new Date(),
+      parts: [{ text: `Olá! Sou o assistente ${BOT_NAME}. Como posso te ajudar hoje?` }],
+    },
+  ]);
 
-    const [messages, setMessages] = useState([
-        {
-            id: 1,
-            text: `${t('chatbot_wellcome_part1')} ${BOT_NAME} ${t('chatbot_wellcome_part2')}`,
-            sender: "bot",
-            role: "model",
-            timestamp: new Date(),
-            parts: [{ text: `Olá! Sou o assistente ${BOT_NAME}. Como posso te ajudar hoje?` }]
-        }
-    ]);
+  useEffect(() => {
+    if (sessionInitialized.current || !taskId || !user || !user.accessToken) return;
 
-    useEffect(() => {
+    const initSession = async () => {
+      sessionInitialized.current = true;
+      try {
+        const response = await fetch(`${API_URL}/llm-session/start`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+          body: JSON.stringify({ taskId: taskId, userId: user.id }),
+        });
 
-        if (sessionInitialized.current || !taskId || !user || !user.accessToken) return;
+        if (response.ok) {
+          const data = await response.json();
+          setSessionId(data.id);
+          if (data.messages && data.messages.length > 0) {
+            const history = data.messages.map((msg) => ({
+              id: msg.id,
+              text: msg.role === 'model' ? marked(msg.content) : msg.content,
+              sender: msg.role === 'user' ? 'user' : 'bot',
+              role: msg.role,
+              timestamp: new Date(msg.createdAt),
+            }));
 
-        const initSession = async () => {
-            sessionInitialized.current = true;
-            try {
-                const response = await fetch(`${API_URL}/llm-session/start`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${user.accessToken}`
-                    },
-                    body: JSON.stringify({ taskId: taskId, userId: user.id })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setSessionId(data.id);
-                    if (data.messages && data.messages.length > 0) {
-                        const history = data.messages.map(msg => ({
-                            id: msg.id,
-                            text: msg.role === 'model' ? marked(msg.content) : msg.content,
-                            sender: msg.role === 'user' ? 'user' : 'bot',
-                            role: msg.role,
-                            timestamp: new Date(msg.createdAt)
-                        }));
-
-                        setMessages(prev => {
-                            const welcome = prev.find(m => m.id === 1);
-                            const initialMsg = welcome || prev[0];
-                            return [initialMsg, ...history];
-                        });
-                    }
-
-                } else {
-                    console.error("Falha ao iniciar sessão");
-                    sessionInitialized.current = false;
-                }
-            } catch (error) {
-                console.error("Erro ao conectar com backend:", error);
-                sessionInitialized.current = false;
-            }
-        };
-
-        if (taskId && user && user.accessToken) {
-            initSession();
-        }
-    }, [taskId, user]);
-
-
-    const handleSendMessage = async (messageText) => {
-        if (!messageText.trim() || !sessionId) return;
-
-        if (abortControllerRef.current) abortControllerRef.current.abort();
-        abortControllerRef.current = new AbortController();
-
-        const userMessage = {
-            id: Date.now(),
-            text: messageText,
-            sender: "user",
-            role: "user",
-            timestamp: new Date(),
-        };
-
-        setMessages(prev => [...prev, userMessage]);
-        setIsTyping(true);
-
-        try {
-            const token = user.accessToken;
-
-            const response = await fetch(`${API_URL}/llm-session/${sessionId}/message`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ content: messageText, userId: user.id }),
-                signal: abortControllerRef.current.signal
+            setMessages((prev) => {
+              const welcome = prev.find((m) => m.id === 1);
+              const initialMsg = welcome || prev[0];
+              return [initialMsg, ...history];
             });
-
-            if (!response.body) throw new Error('ReadableStream not supported.');
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder("utf-8");
-
-            let fullResponse = "";
-            let hasReceivedFirstChunk = false;
-            const botMessageId = Date.now() + 1;
-
-            setMessages(prev => [...prev, {
-                id: botMessageId,
-                text: "",
-                sender: "bot",
-                role: "model",
-                timestamp: new Date(),
-            }]);
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    setIsTyping(false);
-                    break;
-                }
-
-                const chunk = decoder.decode(value, { stream: true });
-                fullResponse += chunk;
-
-                if (!hasReceivedFirstChunk && fullResponse.length > 0) {
-                    hasReceivedFirstChunk = true;
-                    setIsTyping(false);
-                }
-
-                setMessages(prev =>
-                    prev.map(msg =>
-                        msg.id === botMessageId
-                            ? { ...msg, text: marked(fullResponse) }
-                            : msg
-                    )
-                );
-            }
-
-        } catch (error) {
-            setIsTyping(false);
-            if (error.name === 'AbortError') return;
-            console.error('Erro:', error);
-
-            setMessages(prev => [...prev, {
-                id: Date.now() + 2,
-                text: "Erro de conexão ou resposta interrompida.",
-                sender: "bot",
-                role: "model",
-                timestamp: new Date(),
-                isError: true
-            }]);
-        } finally {
-            setIsTyping(false);
-            abortControllerRef.current = null;
+          }
+        } else {
+          console.error('Falha ao iniciar sessão');
+          sessionInitialized.current = false;
         }
+      } catch (error) {
+        console.error('Erro ao conectar com backend:', error);
+        sessionInitialized.current = false;
+      }
     };
 
-    return (
-        <Container className={style.chatContainer}>
-            <Paper className={style.chatPaper} elevation={0}>
-                <ChatHeader bot_name={BOT_NAME} />
-                <MessageArea messages={messages} isTyping={isTyping} />
-                <MessageInput onSendMessage={handleSendMessage} />
-            </Paper>
-        </Container>
-    );
+    if (taskId && user && user.accessToken) {
+      initSession();
+    }
+  }, [taskId, user]);
+
+  const handleSendMessage = async (messageText) => {
+    if (!messageText.trim() || !sessionId) return;
+
+    if (abortControllerRef.current) abortControllerRef.current.abort();
+    abortControllerRef.current = new AbortController();
+
+    const userMessage = {
+      id: Date.now(),
+      text: messageText,
+      sender: 'user',
+      role: 'user',
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setIsTyping(true);
+
+    try {
+      const token = user.accessToken;
+
+      const response = await fetch(`${API_URL}/llm-session/${sessionId}/message`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: messageText, userId: user.id }),
+        signal: abortControllerRef.current.signal,
+      });
+
+      if (!response.body) throw new Error('ReadableStream not supported.');
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+
+      let fullResponse = '';
+      let hasReceivedFirstChunk = false;
+      const botMessageId = Date.now() + 1;
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: botMessageId,
+          text: '',
+          sender: 'bot',
+          role: 'model',
+          timestamp: new Date(),
+        },
+      ]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          setIsTyping(false);
+          break;
+        }
+
+        const chunk = decoder.decode(value, { stream: true });
+        fullResponse += chunk;
+
+        if (!hasReceivedFirstChunk && fullResponse.length > 0) {
+          hasReceivedFirstChunk = true;
+          setIsTyping(false);
+        }
+
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === botMessageId ? { ...msg, text: marked(fullResponse) } : msg,
+          ),
+        );
+      }
+    } catch (error) {
+      setIsTyping(false);
+      if (error.name === 'AbortError') return;
+      console.error('Erro:', error);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 2,
+          text: 'Erro de conexão ou resposta interrompida.',
+          sender: 'bot',
+          role: 'model',
+          timestamp: new Date(),
+          isError: true,
+        },
+      ]);
+    } finally {
+      setIsTyping(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  return (
+    <Container className={style.chatContainer}>
+      <Paper className={style.chatPaper} elevation={0}>
+        <ChatHeader bot_name={BOT_NAME} />
+        <MessageArea messages={messages} isTyping={isTyping} />
+        <MessageInput onSendMessage={handleSendMessage} />
+      </Paper>
+    </Container>
+  );
 };
 
 export { Chatbot };

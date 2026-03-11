@@ -19,7 +19,7 @@ const Transition = forwardRef(function Transition(props, ref) {
 });
 
 const ConfirmDialog = ({ open, onClose, onConfirm, title, content }) => {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   return (
     <Fragment>
       <Dialog
@@ -31,13 +31,11 @@ const ConfirmDialog = ({ open, onClose, onConfirm, title, content }) => {
       >
         <DialogTitle>{title}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-slide-description">
-            {content}
-          </DialogContentText>
+          <DialogContentText id="alert-dialog-slide-description">{content}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>{t("cancel")}</Button>
-          <Button onClick={onConfirm}>{t("confirm_button")}</Button>
+          <Button onClick={onClose}>{t('cancel')}</Button>
+          <Button onClick={onConfirm}>{t('confirm_button')}</Button>
         </DialogActions>
       </Dialog>
     </Fragment>

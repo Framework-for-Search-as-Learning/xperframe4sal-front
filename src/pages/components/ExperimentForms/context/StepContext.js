@@ -5,25 +5,24 @@
 
 import React, { createContext } from 'react';
 const StepContext = createContext({
-    step: 0,
-    setStep: () => {},
-    ExperimentTitle: '',
-    setExperimentTitle: () => {},
-    ExperimentType: '',
-    setExperimentType: () => {},
-    BtypeExperiment: '',
-    setBtypeExperiment: () => {},
-    ExperimentDesc: '',
-    setExperimentDesc: () => {},
-    ExperimentTasks: [],
-    setExperimentTasks: () => {},
-    ExperimentSurveys: [],
-    setExperimentSurveys: () => {},
-    ExperimentTitleICF: [],
-    setExperimentTitleICF: () => {},
-    ExperimentDescICF: [],
-    setExperimentDescICF: () => {},
+  step: 0,
+  setStep: () => {},
+  ExperimentTitle: '',
+  setExperimentTitle: () => {},
+  ExperimentType: '',
+  setExperimentType: () => {},
+  BtypeExperiment: '',
+  setBtypeExperiment: () => {},
+  ExperimentDesc: '',
+  setExperimentDesc: () => {},
+  ExperimentTasks: [],
+  setExperimentTasks: () => {},
+  ExperimentSurveys: [],
+  setExperimentSurveys: () => {},
+  ExperimentTitleICF: [],
+  setExperimentTitleICF: () => {},
+  ExperimentDescICF: [],
+  setExperimentDescICF: () => {},
 });
-
 
 export default StepContext;

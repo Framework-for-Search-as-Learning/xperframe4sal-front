@@ -4,7 +4,7 @@
  */
 
 import { TextField, IconButton, InputAdornment } from '@mui/material';
-import { makeStyles } from '@mui/styles'
+import { makeStyles } from '@mui/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import { useState } from 'react';
 
@@ -26,20 +26,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SearchBar = (props) => {
-
-  const { handleSearch } = props
-  const [query, setQuery] = useState("")
+  const { handleSearch } = props;
+  const [query, setQuery] = useState('');
   const classes = useStyles();
 
   const handleEnter = async (event) => {
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       handleSearch(query);
     }
-  }
+  };
 
   const handleClick = async () => {
-    handleSearch(query)
-  }
+    handleSearch(query);
+  };
 
   return (
     <TextField
@@ -60,7 +59,7 @@ const SearchBar = (props) => {
         ),
       }}
     />
-  )
-}
+  );
+};
 
-export { SearchBar }
+export { SearchBar };

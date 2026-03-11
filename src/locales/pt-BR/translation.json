@@ -104,6 +104,7 @@
   "edit_form": "Metadados",
   "edit_groups": "Editar Grupos",
   "edit_icf": "Termo de Consentimento",
+  "edit_label": "Editar",
   "edit_survey": "Questionários",
   "edit_task": "Tarefas",
   "participants": "Participantes",
@@ -380,7 +381,7 @@
   "not_started": "Não Iniciado",
   "completion_rate": "Taxa de Conclusão",
   "participants_list": "Lista de Participantes",
-  "export_all_data": "Exportar Todos os Dados",
+  "export_all_data": "Exportar Todos",
   "export_data": "Exportar Dados",
   "export_metrics": "Exportar Métricas",
   "export_csv": "Exportar CSV",
@@ -435,5 +436,6 @@
   "cannot_delete_min_1_task": "Não é possível excluir a única tarefa do experimento.",
   "Success_Delete": "Excluído com sucesso!",
   "needs_at_least_2_tasks_to_save": "Para salvar como 'Entre sujeitos', é necessário ter pelo menos 2 tarefas cadastradas. Por favor, crie as tarefas na aba 'Tarefas' primeiro.",
-  "needs_at_least_1_task_to_save": "Você precisa ter pelo menos 1 tarefa cadastrada para salvar o design."
+  "needs_at_least_1_task_to_save": "Você precisa ter pelo menos 1 tarefa cadastrada para salvar o design.",
+  "total_queries": "Total de Consultas"
 }

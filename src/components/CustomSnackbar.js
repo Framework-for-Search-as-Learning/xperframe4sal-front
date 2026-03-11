@@ -3,14 +3,22 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-
 import React, { useState, useEffect } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Slide from '@mui/material/Slide';
 import LinearProgress from '@mui/material/LinearProgress';
 
-const CustomSnackbar = ({ open, handleClose, time, message, severity = "success", variant = "standard", slide = false, showLinear = false }) => {
+const CustomSnackbar = ({
+  open,
+  handleClose,
+  time,
+  message,
+  severity = 'success',
+  variant = 'standard',
+  slide = false,
+  showLinear = false,
+}) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -25,11 +33,24 @@ const CustomSnackbar = ({ open, handleClose, time, message, severity = "success"
   const TransitionComponent = slide ? Slide : undefined;
 
   return (
-    <Snackbar open={open} autoHideDuration={time} TransitionComponent={TransitionComponent} onClose={handleClose}>
+    <Snackbar
+      open={open}
+      autoHideDuration={time}
+      TransitionComponent={TransitionComponent}
+      onClose={handleClose}
+    >
       <Alert onClose={handleClose} severity={severity} variant={variant}>
         <div>
-          {showLinear ? <LinearProgress variant="indeterminate" color="inherit" value={progress} /> : ""}
-          {message ? <p>{message}</p> : <p>Seu questionário foi submetido com sucesso. Obrigado!</p>}
+          {showLinear ? (
+            <LinearProgress variant="indeterminate" color="inherit" value={progress} />
+          ) : (
+            ''
+          )}
+          {message ? (
+            <p>{message}</p>
+          ) : (
+            <p>Seu questionário foi submetido com sucesso. Obrigado!</p>
+          )}
         </div>
       </Alert>
     </Snackbar>
