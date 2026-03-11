@@ -574,7 +574,11 @@ const SummaryTab = ({ stats, tasksExecution, handleExportMetrics, exporting, for
                     <TableCell>{task.taskTitle}</TableCell>
                     <TableCell>
                       <Chip
-                        label={taskType === 'search-engine' ? 'Busca' : 'Chat'}
+                        label={
+                          taskType === 'search-engine'
+                            ? t('search') || 'Busca'
+                            : t('chat') || 'Chat'
+                        }
                         color={taskType === 'search-engine' ? 'primary' : 'secondary'}
                         size="small"
                       />
