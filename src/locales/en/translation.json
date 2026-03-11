@@ -122,7 +122,7 @@
   "experiment_status_active": "Active",
   "experiment_status_inactive": "Inactive",
   "experiment_status_active_tooltip": "This experiment is active and available for participation",
-  "experiment_status_inactive_tooltip": "This experiment has ended or is no available",
+  "experiment_status_inactive_tooltip": "This experiment has ended or is not available",
   "experiment_status_active_owner": "Activated",
   "experiment_status_inactive_owner": "Deactivated",
   "experiment_toggle_activate": "Click to activate the experiment",
