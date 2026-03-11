@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Box, Typography, Avatar, Divider } from '@mui/material';
+import { Box, Typography, Avatar } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 

@@ -3,7 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Paper,
   Typography,
@@ -71,12 +71,49 @@ const InteractionMetrics = ({ tasksExecution, participants, experimentId, access
     }
   }, [activeTab, tasksExecution, selectedTask]);
 
+  const loadUserTaskDetails = useCallback(
+    async (userId) => {
+      if (userTaskDetails[userId]) return;
+
+      setLoadingDetails((prev) => ({ ...prev, [userId]: true }));
+      try {
+        const detailsPromises = tasksExecution.map(async (task) => {
+          try {
+            const { data } = await api.get(
+              `user-task/execution-details/user/${userId}/task/${task.taskId}`,
+              {
+                headers: { Authorization: `Bearer ${accessToken}` },
+              },
+            );
+            return { taskId: task.taskId, data };
+          } catch (error) {
+            console.error(`Error loading details for task ${task.taskId}:`, error);
+            return { taskId: task.taskId, data: [] };
+          }
+        });
+
+        const results = await Promise.all(detailsPromises);
+        const detailsByTask = {};
+        results.forEach((result) => {
+          detailsByTask[result.taskId] = result.data;
+        });
+
+        setUserTaskDetails((prev) => ({ ...prev, [userId]: detailsByTask }));
+      } catch (error) {
+        console.error('Error loading user task details:', error);
+      } finally {
+        setLoadingDetails((prev) => ({ ...prev, [userId]: false }));
+      }
+    },
+    [accessToken, tasksExecution, userTaskDetails],
+  );
+
   useEffect(() => {
     if (activeTab === 2 && participants?.length > 0 && !selectedUser) {
       setSelectedUser(participants[0].id);
       loadUserTaskDetails(participants[0].id);
     }
-  }, [activeTab, participants, selectedUser]);
+  }, [activeTab, participants, selectedUser, loadUserTaskDetails]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -90,40 +127,6 @@ const InteractionMetrics = ({ tasksExecution, participants, experimentId, access
     const userId = event.target.value;
     setSelectedUser(userId);
     loadUserTaskDetails(userId);
-  };
-
-  const loadUserTaskDetails = async (userId) => {
-    if (userTaskDetails[userId]) return;
-
-    setLoadingDetails((prev) => ({ ...prev, [userId]: true }));
-    try {
-      const detailsPromises = tasksExecution.map(async (task) => {
-        try {
-          const { data } = await api.get(
-            `user-task/execution-details/user/${userId}/task/${task.taskId}`,
-            {
-              headers: { Authorization: `Bearer ${accessToken}` },
-            },
-          );
-          return { taskId: task.taskId, data };
-        } catch (error) {
-          console.error(`Error loading details for task ${task.taskId}:`, error);
-          return { taskId: task.taskId, data: [] };
-        }
-      });
-
-      const results = await Promise.all(detailsPromises);
-      const detailsByTask = {};
-      results.forEach((result) => {
-        detailsByTask[result.taskId] = result.data;
-      });
-
-      setUserTaskDetails((prev) => ({ ...prev, [userId]: detailsByTask }));
-    } catch (error) {
-      console.error('Error loading user task details:', error);
-    } finally {
-      setLoadingDetails((prev) => ({ ...prev, [userId]: false }));
-    }
   };
 
   const handleExportMetrics = async () => {

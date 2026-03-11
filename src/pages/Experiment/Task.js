@@ -270,7 +270,7 @@ const Task = () => {
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, []);
+  }, [user.accessToken]);
 
   return (
     <div style={{ minWidth: '326px' }}>

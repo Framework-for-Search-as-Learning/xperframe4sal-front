@@ -46,7 +46,6 @@ const ExperimentICF = () => {
 
   const { t } = useTranslation();
   const [isValidTitleExp, setIsValidTitleExp] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
   const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
 
   const [isDescEmpty, setIsDescEmpty] = useState(() => stripHtml(ExperimentDescICF).length === 0);
@@ -120,7 +119,7 @@ const ExperimentICF = () => {
           color={isEditMode ? 'success' : 'primary'}
           onClick={isEditMode ? handleSaveExperiment : handleNextExperiment}
           sx={{ maxWidth: '150px' }}
-          disabled={!isValidFormExperiment || isLoading}
+          disabled={!isValidFormExperiment}
         >
           {isEditMode ? t('save') : t('next')}
         </Button>
@@ -149,7 +148,7 @@ const ExperimentICF = () => {
           color={isEditMode ? 'success' : 'primary'}
           onClick={isEditMode ? handleSaveExperiment : handleNextExperiment}
           sx={{ maxWidth: '150px' }}
-          disabled={!isValidFormExperiment || isLoading}
+          disabled={!isValidFormExperiment}
         >
           {isEditMode ? t('save') : <ArrowForward />}
         </Button>

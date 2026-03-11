@@ -19,8 +19,6 @@ import {
   CircularProgress,
   Alert,
   Divider,
-  Tooltip,
-  IconButton,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';

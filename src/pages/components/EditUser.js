@@ -3,8 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { api } from '../../config/axios';
+import React, { useState, useEffect } from 'react';
 import { Typography, Box, CircularProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import styles from '../../style/editUser.module.css';

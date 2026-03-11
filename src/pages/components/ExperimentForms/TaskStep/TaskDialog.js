@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, Typography } from '@mui/material';
+import { Dialog, DialogContent, Typography } from '@mui/material';
 import TaskForm from './TaskForm';
 
 /**

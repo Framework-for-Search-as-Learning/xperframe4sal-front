@@ -88,18 +88,22 @@ const EditAccount = ({
       return;
     }
 
-    name = name.trim();
-    setName(name);
-    lastName = lastName.trim();
-    setLastName(lastName);
-    email = email.trim();
-    setEmail(email);
+    const trimmedName = name.trim();
+    setName(trimmedName);
+    const trimmedLastName = lastName.trim();
+    setLastName(trimmedLastName);
+    const trimmedEmail = email.trim();
+    setEmail(trimmedEmail);
 
-    let userData = { name, lastName, email };
+    let userData = { name: trimmedName, lastName: trimmedLastName, email: trimmedEmail };
 
     userData = Object.assign(userData, user);
 
-    const userDataTemp = { name, lastName, email };
+    const userDataTemp = {
+      name: trimmedName,
+      lastName: trimmedLastName,
+      email: trimmedEmail,
+    };
     setIsLoading(true);
     try {
       let response = await api.patch(`/user/${user.id}`, userDataTemp, {

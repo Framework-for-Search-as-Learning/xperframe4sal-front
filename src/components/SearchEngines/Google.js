@@ -37,7 +37,7 @@ const Google = ({
     return () => {
       isMounted.current = false;
     };
-  }, []);
+  }, [setIsShowingResultModal]);
 
   const search = async (searchQuery, start = 1, num = resultsPerPage) => {
     if (!searchQuery?.trim()) return;
@@ -137,7 +137,7 @@ const Google = ({
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, []);
+  }, [setIsShowingResultModal]);
 
   return (
     <>

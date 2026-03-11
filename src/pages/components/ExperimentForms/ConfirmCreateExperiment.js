@@ -3,8 +3,8 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useState, useEffect, useContext } from 'react';
-import { Box, Typography, Grid, Button, CircularProgress, Alert } from '@mui/material';
+import React, { useState, useContext } from 'react';
+import { Box, Typography, Grid, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import StepContext from './context/StepContext';
 import { Add, ArrowBack } from '@mui/icons-material';
@@ -131,7 +131,7 @@ const ConfirmCreateExperiment = () => {
           </Button>
 
           <Button
-            disabled={ExperimentTasks.length < minimal_tasks}
+            disabled={loading || ExperimentTasks.length < minimal_tasks}
             variant="contained"
             color="primary"
             onClick={handleCreate}
@@ -158,7 +158,7 @@ const ConfirmCreateExperiment = () => {
           </Button>
 
           <Button
-            disabled={ExperimentTasks.length < minimal_tasks}
+            disabled={loading || ExperimentTasks.length < minimal_tasks}
             variant="contained"
             color="primary"
             onClick={handleCreate}

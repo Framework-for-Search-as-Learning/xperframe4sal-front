@@ -168,10 +168,9 @@ const Chatbot = ({ taskId, user }) => {
           setIsTyping(false);
         }
 
+        const renderedResponse = marked(fullResponse);
         setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === botMessageId ? { ...msg, text: marked(fullResponse) } : msg,
-          ),
+          prev.map((msg) => (msg.id === botMessageId ? { ...msg, text: renderedResponse } : msg)),
         );
       }
     } catch (error) {

@@ -26,8 +26,8 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const [email, setEmail] = useState(searchParams.get('email') || null);
-  const [token, setToken] = useState(searchParams.get('token') || null);
+  const [email] = useState(searchParams.get('email') || null);
+  const [token] = useState(searchParams.get('token') || null);
   const [isValidPassword, setIsValidPassword] = useState(true);
   const [differentPasswords, setDifferentPasswords] = useState(false);
   const [password, setPassword] = useState('');
@@ -67,7 +67,7 @@ const ResetPassword = () => {
       setMessageType('fail');
     }
 
-    let userData = { email, token, password };
+    const userData = { email, token, password };
 
     setIsLoading(true);
     try {

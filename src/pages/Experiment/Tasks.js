@@ -3,7 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../config/axios';
 import {
@@ -32,13 +32,10 @@ const Tasks = () => {
   const [steps, setSteps] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchTaskData = async () => {
+  const fetchTaskData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const [experimentRes, userExpRes, userTasksRes, stepsRes] = await Promise.all([
-        api.get(`experiment/${experimentId}`, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        }),
+      const [userExpRes, userTasksRes, stepsRes] = await Promise.all([
         api.get(`user-experiment?experimentId=${experimentId}&userId=${user.id}`, {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         }),
@@ -66,11 +63,11 @@ const Tasks = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [experimentId, user.accessToken, user.id]);
 
   useEffect(() => {
     fetchTaskData();
-  }, [experimentId]);
+  }, [fetchTaskData]);
 
   const handleTaskAction = async (taskId, actionType) => {
     try {

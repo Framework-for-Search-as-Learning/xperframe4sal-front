@@ -66,7 +66,6 @@ const CreateQuestionnaire = ({
     removeQuestion,
     updateQuestion,
     isValid,
-    hasInvalidChoiceQuestion,
     buildPayload,
     reset,
     hasEmptyStatement,

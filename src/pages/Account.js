@@ -11,7 +11,6 @@ import { CustomSnackbar } from '../components/CustomSnackbar';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import EditAccount from '../components/Account/EditAccount.js';
-import EditPassword from '../components/Account/EditPassword.js';
 
 const Account = () => {
   const { t } = useTranslation();

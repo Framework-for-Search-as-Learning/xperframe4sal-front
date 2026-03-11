@@ -73,16 +73,6 @@ const isStatusInactive = (status) => {
   return normalized === EXPERIMENT_STATUS.FINISHED || normalized === EXPERIMENT_STATUS.NOT_STARTED;
 };
 
-const canEditExperiment = (status) => {
-  const normalized = normalizeStatus(status);
-  return normalized === EXPERIMENT_STATUS.FINISHED || normalized === EXPERIMENT_STATUS.NOT_STARTED;
-};
-
-const isStatusActive = (status) => {
-  const normalized = normalizeStatus(status);
-  return normalized === EXPERIMENT_STATUS.IN_PROGRESS;
-};
-
 const getStatusConfig = (status, isOwner, t) => {
   const inactive = isStatusInactive(status);
   const configSet = isOwner ? STATUS_CONFIG_OWNER : STATUS_CONFIG_PARTICIPANT;
@@ -193,7 +183,6 @@ const ActionButton = ({
 
 const OwnerActions = ({
   experiment,
-  status,
   hasActiveParticipants,
   onEdit,
   onEdituser,
@@ -342,7 +331,6 @@ const ExperimentAccordion = ({
             {isOwner ? (
               <OwnerActions
                 experiment={experiment}
-                status={currentStatus}
                 hasActiveParticipants={hasActiveParticipants}
                 onEdit={onEdit}
                 onEdituser={onEdituser}

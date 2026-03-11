@@ -47,7 +47,6 @@ const ExperimentMetadataForm = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [isValidTitleExp, setIsValidTitleExp] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
   const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
 
   const [isDescEmpty, setIsDescEmpty] = useState(() => stripHtml(ExperimentDesc).length === 0);
@@ -122,7 +121,7 @@ const ExperimentMetadataForm = () => {
           color={isEditMode ? 'success' : 'primary'}
           onClick={isEditMode ? handleSaveExperiment : handleNextExperiment}
           sx={{ maxWidth: '150px' }}
-          disabled={!isValidFormExperiment || isLoading}
+          disabled={!isValidFormExperiment}
         >
           {isEditMode ? t('save') : t('next')}
         </Button>
@@ -151,7 +150,7 @@ const ExperimentMetadataForm = () => {
           color={isEditMode ? 'success' : 'primary'}
           onClick={isEditMode ? handleSaveExperiment : handleNextExperiment}
           sx={{ maxWidth: '150px' }}
-          disabled={!isValidFormExperiment || isLoading}
+          disabled={!isValidFormExperiment}
         >
           {isEditMode ? t('save') : <ArrowForward />}
         </Button>

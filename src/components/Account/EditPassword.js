@@ -4,7 +4,6 @@
  */
 
 import React, { useState } from 'react';
-import { api } from '../../config/axios.js';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Container, Paper, TextField, Button } from '@mui/material';
 import { ErrorMessage } from '../ErrorMessage.js';
@@ -22,8 +21,6 @@ const EditPassword = ({
   user,
   setUser,
 }) => {
-  const [isValidCPassword, setIsValidCPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [isValidPassword, setIsValidPassword] = useState(true);
   const [password, setPassword] = useState(user.password);
   const [showPassword, setShowPassword] = useState(false);
@@ -36,20 +33,14 @@ const EditPassword = ({
     setIsValidPassword(passwordRegex.test(inputPassword));
   };
 
-  const handleConfirmPasswordChange = (e) => {
-    const inputConfirmPassword = e.target.value;
-    setConfirmPassword(inputConfirmPassword);
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\]*@#$%^<>'";|}{:,./?~()`&\-_+=![]).{6,}$/;
-    setIsValidCPassword(passwordRegex.test(inputConfirmPassword));
-  };
-
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const enableEditButton = () => {};
-  const handleEdit = async (e) => {};
+  const enableEditButton = isValidPassword && password.length > 0;
+  const handleEdit = async (e) => {
+    e.preventDefault();
+  };
 
   return (
     <Container

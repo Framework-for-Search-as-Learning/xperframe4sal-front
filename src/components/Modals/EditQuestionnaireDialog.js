@@ -53,7 +53,6 @@ const EditQuestionnaireDialog = ({ open, onClose, survey, onSave }) => {
     removeQuestion,
     updateQuestion,
     isValid,
-    hasInvalidChoiceQuestion,
     buildPayload,
     hasEmptyStatement,
   } = useQuestionnaireForm(survey);
@@ -65,7 +64,7 @@ const EditQuestionnaireDialog = ({ open, onClose, survey, onSave }) => {
       setType(survey.type);
       setUniqueAnswer(survey.uniqueAnswer || false);
     }
-  }, [survey?.uuid]);
+  }, [survey, setDescription, setTitle, setType, setUniqueAnswer]);
 
   const handleSave = (e) => {
     e.preventDefault();

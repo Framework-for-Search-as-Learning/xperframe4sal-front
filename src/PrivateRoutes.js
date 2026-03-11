@@ -82,14 +82,6 @@ export function PrivateRoutes(props) {
     setAnchorEl(null);
   };
 
-  const handleGoCreateExperiment = () => {
-    navigate('/experiments/new');
-    setAnchorEl(null);
-  };
-  const handleGoExperimentList = () => {
-    navigate('/experiments');
-    setAnchorEl(null);
-  };
   const handleAccountButtonEnter = (event) => {
     setAnchorEl(event.currentTarget);
   };

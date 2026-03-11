@@ -37,7 +37,7 @@ const ForgotPassword = () => {
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
-      const response = await api.post(`user/forgot-password`, { email: email });
+      await api.post(`user/forgot-password`, { email: email });
       setIsLoading(false);
       setMessageType('success');
       setAlertMessage(t('reset_success_message'));

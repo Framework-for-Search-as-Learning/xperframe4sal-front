@@ -73,7 +73,7 @@ const TaskForm = ({
         config.setLlm('');
       }
     }
-  }, [config.llmProvider]);
+  }, [availableModels, config]);
 
   const getApiKeyFieldInfo = () => {
     if (config.origin !== 'llm' || !config.llmProvider) return null;

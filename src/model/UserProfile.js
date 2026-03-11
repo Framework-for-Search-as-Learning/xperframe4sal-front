@@ -24,8 +24,8 @@ let UserProfile = (function () {
   let setName = function (userName) {
     name = userName;
   };
-  let setResearcher = function (researcher) {
-    researcher = researcher;
+  let setResearcher = function (isResearcher) {
+    researcher = isResearcher;
   };
 
   let getEmail = function () {
@@ -60,7 +60,7 @@ let UserProfile = (function () {
     answredICF = userAnswredICF;
   };
 
-  let setUser = function ({ name, researcher: researcher, email, answredICF, token }) {
+  let setUser = function ({ name, researcher, email, answredICF, token }) {
     setResearcher(researcher);
     setName(name);
     setEmail(email);

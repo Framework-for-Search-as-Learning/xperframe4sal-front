@@ -70,19 +70,6 @@ const EditExperiment = () => {
     { label: t('edit_task'), icon: <ListAltIcon /> },
   ];
 
-  useEffect(() => {
-    if (isAuthorized && experimentData) {
-      setExperimentTitle(experimentData.name || '');
-      setExperimentType(experimentData.typeExperiment || 'within-subject');
-      setBtypeExperiment(experimentData.betweenExperimentType || 'random');
-      setExperimentDesc(experimentData.summary || '');
-
-      fetchIcf();
-      fetchSurvey();
-      fetchTasks();
-    }
-  }, [isAuthorized, experimentData, experimentId]);
-
   const fetchIcf = useCallback(async () => {
     try {
       const { data } = await api.get(`/icf/experiment/${experimentId}`, {
@@ -117,6 +104,19 @@ const EditExperiment = () => {
       console.error('Error fetching tasks:', error);
     }
   }, [experimentId, user.accessToken]);
+
+  useEffect(() => {
+    if (isAuthorized && experimentData) {
+      setExperimentTitle(experimentData.name || '');
+      setExperimentType(experimentData.typeExperiment || 'within-subject');
+      setBtypeExperiment(experimentData.betweenExperimentType || 'random');
+      setExperimentDesc(experimentData.summary || '');
+
+      fetchIcf();
+      fetchSurvey();
+      fetchTasks();
+    }
+  }, [isAuthorized, experimentData, fetchIcf, fetchSurvey, fetchTasks]);
 
   const handleSaveExperiment = async () => {
     try {

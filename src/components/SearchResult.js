@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SearchResult = (props) => {
-  let { userId, rank, title, snippet, link, openModalHandle, taskId } = props;
+  let { rank, title, snippet, link, openModalHandle } = props;
   const classes = useStyles();
 
   const urlObject = new URL(link);

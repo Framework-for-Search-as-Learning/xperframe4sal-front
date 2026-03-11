@@ -3,7 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { createContext } from 'react';
+import { createContext } from 'react';
 const StepContext = createContext({
   step: 0,
   setStep: () => {},

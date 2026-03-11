@@ -15,7 +15,6 @@ import {
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MailIcon from '@mui/icons-material/Mail';
-import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import { useTranslation } from 'react-i18next';
 
 const Contact = () => {

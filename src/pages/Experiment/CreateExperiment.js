@@ -205,21 +205,17 @@ const CreateExperiment = () => {
         alternativeLabel
         nonLinear
       >
-        {STEPS.map((s) => {
-          if (s.index >= step - 1 && s.index <= step + 1) {
-            return (
-              <Step key={s.index} completed={s.index < step}>
-                <StepLabel
-                  StepIconComponent={CustomStepIcon}
-                  onClick={() => handleStepClick(s.index)}
-                  sx={{ cursor: s.index <= maxStep ? 'pointer' : 'default' }}
-                >
-                  {s.title}
-                </StepLabel>
-              </Step>
-            );
-          }
-        })}
+        {STEPS.filter((s) => s.index >= step - 1 && s.index <= step + 1).map((s) => (
+          <Step key={s.index} completed={s.index < step}>
+            <StepLabel
+              StepIconComponent={CustomStepIcon}
+              onClick={() => handleStepClick(s.index)}
+              sx={{ cursor: s.index <= maxStep ? 'pointer' : 'default' }}
+            >
+              {s.title}
+            </StepLabel>
+          </Step>
+        ))}
       </Stepper>
 
       <StepContext.Provider

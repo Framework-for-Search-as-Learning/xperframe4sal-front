@@ -3,7 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Paper,
   Typography,
@@ -23,12 +23,6 @@ import {
   FormControl,
   InputLabel,
   Divider,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -104,22 +98,25 @@ const QuestionnaireAnalysis = ({ surveysStats, participants, experimentId, acces
     }
   };
 
-  const loadUserSurveyAnswers = async (userId, surveyId) => {
-    const key = `${userId}-${surveyId}`;
-    if (surveyAnswers[key]) return;
+  const loadUserSurveyAnswers = useCallback(
+    async (userId, surveyId) => {
+      const key = `${userId}-${surveyId}`;
+      if (surveyAnswers[key]) return;
 
-    setLoadingAnswers((prev) => ({ ...prev, [key]: true }));
-    try {
-      const { data } = await api.get(`survey-answer/user/${userId}/survey/${surveyId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      setSurveyAnswers((prev) => ({ ...prev, [key]: data }));
-    } catch (error) {
-      console.error('Error loading user survey answers:', error);
-    } finally {
-      setLoadingAnswers((prev) => ({ ...prev, [key]: false }));
-    }
-  };
+      setLoadingAnswers((prev) => ({ ...prev, [key]: true }));
+      try {
+        const { data } = await api.get(`survey-answer/user/${userId}/survey/${surveyId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        setSurveyAnswers((prev) => ({ ...prev, [key]: data }));
+      } catch (error) {
+        console.error('Error loading user survey answers:', error);
+      } finally {
+        setLoadingAnswers((prev) => ({ ...prev, [key]: false }));
+      }
+    },
+    [accessToken, surveyAnswers],
+  );
 
   const renderQuestionChart = (question) => {
     const chartData = question.options.map((opt) => ({
@@ -243,7 +240,7 @@ const SurveyAccordion = ({
       setSelectedUser(participants[0].id);
       loadUserSurveyAnswers(participants[0].id, survey.surveyId);
     }
-  }, [activeTab, participants, selectedUser, survey.surveyId]);
+  }, [activeTab, participants, selectedUser, survey.surveyId, loadUserSurveyAnswers]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
