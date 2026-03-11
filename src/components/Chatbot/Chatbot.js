@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const BOT_NAME = "XF4 Bot";
+const BOT_NAME = "Search Behavior Bot";
 
 const Chatbot = ({ taskId, user }) => {
     const { t } = useTranslation();
