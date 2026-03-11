@@ -18,23 +18,6 @@ const Instructions = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 2 }}>
       <Box component='div' >
         <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1.0rem', sm: '2rem', marginBottom: 30 } }}>
-          {t('instructions_video_text')}
-        </Typography>
-        <Box component='div' sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Box
-            sx={{ width: { sm: 654, xs: 360 }, height: { sm: 375, xs: 205 } }}
-            component='iframe'
-            src="https://www.youtube.com/embed/Q4C4ees0VLQ?rel=0&si=6_lCAUI5nbnHa_yJ"
-            title={t('youtube_video_title')}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share;"
-            allowFullScreen
-          />
-        </Box>
-      </Box>
-
-      <Box component='div' >
-        <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1.0rem', sm: '2rem', marginBottom: 30 } }}>
           {t('instructions_export_title')}
         </Typography>
         <Box component='div' sx={{ display: 'flex' }}>
