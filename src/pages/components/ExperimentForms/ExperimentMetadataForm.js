@@ -3,7 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Box, Button, styled, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import ReactQuill from 'react-quill';
@@ -43,6 +43,7 @@ const ExperimentMetadataForm = () => {
     setExperimentDesc,
     isEditMode,
     handleSaveExperiment,
+    setIsCurrentStepValid,
   } = useContext(StepContext);
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -66,6 +67,10 @@ const ExperimentMetadataForm = () => {
   const handleBackResearcher = () => {
     navigate('/experiments');
   };
+
+  useEffect(() => {
+    setIsCurrentStepValid(isValidFormExperiment);
+  }, [isValidFormExperiment, setIsCurrentStepValid]);
 
   return (
     <FormStepContainer>
