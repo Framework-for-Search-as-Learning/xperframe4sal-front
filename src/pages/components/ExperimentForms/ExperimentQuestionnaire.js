@@ -242,7 +242,11 @@ const ExperimentQuestionnaire = () => {
             {t('create_survey')}
           </Button>
           {!isEditMode && (
-            <Button variant="contained" onClick={() => setStep(step + 1)}>
+            <Button
+              variant="contained"
+              onClick={() => setStep(step + 1)}
+              disabled={!Array.isArray(ExperimentSurveys) || ExperimentSurveys.length === 0}
+            >
               <ArrowForward />
             </Button>
           )}
