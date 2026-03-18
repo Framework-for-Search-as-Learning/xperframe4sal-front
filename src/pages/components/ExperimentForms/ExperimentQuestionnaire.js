@@ -3,7 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   Box,
   Button,
@@ -32,14 +32,8 @@ import EditQuestionnaireDialog from '../../../components/Modals/EditQuestionnair
 import NotFound from '../../../components/NotFound';
 
 const ExperimentQuestionnaire = () => {
-  const {
-    step,
-    setStep,
-    ExperimentSurveys,
-    setExperimentSurveys,
-    isEditMode,
-    setIsCurrentStepValid,
-  } = useContext(StepContext);
+  const { step, setStep, ExperimentSurveys, setExperimentSurveys, isEditMode } =
+    useContext(StepContext);
   const { t } = useTranslation();
   const [user] = useState(JSON.parse(localStorage.getItem('user')));
 
@@ -116,10 +110,6 @@ const ExperimentQuestionnaire = () => {
     setExperimentSurveys((prev) => prev.filter((_, i) => i !== deleteTarget));
     setDeleteTarget(null);
   };
-
-  useEffect(() => {
-    setIsCurrentStepValid(Array.isArray(ExperimentSurveys) && ExperimentSurveys.length > 0);
-  }, [ExperimentSurveys, setIsCurrentStepValid]);
 
   return (
     <Box
@@ -215,11 +205,7 @@ const ExperimentQuestionnaire = () => {
               {t('create_survey')}
             </Button>
             {!isEditMode && (
-              <Button
-                variant="contained"
-                onClick={() => setStep(step + 1)}
-                disabled={!Array.isArray(ExperimentSurveys) || ExperimentSurveys.length === 0}
-              >
+              <Button variant="contained" onClick={() => setStep(step + 1)}>
                 {t('next')}
               </Button>
             )}
