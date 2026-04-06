@@ -24,6 +24,7 @@ export const INITIAL_FORM_STATE = {
   llmProvider: 'gemini',
   searchEngine: 'google',
   geminiApiKey: '',
+  systemInstruction: '',
   googleApiKey: '',
   googleCx: '',
   RulesExperiment: 'score',

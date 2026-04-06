@@ -384,6 +384,21 @@ const TaskForm = ({
           </Grid>
         )}
 
+        {config.origin === 'llm' && config.llmProvider && (
+          <Grid item xs={12}>
+            <TextField
+              label={t('system_instruction')}
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              multiline
+              rows={3}
+              value={config.systemInstruction}
+              onChange={(e) => config.setSystemInstruction(e.target.value)}
+            />
+          </Grid>
+        )}
+
         {config.origin === 'search-engine' && config.searchEngine === 'google' && (
           <>
             <Grid item xs={12} sm={6}>

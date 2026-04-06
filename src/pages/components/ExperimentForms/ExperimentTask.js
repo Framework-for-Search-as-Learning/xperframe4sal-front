@@ -244,6 +244,7 @@ const ExperimentTask = () => {
       editForm.setLlmProvider(config.modelProvider || '');
       editForm.setLlm(config.model || '');
       editForm.setGeminiApiKey(masked.apiKey || config.apiKey || '');
+      editForm.setSystemInstruction(config.systemInstruction || '');
     } else if (task.search_source === 'search-engine') {
       editForm.setSearchEngine(config.searchProvider || 'google');
       editForm.setGoogleApikey(masked.apiKey || config.apiKey || '');
@@ -361,6 +362,8 @@ const ExperimentTask = () => {
       setSearchEngine: form.setSearchEngine,
       geminiKey: form.formState.geminiApiKey,
       setGeminiKey: form.setGeminiApiKey,
+      systemInstruction: form.formState.systemInstruction,
+      setSystemInstruction: form.setSystemInstruction,
       googleKey: form.formState.googleApiKey,
       setGoogleKey: form.setGoogleApikey,
       cx: form.formState.googleCx,

@@ -17,6 +17,8 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
   const setLlm = (value) => setFormState((prev) => ({ ...prev, llm: value }));
   const setSearchEngine = (value) => setFormState((prev) => ({ ...prev, searchEngine: value }));
   const setGeminiApiKey = (value) => setFormState((prev) => ({ ...prev, geminiApiKey: value }));
+  const setSystemInstruction = (value) =>
+    setFormState((prev) => ({ ...prev, systemInstruction: value }));
   const setGoogleApikey = (value) => setFormState((prev) => ({ ...prev, googleApiKey: value }));
   const setGoogleCx = (value) => setFormState((prev) => ({ ...prev, googleCx: value }));
   const setRulesExperiment = (value) =>
@@ -50,6 +52,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
       llmProvider: task.llmProvider || '',
       searchEngine: task.search_model,
       geminiApiKey: task.geminiApiKey || '',
+      systemInstruction: task.systemInstruction || '',
       googleApiKey: task.googleApiKey || '',
       googleCx: task.googleCx || '',
       RulesExperiment: task.RulesExperiment,
@@ -71,6 +74,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
       providerConfig.modelProvider = formState.llmProvider;
       providerConfig.model = formState.llm;
       providerConfig.apiKey = formState.geminiApiKey;
+      providerConfig.systemInstruction = formState.systemInstruction;
     } else if (formState.origin === 'search-engine') {
       providerConfig.searchProvider = formState.searchEngine;
       providerConfig.apiKey = formState.googleApiKey;
@@ -118,6 +122,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
     setLlmProvider,
     setSearchEngine,
     setGeminiApiKey,
+    setSystemInstruction,
     setGoogleApikey,
     setGoogleCx,
     setRulesExperiment,

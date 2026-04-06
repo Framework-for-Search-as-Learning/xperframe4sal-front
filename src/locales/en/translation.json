@@ -438,5 +438,6 @@
   "Success_Delete": "Deleted successfully!",
   "needs_at_least_2_tasks_to_save": "To save as 'Between-subject', you must have at least 2 registered tasks. Please create the tasks in the 'Tasks' tab first.",
   "needs_at_least_1_task_to_save": "You must have at least 1 registered task to save the design.",
-  "total_queries": "Total Queries"
+  "total_queries": "Total Queries",
+  "system_instruction": "System Instruction"
 }
