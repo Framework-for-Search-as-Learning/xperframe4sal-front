@@ -54,7 +54,14 @@ const useStyles = makeStyles((theme) => ({
   },
   sendButton: {
     margin: '4px',
-    padding: '8px',
+    width: '42px',
+    height: '42px',
+    minWidth: '40px',
+    padding: 0,
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#4285f4',
     color: '#ffffff',
     '&:hover': {
@@ -89,7 +96,10 @@ const MessageInput = ({ onSendMessage }) => {
   return (
     <Box className={classes.inputContainer}>
       <Paper className={classes.inputPaper} elevation={0}>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', width: '100%' }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: 'flex', width: '100%', alignItems: 'center' }}
+        >
           <TextField
             className={classes.textField}
             placeholder="Digite sua mensagem..."

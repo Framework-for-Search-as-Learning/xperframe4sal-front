@@ -191,7 +191,6 @@ const OwnerActions = ({
   onViewStats,
   t,
 }) => {
-  const cannotEdit = hasActiveParticipants;
   const editTooltip = hasActiveParticipants
     ? (t?.('cannot_edit_experiment_with_participants') ??
       'Não é possível editar este experimento pois há participantes que já iniciaram.')
@@ -204,7 +203,6 @@ const OwnerActions = ({
         desktopText={t?.('edit') ?? 'EDITAR'}
         Icon={EditIcon}
         className={styles.actionButton}
-        disabled={cannotEdit}
         tooltip={editTooltip}
       />
       <ActionButton
