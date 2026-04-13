@@ -388,6 +388,8 @@ const TaskForm = ({
           <Grid item xs={12}>
             <TextField
               label={t('system_instruction')}
+              placeholder={t('system_instruction_placeholder')}
+              helperText={t('system_instruction_help')}
               variant="outlined"
               fullWidth
               margin="normal"

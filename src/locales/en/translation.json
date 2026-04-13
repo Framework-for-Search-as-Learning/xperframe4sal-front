@@ -439,5 +439,7 @@
   "needs_at_least_2_tasks_to_save": "To save as 'Between-subject', you must have at least 2 registered tasks. Please create the tasks in the 'Tasks' tab first.",
   "needs_at_least_1_task_to_save": "You must have at least 1 registered task to save the design.",
   "total_queries": "Total Queries",
-  "system_instruction": "System Instruction"
+  "system_instruction": "System Instruction",
+  "system_instruction_placeholder": "Example: You are a helpful assistant. Answer clearly, concisely, and in English.",
+  "system_instruction_help": "Define how the LLM should behave, respond, and format its answers. Example: be concise, use a friendly tone, and return only the final answer."
 }
