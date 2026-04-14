@@ -39,6 +39,8 @@ const Researcher = () => {
   const [experimentsWithParticipants, setExperimentsWithParticipants] = useState(new Set());
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [experimentToDelete, setExperimentToDelete] = useState(null);
+  const [editWarningModalOpen, setEditWarningModalOpen] = useState(false);
+  const [experimentToEdit, setExperimentToEdit] = useState(null);
   const user = JSON.parse(localStorage.getItem('user'));
   const { t } = useTranslation();
   const fileInputRef = useRef(null);
@@ -291,10 +293,26 @@ const Researcher = () => {
     const hasActiveParticipants = await checkExperimentParticipants(experimentId);
 
     if (hasActiveParticipants) {
+      setExperimentToEdit(experiment);
+      setEditWarningModalOpen(true);
       return;
     }
 
     navigate(`/experiments/${experimentId}/edit`);
+  };
+
+  const confirmEditExperiment = () => {
+    if (!experimentToEdit) return;
+
+    const experimentId = experimentToEdit._id;
+    setEditWarningModalOpen(false);
+    setExperimentToEdit(null);
+    navigate(`/experiments/${experimentId}/edit`);
+  };
+
+  const cancelEditExperiment = () => {
+    setEditWarningModalOpen(false);
+    setExperimentToEdit(null);
   };
 
   const handleDeleteExperiment = (experimentId) => {
@@ -407,6 +425,35 @@ const Researcher = () => {
           </Button>
           <Button onClick={confirmDeleteExperiment} color="error" variant="contained" autoFocus>
             {t('delete_confirm') || 'EXCLUIR'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={editWarningModalOpen}
+        onClose={cancelEditExperiment}
+        aria-labelledby="edit-warning-dialog-title"
+        aria-describedby="edit-warning-dialog-description"
+      >
+        <DialogTitle id="edit-warning-dialog-title">
+          {t('edit_experiment_warning_title') || 'Aviso ao editar'}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="edit-warning-dialog-description">
+            {t('edit_experiment_with_participants_warning') ||
+              'Ha participantes que ja iniciaram este experimento. Alteracoes podem afetar participantes em andamento e a interpretacao dos dados coletados.'}
+          </DialogContentText>
+          {experimentToEdit && (
+            <DialogContentText sx={{ mt: 2, fontWeight: 'bold' }}>
+              {experimentToEdit.name}
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ padding: '16px 24px' }}>
+          <Button onClick={cancelEditExperiment} color="primary" variant="outlined">
+            {t('cancel') || 'CANCELAR'}
+          </Button>
+          <Button onClick={confirmEditExperiment} color="warning" variant="contained" autoFocus>
+            {t('continue_editing') || 'CONTINUAR EDITANDO'}
           </Button>
         </DialogActions>
       </Dialog>
