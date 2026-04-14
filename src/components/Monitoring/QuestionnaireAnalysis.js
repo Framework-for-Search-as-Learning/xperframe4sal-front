@@ -52,6 +52,62 @@ const COLORS = [
   '#ff7c7c',
 ];
 
+const ChartLegend = ({ items, title }) => (
+  <Box
+    sx={{
+      display: 'grid',
+      gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
+      gap: 1,
+      mt: 2,
+      p: 1.5,
+      border: '1px solid',
+      borderColor: 'divider',
+      borderRadius: 1,
+      bgcolor: 'grey.50',
+    }}
+  >
+    {title && (
+      <Typography
+        variant="subtitle2"
+        sx={{ gridColumn: '1 / -1', fontWeight: 700, color: 'text.secondary' }}
+      >
+        {title}
+      </Typography>
+    )}
+    {items.map((item) => (
+      <Box
+        key={item.label}
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'auto 1fr',
+          columnGap: 1,
+          alignItems: 'start',
+          minWidth: 0,
+        }}
+      >
+        <Box
+          sx={{
+            width: 12,
+            height: 12,
+            mt: 0.5,
+            borderRadius: '2px',
+            bgcolor: item.color,
+            flexShrink: 0,
+          }}
+        />
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, overflowWrap: 'anywhere' }}>
+            {item.label}: {item.name}
+          </Typography>
+          <Typography variant="caption" color="textSecondary">
+            {item.details}
+          </Typography>
+        </Box>
+      </Box>
+    ))}
+  </Box>
+);
+
 const QuestionnaireAnalysis = ({ surveysStats, participants, experimentId, accessToken, t }) => {
   const [expanded, setExpanded] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -119,10 +175,18 @@ const QuestionnaireAnalysis = ({ surveysStats, participants, experimentId, acces
   );
 
   const renderQuestionChart = (question) => {
-    const chartData = question.options.map((opt) => ({
+    const chartData = question.options.map((opt, index) => ({
       name: opt.statement,
+      label: `${t('option') || 'Opção'} ${index + 1}`,
       value: opt.count,
       percentage: opt.percentage,
+      color: COLORS[index % COLORS.length],
+    }));
+    const legendItems = chartData.map((item) => ({
+      label: item.label,
+      name: item.name,
+      color: item.color,
+      details: `${item.value} ${t('responses') || 'respostas'} (${item.percentage.toFixed(1)}%)`,
     }));
 
     const showPie = ['multiple-choices', 'multiple-selection', 'likert'].includes(question.type);
@@ -130,48 +194,65 @@ const QuestionnaireAnalysis = ({ surveysStats, participants, experimentId, acces
     return (
       <Grid container spacing={2}>
         <Grid item xs={12} md={showPie ? 6 : 12}>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} interval={0} />
-              <YAxis />
-              <Tooltip
-                formatter={(value, name, props) => [
-                  `${value} (${props.payload.percentage.toFixed(1)}%)`,
-                  t('responses') || 'Respostas',
-                ]}
-              />
-              <Legend />
-              <Bar dataKey="value" fill="#1976d2" name={t('responses') || 'Respostas'} />
-            </BarChart>
-          </ResponsiveContainer>
-        </Grid>
-        {showPie && (
-          <Grid item xs={12} md={6}>
+          <Box>
             <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percentage }) => `${name}: ${percentage.toFixed(1)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="label" interval={0} />
+                <YAxis allowDecimals={false} />
                 <Tooltip
                   formatter={(value, name, props) => [
                     `${value} (${props.payload.percentage.toFixed(1)}%)`,
-                    name,
+                    props.payload.name,
                   ]}
                 />
-              </PieChart>
+                <Legend />
+                <Bar dataKey="value" name={t('responses') || 'Respostas'}>
+                  {chartData.map((entry) => (
+                    <Cell key={entry.label} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
+            <ChartLegend
+              items={legendItems}
+              title={t('bar_chart_legend') || 'Legenda das barras'}
+            />
+          </Box>
+        </Grid>
+        {showPie && (
+          <Grid item xs={12} md={6}>
+            <Box>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    label={false}
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    nameKey="label"
+                  >
+                    {chartData.map((entry) => (
+                      <Cell key={entry.label} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value, name, props) => [
+                      `${value} (${props.payload.percentage.toFixed(1)}%)`,
+                      `${props.payload.label}: ${props.payload.name}`,
+                    ]}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <ChartLegend
+                items={legendItems}
+                title={t('pie_chart_legend') || 'Legenda das cores'}
+              />
+            </Box>
           </Grid>
         )}
       </Grid>
