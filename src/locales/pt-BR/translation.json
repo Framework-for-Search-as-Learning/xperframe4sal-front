@@ -413,6 +413,7 @@
   "search": "Busca",
   "chat": "Chat",
   "no_participants": "Nenhum participante",
+  "no_questionnaires": "Nenhum questionário",
   "needs_at_least_1_task": "Adicione pelo menos 1 tarefa para prosseguir.",
   "needs_at_least_2_tasks": "Experimentos 'entre sujeitos' exigem pelo menos 2 tarefas.",
   "error_creating_experiment": "Erro ao conectar com o servidor. Tente enviar novamente.",

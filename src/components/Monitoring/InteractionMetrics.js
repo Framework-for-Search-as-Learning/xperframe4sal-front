@@ -614,6 +614,7 @@ const ByTaskTab = ({
 
   const taskType = taskData.executions[0]?.taskType;
   const isSearchTask = taskType === 'search-engine';
+  const systemInstruction = taskData.systemInstruction?.trim();
 
   const avgTime =
     taskData.executions.length > 0
@@ -671,6 +672,17 @@ const ByTaskTab = ({
             size="small"
             sx={{ mb: 2 }}
           />
+
+          {!isSearchTask && systemInstruction && (
+            <Paper variant="outlined" sx={{ p: 2, mb: 2, bgcolor: 'grey.50' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                {t('system_instruction') || 'Instruções de Sistema'}
+              </Typography>
+              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                {systemInstruction}
+              </Typography>
+            </Paper>
+          )}
 
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12} sm={6} md={3}>
@@ -1028,6 +1040,18 @@ const ByParticipantTab = ({
                             </>
                           )}
                         </Grid>
+
+                        {detail.taskType === 'llm' &&
+                          detail.llmDetails?.systemInstruction?.trim() && (
+                            <Paper variant="outlined" sx={{ p: 2, mb: 4, bgcolor: 'grey.50' }}>
+                              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                {t('system_instruction') || 'Instruções de Sistema'}
+                              </Typography>
+                              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                                {detail.llmDetails.systemInstruction.trim()}
+                              </Typography>
+                            </Paper>
+                          )}
 
                         {detail.taskType === 'search-engine' &&
                           chronologicalResources.length > 0 && (

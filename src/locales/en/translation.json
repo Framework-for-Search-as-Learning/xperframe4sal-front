@@ -414,6 +414,7 @@
   "search": "Search",
   "chat": "Chat",
   "no_participants": "No participants",
+  "no_questionnaires": "No questionnaires",
   "needs_at_least_1_task": "Add at least 1 task to proceed.",
   "needs_at_least_2_tasks": "Between-subject experiments require at least 2 tasks.",
   "error_creating_experiment": "Error connecting to server. Please try sending again.",
