@@ -238,14 +238,17 @@ const ExperimentTask = () => {
     }
     editForm.setSelectedSurvey(surveyObj);
 
-    editForm.setOrigin(task.search_source || '');
+    const taskOrigin =
+      task.search_source ||
+      (config.modelProvider || config.model ? 'llm' : config.searchProvider ? 'search-engine' : '');
+    editForm.setOrigin(taskOrigin);
 
-    if (task.search_source === 'llm') {
+    if (taskOrigin === 'llm') {
       editForm.setLlmProvider(config.modelProvider || '');
       editForm.setLlm(config.model || '');
       editForm.setGeminiApiKey(masked.apiKey || config.apiKey || '');
       editForm.setSystemInstruction(config.systemInstruction || '');
-    } else if (task.search_source === 'search-engine') {
+    } else if (taskOrigin === 'search-engine') {
       editForm.setSearchEngine(config.searchProvider || 'google');
       editForm.setGoogleApikey(masked.apiKey || config.apiKey || '');
       editForm.setGoogleCx(masked.cx || config.cx || '');

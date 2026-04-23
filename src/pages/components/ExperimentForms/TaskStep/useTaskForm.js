@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { INITIAL_FORM_STATE } from '../constants/experimentConstants';
 
 export const useTaskForm = (mode = 'create', initialData = null) => {
-  const [formState, setFormState] = useState(initialData || INITIAL_FORM_STATE);
+  const [formState, setFormState] = useState(initialData || { ...INITIAL_FORM_STATE });
 
   const setTaskTitle = (value) => setFormState((prev) => ({ ...prev, taskTitle: value }));
   const setTaskSummary = (value) => setFormState((prev) => ({ ...prev, taskSummary: value }));
@@ -39,7 +39,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
   const setLlmProvider = (value) => setFormState((prev) => ({ ...prev, llmProvider: value }));
 
   const resetForm = () => {
-    setFormState(INITIAL_FORM_STATE);
+    setFormState({ ...INITIAL_FORM_STATE });
   };
 
   const loadTaskData = (task) => {
@@ -73,11 +73,17 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
     if (formState.origin === 'llm') {
       providerConfig.modelProvider = formState.llmProvider;
       providerConfig.model = formState.llm;
-      providerConfig.apiKey = formState.geminiApiKey;
-      providerConfig.systemInstruction = formState.systemInstruction;
+      if (formState.geminiApiKey?.trim()) {
+        providerConfig.apiKey = formState.geminiApiKey;
+      }
+      if (formState.systemInstruction?.trim()) {
+        providerConfig.systemInstruction = formState.systemInstruction;
+      }
     } else if (formState.origin === 'search-engine') {
       providerConfig.searchProvider = formState.searchEngine;
-      providerConfig.apiKey = formState.googleApiKey;
+      if (formState.googleApiKey?.trim()) {
+        providerConfig.apiKey = formState.googleApiKey;
+      }
       providerConfig.cx = formState.googleCx;
     }
 

@@ -3,7 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   TextField,
   Button,
@@ -15,16 +15,24 @@ import {
   MenuItem,
   Checkbox,
   styled,
+  Autocomplete,
+  FormHelperText,
 } from '@mui/material';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {
-  LLM_PROVIDERS,
-  LLM_MODELS_BY_PROVIDER,
   SEARCH_ENGINES,
   RULES_EXPERIMENT_TYPES,
   SCORE_TYPES,
 } from '../constants/experimentConstants';
+import { api } from '../../../../config/axios';
+import {
+  getDefaultModel,
+  getFirstProviderValue,
+  getProviderByValue,
+  normalizeLlmModelsResponse,
+  normalizeLlmProviders,
+} from './llmProviderCatalog';
 
 const CustomContainer = styled('div')(({ theme }) => ({
   backgroundColor: '#fafafa',
@@ -60,20 +68,155 @@ const TaskForm = ({
 }) => {
   const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
   const [isDescEmpty, setIsDescEmpty] = useState(() => stripHtml(config.description).length === 0);
-
-  const availableModels = useMemo(() => {
-    if (!config.llmProvider) return [];
-    return LLM_MODELS_BY_PROVIDER[config.llmProvider] || [];
-  }, [config.llmProvider]);
+  const [llmProviders, setLlmProviders] = useState([]);
+  const [providersLoading, setProvidersLoading] = useState(false);
+  const [providersError, setProvidersError] = useState('');
+  const [modelSuggestions, setModelSuggestions] = useState([]);
+  const [modelsLoading, setModelsLoading] = useState(false);
+  const [modelsError, setModelsError] = useState('');
+  const { origin, llmProvider, llm } = config;
+  const [user] = useState(() => JSON.parse(localStorage.getItem('user')));
+  const accessToken = user?.accessToken;
+  const setLlmRef = useRef(config.setLlm);
+  const setLlmProviderRef = useRef(config.setLlmProvider);
+  const llmRef = useRef(llm);
+  const llmProviderValueRef = useRef(llmProvider);
 
   useEffect(() => {
-    if (config.llmProvider && config.llm) {
-      const isValidModel = availableModels.some((model) => model.value === config.llm);
-      if (!isValidModel) {
-        config.setLlm('');
+    setLlmRef.current = config.setLlm;
+    setLlmProviderRef.current = config.setLlmProvider;
+  }, [config.setLlm, config.setLlmProvider]);
+
+  useEffect(() => {
+    llmRef.current = llm;
+    llmProviderValueRef.current = llmProvider;
+  }, [llm, llmProvider]);
+
+  useEffect(() => {
+    if (origin !== 'llm') return;
+
+    let isMounted = true;
+
+    const loadProviders = async () => {
+      setProvidersLoading(true);
+      setProvidersError('');
+
+      try {
+        const response = await api.get('/llm-session/providers', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const providers = normalizeLlmProviders(response.data);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setLlmProviders(providers);
+
+        if (providers.length === 0) {
+          setProvidersError('Nenhum provider de IA foi retornado pela API.');
+          setModelSuggestions([]);
+          return;
+        }
+
+        const selectedProvider = getProviderByValue(providers, llmProviderValueRef.current);
+        if (!selectedProvider) {
+          const nextProvider = getFirstProviderValue(providers);
+          setLlmProviderRef.current(nextProvider);
+          if (!llmRef.current) {
+            setLlmRef.current(getDefaultModel(providers, nextProvider));
+          }
+        } else if (!llmRef.current) {
+          setLlmRef.current(getDefaultModel(providers, selectedProvider.value));
+        }
+      } catch (error) {
+        console.error('Erro ao carregar providers de IA:', error);
+        if (isMounted) {
+          setLlmProviders([]);
+          setModelSuggestions([]);
+          setProvidersError('Nao foi possivel carregar os providers de IA.');
+        }
+      } finally {
+        if (isMounted) {
+          setProvidersLoading(false);
+        }
       }
+    };
+
+    loadProviders();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [origin, accessToken]);
+
+  useEffect(() => {
+    if (origin !== 'llm') return;
+
+    let isMounted = true;
+
+    const loadModels = async () => {
+      if (!llmProvider) {
+        setModelSuggestions([]);
+        setModelsError('');
+        return;
+      }
+
+      setModelsLoading(true);
+      setModelsError('');
+
+      try {
+        const response = await api.get(`/llm-session/providers/${llmProvider}/models`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const modelCatalog = normalizeLlmModelsResponse(response.data);
+        const models = modelCatalog.suggestedModels;
+
+        if (isMounted) {
+          setModelSuggestions(models);
+          if (!llmRef.current) {
+            setLlmRef.current(modelCatalog.defaultModel || models[0] || '');
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar modelos de IA:', error);
+        if (isMounted) {
+          setModelSuggestions([]);
+          setModelsError('Nao foi possivel carregar os modelos do provider selecionado.');
+        }
+      } finally {
+        if (isMounted) {
+          setModelsLoading(false);
+        }
+      }
+    };
+
+    loadModels();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [origin, llmProvider, accessToken]);
+
+  useEffect(() => {
+    if (origin !== 'llm' || providersLoading || llmProviders.length === 0) return;
+
+    if (!llmProvider) {
+      const nextProvider = getFirstProviderValue(llmProviders);
+      setLlmProviderRef.current(nextProvider);
+      return;
     }
-  }, [availableModels, config]);
+
+    if (!getProviderByValue(llmProviders, llmProvider)) {
+      const nextProvider = getFirstProviderValue(llmProviders);
+      setLlmProviderRef.current(nextProvider);
+      return;
+    }
+
+    if (!llm && !modelsLoading) {
+      setLlmRef.current(getDefaultModel(llmProviders, llmProvider) || '');
+    }
+  }, [origin, llmProvider, llm, llmProviders, providersLoading, modelsLoading]);
 
   const getApiKeyFieldInfo = () => {
     if (config.origin !== 'llm' || !config.llmProvider) return null;
@@ -85,12 +228,14 @@ const TaskForm = ({
         return { label: 'Anthropic API Key', placeholder: 'sk-ant-...' };
       case 'google':
         return { label: 'Google AI API Key', placeholder: 'AIza...' };
-      case 'cohere':
-        return { label: 'Cohere API Key', placeholder: '...' };
+      case 'meta':
+        return { label: 'Meta API Key', placeholder: '...' };
       case 'mistral':
         return { label: 'Mistral API Key', placeholder: '...' };
+      case 'deepseek':
+        return { label: 'DeepSeek API Key', placeholder: '...' };
       default:
-        return null;
+        return { label: 'API Key', placeholder: '...' };
     }
   };
 
@@ -305,18 +450,30 @@ const TaskForm = ({
                 labelId="llm-provider-label"
                 value={config.llmProvider || ''}
                 onChange={(e) => {
-                  config.setLlmProvider(e.target.value);
+                  const provider = e.target.value;
+                  config.setLlmProvider(provider);
                   config.setLlm('');
                 }}
                 label={t('select_llm_provider')}
                 required
+                disabled={providersLoading || llmProviders.length === 0}
               >
-                {LLM_PROVIDERS.map((provider) => (
+                {providersLoading && (
+                  <MenuItem disabled value="">
+                    Carregando providers...
+                  </MenuItem>
+                )}
+                {llmProviders.map((provider) => (
                   <MenuItem key={provider.value} value={provider.value}>
                     {provider.label}
                   </MenuItem>
                 ))}
               </Select>
+              {(providersError || (!providersLoading && llmProviders.length === 0)) && (
+                <FormHelperText error>
+                  {providersError || 'Nenhum provider de IA disponivel.'}
+                </FormHelperText>
+              )}
             </FormControl>
           </Grid>
         ) : config.origin === 'search-engine' ? (
@@ -343,29 +500,31 @@ const TaskForm = ({
 
         {config.origin === 'llm' && config.llmProvider && (
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth margin="normal" sx={{ minWidth: 120 }}>
-              <InputLabel id="llm-select-label">{t('select_llm')}</InputLabel>
-              <Select
-                fullWidth
-                labelId="llm-select-label"
-                value={config.llm}
-                onChange={(e) => config.setLlm(e.target.value)}
-                label={t('select_llm')}
-                required
-              >
-                {availableModels.length > 0 ? (
-                  availableModels.map((model) => (
-                    <MenuItem key={model.value} value={model.value}>
-                      {model.label}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem disabled>
-                    {t('no_models_available') || 'Nenhum modelo disponível'}
-                  </MenuItem>
-                )}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              freeSolo
+              fullWidth
+              options={modelSuggestions}
+              value={config.llm || ''}
+              inputValue={config.llm || ''}
+              loading={modelsLoading}
+              loadingText="Carregando modelos..."
+              noOptionsText="Nenhum modelo sugerido para este provider."
+              onChange={(_, value) => config.setLlm(value || '')}
+              onInputChange={(_, value) => config.setLlm(value)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={t('select_llm')}
+                  margin="normal"
+                  required
+                  error={Boolean(modelsError)}
+                  helperText={
+                    modelsError ||
+                    'Selecione uma sugestao ou digite outro modelo suportado pelo provider.'
+                  }
+                />
+              )}
+            />
           </Grid>
         )}
 
@@ -379,6 +538,7 @@ const TaskForm = ({
               value={config.geminiKey}
               onChange={(e) => config.setGeminiKey(e.target.value)}
               placeholder={apiKeyInfo.placeholder}
+              helperText="Ao editar, mantenha a chave mascarada para preservar a chave atual ou digite uma nova."
               required
             />
           </Grid>
