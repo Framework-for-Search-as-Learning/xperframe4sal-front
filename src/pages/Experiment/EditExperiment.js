@@ -46,6 +46,7 @@ const EditExperiment = () => {
   const { isLoading, isAuthorized, data: experimentData } = useExperimentAuth(experimentId, user);
 
   const [step, setStep] = useState(0);
+  const [isCurrentStepValid, setIsCurrentStepValid] = useState(true);
   const [ExperimentTitle, setExperimentTitle] = useState('');
   const [ExperimentType, setExperimentType] = useState('within-subject');
   const [BtypeExperiment, setBtypeExperiment] = useState('random');
@@ -198,6 +199,8 @@ const EditExperiment = () => {
           value={{
             step,
             setStep,
+            isCurrentStepValid,
+            setIsCurrentStepValid,
             isEditMode: true,
             handleSaveExperiment,
             ExperimentTitle,
