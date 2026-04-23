@@ -173,7 +173,7 @@ const ActionButton = ({
   if (tooltip) {
     return (
       <Tooltip title={tooltip}>
-        <span style={{ display: 'contents' }}>{button}</span>
+        <span style={{ display: 'inline-flex' }}>{button}</span>
       </Tooltip>
     );
   }
@@ -193,7 +193,7 @@ const OwnerActions = ({
 }) => {
   const editTooltip = hasActiveParticipants
     ? (t?.('edit_experiment_with_participants_warning') ??
-      'Ha participantes que ja iniciaram este experimento. Alteracoes podem afetar os dados coletados.')
+      'Há participantes que já iniciaram este experimento. Alterações podem afetar os dados coletados.')
     : '';
 
   return (

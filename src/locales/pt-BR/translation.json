@@ -9,7 +9,7 @@
   "cannot_edit_active_experiment": "Não é possível editar um experimento ativo. Desative-o primeiro.",
   "cannot_edit_experiment_with_participants": "Não é possível editar este experimento pois há participantes que já iniciaram.",
   "edit_experiment_warning_title": "Aviso ao editar",
-  "edit_experiment_with_participants_warning": "Ha participantes que ja iniciaram este experimento. Alteracoes podem afetar participantes em andamento e a interpretacao dos dados coletados.",
+  "edit_experiment_with_participants_warning": "Há participantes que ja iniciaram este experimento. Alteracoes podem afetar participantes em andamento e a interpretação dos dados coletados.",
   "continue_editing": "Continuar editando",
   "Descrição da Tarefa *": "Descrição da Tarefa *",
   "delete_experiment_title": "Confirmar Exclusão",
