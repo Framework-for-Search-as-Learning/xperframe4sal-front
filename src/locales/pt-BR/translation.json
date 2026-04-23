@@ -444,5 +444,7 @@
   "total_queries": "Total de Consultas",
   "system_instruction": "Instruções de Sistema",
   "system_instruction_placeholder": "Exemplo: Você é um assistente útil. Responda de forma clara, objetiva e em português.",
-  "system_instruction_help": "Defina como o LLM deve se comportar, responder e formatar as respostas. Exemplo: seja objetivo, use um tom amigável e retorne apenas a resposta final."
+  "system_instruction_help": "Defina como o LLM deve se comportar, responder e formatar as respostas. Exemplo: seja objetivo, use um tom amigável e retorne apenas a resposta final.",
+  "bar_chart_legend": "Gráfico 1",
+  "pie_chart_legend": "Gráfico 2"
 }

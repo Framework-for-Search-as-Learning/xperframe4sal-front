@@ -445,5 +445,7 @@
   "total_queries": "Total Queries",
   "system_instruction": "System Instruction",
   "system_instruction_placeholder": "Example: You are a helpful assistant. Answer clearly, concisely, and in English.",
-  "system_instruction_help": "Define how the LLM should behave, respond, and format its answers. Example: be concise, use a friendly tone, and return only the final answer."
+  "system_instruction_help": "Define how the LLM should behave, respond, and format its answers. Example: be concise, use a friendly tone, and return only the final answer.",
+  "bar_chart_legend": "Chart 1",
+  "pie_chart_legend": "Chart 2"
 }
