@@ -37,6 +37,8 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
     setFormState((prev) => ({ ...prev, selectedQuestion: value }));
   const setscoreType = (value) => setFormState((prev) => ({ ...prev, scoreType: value }));
   const setLlmProvider = (value) => setFormState((prev) => ({ ...prev, llmProvider: value }));
+  const setLinkedSurveyRefs = (value) =>
+    setFormState((prev) => ({ ...prev, linkedSurveyRefs: value }));
 
   const resetForm = () => {
     setFormState({ ...INITIAL_FORM_STATE });
@@ -109,6 +111,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
       max_score: Number(formState.ScoreThresholdmx) || 0,
       search_source: formState.origin,
       provider_config: providerConfig,
+      linkedSurveyRefs: formState.linkedSurveyRefs || [],
       RulesExperiment: formState.RulesExperiment,
       SelectedSurvey: surveyId,
       selectedQuestionIds: questionIds,
@@ -140,6 +143,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
     setIsValidSumaryTask,
     setSelectedQuestion,
     setscoreType,
+    setLinkedSurveyRefs,
     resetForm,
     loadTaskData,
     buildTaskObject,

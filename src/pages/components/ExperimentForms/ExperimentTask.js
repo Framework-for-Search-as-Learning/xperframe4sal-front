@@ -198,23 +198,39 @@ const ExperimentTask = () => {
     setscoreType(minScore !== maxScore ? 'min_max' : 'unic');
 
     let loadedQuestionIds = [];
-    if (isEditMode && ruleType === 'question') {
+    if (isEditMode) {
       try {
         const taskId = task._id || task.id || task.uuid;
-        const questionsResponse = await api.get(`task-question-map/task/${taskId}`, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        });
-        loadedQuestionIds = questionsResponse.data || [];
-        editForm.setSelectedQuestionIds(loadedQuestionIds.map((id) => ({ id })));
+        const [questionsResponse, linkedSurveysResponse] = await Promise.all([
+          ruleType === 'question'
+            ? api.get(`task-question-map/task/${taskId}`, {
+                headers: { Authorization: `Bearer ${user.accessToken}` },
+              })
+            : Promise.resolve({ data: [] }),
+          api.get(`task-survey/task/${taskId}`, {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }),
+        ]);
+
+        if (ruleType === 'question') {
+          loadedQuestionIds = questionsResponse.data || [];
+          editForm.setSelectedQuestionIds(loadedQuestionIds.map((id) => ({ id })));
+        } else {
+          editForm.setSelectedQuestionIds([]);
+        }
+
+        const linkedSurveyIds = (linkedSurveysResponse.data || []).map((s) => s._id);
+        editForm.setLinkedSurveyRefs(linkedSurveyIds);
       } catch (error) {
-        console.error('Erro mapa questoes', error);
+        console.error('Erro ao carregar dados da tarefa:', error);
+        editForm.setSelectedQuestionIds([]);
+        editForm.setLinkedSurveyRefs([]);
       }
-    } else if (!isEditMode) {
+    } else {
       const rawQuestions = task.questionsId || task.selectedQuestionIds || [];
       loadedQuestionIds = rawQuestions.map((q) => (typeof q === 'string' ? q : q.id));
       editForm.setSelectedQuestionIds(loadedQuestionIds.map((id) => ({ id })));
-    } else {
-      editForm.setSelectedQuestionIds([]);
+      editForm.setLinkedSurveyRefs(task.linkedSurveyRefs || []);
     }
 
     const surveyRef =
@@ -371,6 +387,8 @@ const ExperimentTask = () => {
       setGoogleKey: form.setGoogleApikey,
       cx: form.formState.googleCx,
       setCx: form.setGoogleCx,
+      linkedSurveyRefs: form.formState.linkedSurveyRefs,
+      setLinkedSurveyRefs: form.setLinkedSurveyRefs,
       isValidForm:
         form.formState.isValidTitleTask &&
         form.formState.taskTitle &&

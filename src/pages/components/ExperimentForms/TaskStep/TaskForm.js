@@ -620,6 +620,35 @@ const TaskForm = ({
         </CustomContainer>
       </div>
 
+      {experimentSurveys?.length > 0 && (
+        <FormControl fullWidth margin="normal">
+          <InputLabel id="linked-surveys-label">{t('linked_surveys_for_task')}</InputLabel>
+          <Select
+            labelId="linked-surveys-label"
+            multiple
+            value={config.linkedSurveyRefs || []}
+            onChange={(e) => config.setLinkedSurveyRefs(e.target.value)}
+            label={t('linked_surveys_for_task')}
+            renderValue={(selected) =>
+              experimentSurveys
+                .filter((s) => selected.includes(s._id || s.uuid))
+                .map((s) => s.title)
+                .join(', ')
+            }
+          >
+            {experimentSurveys.map((survey) => {
+              const surveyId = survey._id || survey.uuid;
+              return (
+                <MenuItem key={surveyId} value={surveyId}>
+                  <Checkbox checked={(config.linkedSurveyRefs || []).includes(surveyId)} />
+                  {survey.title}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      )}
+
       <Box
         sx={{
           display: 'flex',

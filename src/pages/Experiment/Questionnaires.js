@@ -58,11 +58,14 @@ const Questionnaires = () => {
       try {
         setIsLoading(true);
 
-        const [experimentResponse, userExperimentResponse] = await Promise.all([
+        const [experimentResponse, userExperimentResponse, userTasksResponse] = await Promise.all([
           api.get(`experiment/${experimentId}`, {
             headers: { Authorization: `Bearer ${user.accessToken}` },
           }),
           api.get(`user-experiment?experimentId=${experimentId}&userId=${user.id}`, {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }),
+          api.get(`user-task/user/${user.id}/experiment/${experimentId}`, {
             headers: { Authorization: `Bearer ${user.accessToken}` },
           }),
         ]);
@@ -84,7 +87,17 @@ const Questionnaires = () => {
           return;
         }
 
-        setHasFinishedTasks(userExperimentResult?.stepsCompleted['task']);
+        const tasksFinished = !!userExperimentResult?.stepsCompleted['task'];
+        setHasFinishedTasks(tasksFinished);
+
+        // Collect linkedSurveyRefs from the user's tasks to filter surveys.
+        // featureEnabled is true when at least one task explicitly defines linkedSurveyRefs
+        // (even as an empty array), allowing us to distinguish from old experiments that
+        // don't have this field at all.
+        const userTasksData = userTasksResponse?.data || [];
+        const taskRefs = userTasksData.map((ut) => ut.task?.linkedSurveyRefs);
+        const featureEnabled = taskRefs.some((refs) => Array.isArray(refs));
+        const linkedSurveyIds = new Set(taskRefs.flatMap((refs) => refs || []));
 
         const surveysResponse = await api.get(`survey/experiment/${experimentId}`, {
           headers: { Authorization: `Bearer ${user.accessToken}` },
@@ -97,23 +110,29 @@ const Questionnaires = () => {
         let localAnsweredPost = {};
 
         for (const survey of surveysResponse.data) {
-          if (survey.isActive) {
-            surveyList.push(survey);
+          if (!survey.isActive) continue;
+          // When the feature is enabled, only show surveys linked to the user's tasks
+          if (
+            featureEnabled &&
+            !linkedSurveyIds.has(String(survey._id)) &&
+            !linkedSurveyIds.has(survey.uuid)
+          )
+            continue;
 
-            const response = await api.get(
-              `survey-answer?userId=${user.id}&surveyId=${survey._id}`,
-              { headers: { Authorization: `Bearer ${user.accessToken}` } },
-            );
+          surveyList.push(survey);
 
-            const hasAnswered = !!response?.data;
+          const response = await api.get(`survey-answer?userId=${user.id}&surveyId=${survey._id}`, {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          });
 
-            if (survey.type === SurveyType.PRE) {
-              localPre.push(survey);
-              if (hasAnswered) localAnsweredPre[survey._id] = true;
-            } else if (survey.type === SurveyType.POST) {
-              localPost.push(survey);
-              if (hasAnswered) localAnsweredPost[survey._id] = true;
-            }
+          const hasAnswered = !!response?.data;
+
+          if (survey.type === SurveyType.PRE) {
+            localPre.push(survey);
+            if (hasAnswered) localAnsweredPre[survey._id] = true;
+          } else if (survey.type === SurveyType.POST) {
+            localPost.push(survey);
+            if (hasAnswered) localAnsweredPost[survey._id] = true;
           }
         }
 
@@ -122,15 +141,6 @@ const Questionnaires = () => {
         setAnsweredPreSurveys(localAnsweredPre);
         setAnsweredPostSurveys(localAnsweredPost);
 
-        if (surveyList.length === 0) {
-          navigate(`/experiments/${experimentId}/tasks`);
-          return;
-        }
-
-        const allPreAnswered = localPre.every((survey) => localAnsweredPre[survey._id]);
-        setShowWarning(!allPreAnswered);
-        setShouldActivateTask(allPreAnswered);
-
         const stepsResponse = await api.get(`experiment/${experimentId}/step`, {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         });
@@ -138,15 +148,27 @@ const Questionnaires = () => {
 
         setExperiment(experimentResult);
         setUserExperiment(userExperimentResult);
-        setSurveys(surveyList);
         setSteps(experimentSteps);
+
+        // Only redirect to tasks if there are no surveys AND tasks are not yet done
+        if (surveyList.length === 0 && !tasksFinished) {
+          navigate(`/experiments/${experimentId}/tasks`);
+          return;
+        }
+
+        setSurveys(surveyList);
+
+        const allPreAnswered = localPre.every((survey) => localAnsweredPre[survey._id]);
+        setShowWarning(!allPreAnswered);
+        setShouldActivateTask(allPreAnswered);
+
         setIsLoading(false);
       } catch (error) {
         setIsLoading(false);
         setOpen(true);
         setIsSuccess(false);
         setSeverity('error');
-        setMessage(error);
+        setMessage(error?.message || String(error));
         console.log(error);
       }
     };
