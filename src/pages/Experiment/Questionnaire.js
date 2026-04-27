@@ -13,6 +13,33 @@ import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingIndicator } from '../../components/LoadIndicator';
 import { useTranslation } from 'react-i18next';
 
+function buildFormDataFromAnswers(answers, questions) {
+  if (!answers || !questions) return {};
+  const result = {};
+  answers.forEach((answer) => {
+    const questionIndex = questions.findIndex((q, i) => (q.id || q._id || String(i)) === answer.id);
+    if (questionIndex === -1) return;
+    if (answer.questionType === 'open') {
+      result[questionIndex] = {
+        questionStatement: answer.questionStatement,
+        answer: answer.textAnswer,
+        selectedOption: { statement: answer.textAnswer },
+      };
+    } else if (answer.questionType === 'multiple-choices') {
+      result[questionIndex] = {
+        questionStatement: answer.questionStatement,
+        selectedOption: answer.selectedOptions?.[0] ?? null,
+      };
+    } else {
+      result[questionIndex] = {
+        questionStatement: answer.questionStatement,
+        selectedOption: answer.selectedOptions ?? [],
+      };
+    }
+  });
+  return result;
+}
+
 function wasAllRequiredQuestionsAnswered(formData, survey) {
   const questionsNotAnswered = Object.keys(survey?.questions).filter(
     (key) => survey.questions[key].required && !Object.keys(formData).includes(key),
@@ -190,9 +217,7 @@ const Questionnaire = () => {
         setUserSurvey(userSurveyResult);
 
         if (isMounted) {
-          let uniqueAnswer = false;
           if (experimentResult) {
-            uniqueAnswer = survey?.uniqueAnswer;
             setExperiment(experimentResult);
           }
 
@@ -200,8 +225,20 @@ const Questionnaire = () => {
             setSurvey(surveyResult);
           }
 
-          if (userSurveyResult?.length > 0 && uniqueAnswer) {
+          const loadedSurvey = surveyResult || survey;
+          if (userSurveyResult && loadedSurvey?.uniqueAnswer) {
             navigate(`/experiments/${experimentId}/surveys`);
+          }
+
+          if (userSurveyResult && loadedSurvey?.questions) {
+            const initialFormData = buildFormDataFromAnswers(
+              userSurveyResult.answers,
+              loadedSurvey.questions,
+            );
+            setFormData(initialFormData);
+            setAllRequiredQuestionsAnswered(
+              wasAllRequiredQuestionsAnswered(initialFormData, loadedSurvey),
+            );
           }
         }
         setIsLoading(false);
@@ -364,9 +401,11 @@ const Questionnaire = () => {
 
   return (
     <>
-      {!survey && <Typography variant="body1">{t('loading_survey_message')}</Typography>}
-      {!survey && isLoading && <LoadingIndicator size={70} />}
-      {survey && survey?.uniqueAnswer && (
+      {isLoading && <LoadingIndicator size={70} />}
+      {!survey && !isLoading && (
+        <Typography variant="body1">{t('loading_survey_message')}</Typography>
+      )}
+      {survey && !isLoading && survey?.uniqueAnswer && (
         <ErrorMessage
           style={{
             flex: 1,
@@ -386,12 +425,13 @@ const Questionnaire = () => {
         variant="filled"
         showLinear={true}
       />
-      {survey && (
+      {survey && !isLoading && (
         <>
           <SurveyComponent
             survey={survey}
             callback={handleChange}
             params={{ user: user, experimentId: experimentId }}
+            initialAnswers={surveyAnswer?.answers}
           />
           <div
             style={{

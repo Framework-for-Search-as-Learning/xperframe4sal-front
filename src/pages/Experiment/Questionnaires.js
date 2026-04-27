@@ -36,7 +36,7 @@ const Questionnaires = () => {
   const [user] = useState(JSON.parse(localStorage.getItem('user')));
   const [steps, setSteps] = useState([]);
   const [experiment, setExperiment] = useState(null);
-  const [, setUserExperiment] = useState(null);
+  const [userExperiment, setUserExperiment] = useState(null);
   const [surveys, setSurveys] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -184,6 +184,21 @@ const Questionnaires = () => {
     navigate(`/experiments/${experimentId}/tasks`);
   };
 
+  const handleFinishExperiment = async () => {
+    try {
+      await api.patch(
+        `user-experiment/${userExperiment._id}`,
+        { hasFinished: true },
+        { headers: { Authorization: `Bearer ${user.accessToken}` } },
+      );
+      navigate('/experiments');
+    } catch (error) {
+      setOpen(true);
+      setSeverity('error');
+      setMessage(error?.message || String(error));
+    }
+  };
+
   const handleEnterSurvey = (e) => {
     navigate(`/experiments/${experimentId}/surveys/${e}`, {
       state: {
@@ -216,6 +231,19 @@ const Questionnaires = () => {
             {t('go_to_tasks')}
           </Button>
         )}
+        {hasFinishedTasks &&
+          postSurveys.filter((s) => !answeredPostSurveys[s._id] || !s?.uniqueAnswer).length ===
+            0 && (
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ justifyContent: 'flex-end', marginLeft: 'auto' }}
+              onClick={handleFinishExperiment}
+              disabled={!userExperiment}
+            >
+              {t('finish_experiment')}
+            </Button>
+          )}
       </div>
 
       {!surveys && <Typography variant="body1">{t('loading_surveys')}</Typography>}

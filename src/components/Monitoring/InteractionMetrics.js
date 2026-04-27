@@ -252,7 +252,7 @@ const InteractionMetrics = ({ tasksExecution, participants, experimentId, access
         if (execution.taskType === 'search-engine') {
           searchTasks++;
           if (execution.searchDetails) {
-            totalResourcesAccessed += execution.searchDetails.resourcesAccessedDepth || 0;
+            totalResourcesAccessed += execution.searchDetails.resourcesAccessedTotal || 0;
             totalQueries += execution.searchDetails.queriesCount || 0;
           }
         } else if (execution.taskType === 'llm') {
@@ -664,7 +664,7 @@ const SummaryTab = ({ stats, tasksExecution, handleExportMetrics, exporting, for
                 let additionalInfo = '-';
                 if (taskType === 'search-engine') {
                   const totalResources = task.executions.reduce(
-                    (sum, ex) => sum + (ex.searchDetails?.resourcesAccessedDepth || 0),
+                    (sum, ex) => sum + (ex.searchDetails?.resourcesAccessedTotal || 0),
                     0,
                   );
                   const totalQueries = task.executions.reduce(
@@ -732,7 +732,7 @@ const ByTaskTab = ({
 
   const totalResources = isSearchTask
     ? taskData.executions.reduce(
-        (sum, ex) => sum + (ex.searchDetails?.resourcesAccessedDepth || 0),
+        (sum, ex) => sum + (ex.searchDetails?.resourcesAccessedTotal || 0),
         0,
       )
     : 0;
@@ -903,7 +903,7 @@ const ByTaskTab = ({
                   {isSearchTask && (
                     <>
                       <TableCell align="center">
-                        {exec.searchDetails?.resourcesAccessedDepth || 0}
+                        {exec.searchDetails?.resourcesAccessedTotal || 0}
                       </TableCell>
                       <TableCell align="center">{exec.searchDetails?.queriesCount || 0}</TableCell>
                     </>

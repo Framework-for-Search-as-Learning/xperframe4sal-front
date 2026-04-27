@@ -5,7 +5,6 @@
 
 import React from 'react';
 import { useState, useEffect, useRef } from 'react';
-
 import {
   Typography,
   FormControlLabel,
@@ -21,8 +20,45 @@ import {
 
 import { FunctionsToOptions } from './FunctionsToOptions';
 
-const Questionnaire = ({ survey, callback, params }) => {
-  const [formData, setFormData] = useState({});
+function buildInitialFormData(initialAnswers, questions) {
+  if (!initialAnswers || !questions) return {};
+  const result = {};
+  initialAnswers.forEach((answer) => {
+    const questionIndex = questions.findIndex((q, i) => (q.id || q._id || String(i)) === answer.id);
+    if (questionIndex === -1) return;
+    if (answer.questionType === 'open') {
+      result[questionIndex] = {
+        questionStatement: answer.questionStatement,
+        answer: answer.textAnswer,
+        selectedOption: { statement: answer.textAnswer },
+      };
+    } else if (answer.questionType === 'multiple-choices') {
+      result[questionIndex] = {
+        questionStatement: answer.questionStatement,
+        selectedOption: answer.selectedOptions?.[0] ?? null,
+      };
+    } else {
+      result[questionIndex] = {
+        questionStatement: answer.questionStatement,
+        selectedOption: answer.selectedOptions ?? [],
+      };
+    }
+  });
+  return result;
+}
+
+const Questionnaire = ({ survey, callback, params, initialAnswers }) => {
+  const [formData, setFormData] = useState(() =>
+    buildInitialFormData(initialAnswers, survey.questions),
+  );
+
+  const initialAnswersByIndex = {};
+  if (initialAnswers && survey.questions) {
+    initialAnswers.forEach((answer) => {
+      const idx = survey.questions.findIndex((q, i) => (q.id || q._id || String(i)) === answer.id);
+      if (idx !== -1) initialAnswersByIndex[idx] = answer;
+    });
+  }
 
   const joinResponses = (question, questionIndex, option, event, responseToOneQuestion) => {
     if (question.type === 'multiple-selection') {
@@ -75,14 +111,26 @@ const Questionnaire = ({ survey, callback, params }) => {
           questionIndex={questionIndex}
           callback={joinResponses}
           params={params}
+          initialAnswer={initialAnswersByIndex[questionIndex]}
         />
       ))}
     </Paper>
   );
 };
 
-const Question = ({ question, questionIndex, callback, params }) => {
-  const [selectedOption, setSelectedOption] = useState(null);
+const Question = ({ question, questionIndex, callback, params, initialAnswer }) => {
+  const initialRadioIndex =
+    question.type === 'multiple-choices' && initialAnswer?.selectedOptions?.[0]
+      ? question.options.findIndex(
+          (opt) => (opt.statement ?? opt) === initialAnswer.selectedOptions[0].statement,
+        )
+      : -1;
+
+  const [selectedOption, setSelectedOption] = useState(
+    initialRadioIndex >= 0 && question.options[initialRadioIndex]?.subQuestion
+      ? initialRadioIndex
+      : null,
+  );
   const [externalOptions, setExternalOptions] = useState(null);
 
   const handleClickOption = (optionIndex) => {
@@ -171,6 +219,7 @@ const Question = ({ question, questionIndex, callback, params }) => {
           <FormControl name={questionIndex}>
             <RadioGroup
               name={Math.random().toString(36).substring(2, 10) + questionIndex}
+              defaultValue={initialRadioIndex >= 0 ? String(initialRadioIndex) : undefined}
               onChange={(event) =>
                 handleChangeMultipleChoices(
                   question.statement,
@@ -241,6 +290,11 @@ const Question = ({ question, questionIndex, callback, params }) => {
                 key={optionIndex}
                 control={
                   <Checkbox
+                    defaultChecked={
+                      initialAnswer?.selectedOptions?.some(
+                        (sel) => sel.statement === (option?.statement ?? option),
+                      ) ?? false
+                    }
                     onChange={(event) =>
                       handleCheckboxChange(question.statement, questionIndex, event, option)
                     }
@@ -276,6 +330,11 @@ const Question = ({ question, questionIndex, callback, params }) => {
                 key={optionIndex}
                 control={
                   <Checkbox
+                    defaultChecked={
+                      initialAnswer?.selectedOptions?.some(
+                        (sel) => sel.statement === (option.statement ?? option),
+                      ) ?? false
+                    }
                     onChange={(event) =>
                       handleCheckboxChange(
                         question.statement,
@@ -311,6 +370,7 @@ const Question = ({ question, questionIndex, callback, params }) => {
             label="Resposta"
             variant="outlined"
             fullWidth
+            defaultValue={initialAnswer?.textAnswer ?? ''}
             helperText={
               question.helperText ? (
                 <span dangerouslySetInnerHTML={{ __html: question.helperText }} />

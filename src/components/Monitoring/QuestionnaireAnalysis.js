@@ -145,7 +145,9 @@ const QuestionnaireAnalysis = ({ surveysStats, participants, experimentId, acces
       link.download = `survey_${survey.surveyId || 'data'}_${
         new Date().toISOString().split('T')[0]
       }.csv`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error exporting:', error);
