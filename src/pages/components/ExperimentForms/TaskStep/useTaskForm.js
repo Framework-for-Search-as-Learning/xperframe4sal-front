@@ -66,6 +66,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
       isValidSumaryTask: true,
       selectedQuestion: null,
       scoreType: task.ScoreThreshold !== '' && task.ScoreThresholdmx !== '0' ? 'min_max' : 'unic',
+      linkedSurveyRefs: task.linkedSurveyRefs || [],
     });
   };
 

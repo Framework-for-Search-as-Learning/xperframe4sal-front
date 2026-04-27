@@ -593,33 +593,6 @@ const TaskForm = ({
 
       {renderRulesSection()}
 
-      <TextField
-        label={t('task_summary')}
-        error={!config.isSummaryValid}
-        helperText={!config.isSummaryValid ? t('invalid_name_message') : ''}
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        multiline
-        rows={4}
-        value={config.summary}
-        onChange={config.setSummary}
-        required
-      />
-
-      <div style={{ width: '100%', marginTop: '16.5px', marginBottom: '16px' }}>
-        <CustomContainer>
-          <ReactQuill
-            value={config.description}
-            onChange={(value) => {
-              config.setDescription(value);
-              setIsDescEmpty(stripHtml(value).length === 0);
-            }}
-            placeholder={t('task_Desc1')}
-          />
-        </CustomContainer>
-      </div>
-
       {experimentSurveys?.length > 0 && (
         <FormControl fullWidth margin="normal">
           <InputLabel id="linked-surveys-label">{t('linked_surveys_for_task')}</InputLabel>
@@ -648,6 +621,33 @@ const TaskForm = ({
           </Select>
         </FormControl>
       )}
+
+      <TextField
+        label={t('task_summary')}
+        error={!config.isSummaryValid}
+        helperText={!config.isSummaryValid ? t('invalid_name_message') : ''}
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        multiline
+        rows={4}
+        value={config.summary}
+        onChange={config.setSummary}
+        required
+      />
+
+      <div style={{ width: '100%', marginTop: '16.5px', marginBottom: '16px' }}>
+        <CustomContainer>
+          <ReactQuill
+            value={config.description}
+            onChange={(value) => {
+              config.setDescription(value);
+              setIsDescEmpty(stripHtml(value).length === 0);
+            }}
+            placeholder={t('task_Desc1')}
+          />
+        </CustomContainer>
+      </div>
 
       <Box
         sx={{

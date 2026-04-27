@@ -370,6 +370,8 @@ const Question = ({ question, questionIndex, callback, params, initialAnswer }) 
             label="Resposta"
             variant="outlined"
             fullWidth
+            multiline
+            minRows={4}
             defaultValue={initialAnswer?.textAnswer ?? ''}
             helperText={
               question.helperText ? (
