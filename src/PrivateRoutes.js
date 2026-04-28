@@ -29,7 +29,7 @@ import {
   IconButton,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+//import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import MailIcon from '@mui/icons-material/Mail';
 
 const drawerWidth = '240';
@@ -77,10 +77,10 @@ export function PrivateRoutes(props) {
     setAnchorEl(null);
   };
 
-  const handleGoInstruction = () => {
-    navigate('/instructions');
-    setAnchorEl(null);
-  };
+  // const handleGoInstruction = () => {
+  //   navigate('/instructions');
+  //   setAnchorEl(null);
+  // };
 
   const handleAccountButtonEnter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -121,12 +121,12 @@ export function PrivateRoutes(props) {
           </ListItemButton>
         </ListItem>
 
-        <ListItem disablePadding>
+        {/* <ListItem disablePadding>
           <ListItemButton onClick={handleGoInstruction} sx={{ borderRadius: 2, mb: 0.5 }}>
             <AutoStoriesIcon sx={{ mr: 2, color: 'brand.main' }} />
             <ListItemText primary={t('menu_instructions')} />
           </ListItemButton>
-        </ListItem>
+        </ListItem> */}
 
         <Divider sx={{ my: 1 }} />
 
@@ -187,12 +187,12 @@ export function PrivateRoutes(props) {
             >
               {t('menu_home')}
             </Button>
-            <Button
+            {/* <Button
               sx={{ color: '#fff', display: 'flex', alignItems: 'center' }}
               onClick={handleGoInstruction}
             >
               {t('menu_instructions')}
-            </Button>
+            </Button> */}
 
             <Button sx={{ color: '#fff', width: '85px' }} onClick={handleGoContact}>
               {t('menu_contact')}

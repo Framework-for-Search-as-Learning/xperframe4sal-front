@@ -12,7 +12,7 @@ import {
   NotFoundPage,
   Account,
   ResetPassword,
-  Instructions,
+ // Instructions,
 } from './pages';
 
 import { Login } from './pages/Auth/Login';
@@ -56,11 +56,12 @@ const Router = () => {
         <Route path="/contact" element={<PrivateRoutes />}>
           <Route index element={<Contact />} />
         </Route>
-        <Route path="/instructions" element={<PrivateRoutes />}>
-          <Route index element={<Instructions />} />
-        </Route>
 
-        <Route path="/experiments" element={<PrivateRoutes />}>
+        {/* <Route path="/instructions" element={<PrivateRoutes />}>
+          <Route index element={<Instructions />} />
+        </Route>     */}
+           <Route path="/experiments" element={<PrivateRoutes />}>
+        
           <Route index element={<Experiments />} />
           <Route element={<RoleGuard requireResearcher={true} />}>
             <Route path="new" element={<CreateExperiment />} />
