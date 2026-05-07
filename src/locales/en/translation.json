@@ -449,5 +449,14 @@
   "system_instruction_help": "Define how the LLM should behave, respond, and format its answers. Example: be concise, use a friendly tone, and return only the final answer.",
   "bar_chart_legend": "Chart 1",
   "pie_chart_legend": "Chart 2",
-  "linked_surveys_for_task": "Questionnaires for this task"
+  "linked_surveys_for_task": "Questionnaires for this task",
+  "join_experiment_title": "Join Experiment",
+  "join_experiment_loading": "Checking enrollment...",
+  "join_experiment_success": "You have been successfully enrolled in the experiment! Redirecting...",
+  "join_experiment_already": "You are already enrolled in this experiment.",
+  "join_experiment_error": "Could not join the experiment. Please contact the researcher.",
+  "join_experiment_researcher_error": "Researchers cannot join experiments as participants.",
+  "join_experiment_redirect": "Redirecting to your experiments...",
+  "copy_invite_link": "Copy invite link",
+  "invite_link_copied": "Link copied!"
 }

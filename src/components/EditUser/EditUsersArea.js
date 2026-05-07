@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../../config/axios';
-import { Button, Box } from '@mui/material';
+import { Button, Box, Snackbar } from '@mui/material';
+import LinkIcon from '@mui/icons-material/Link';
 import { useTranslation } from 'react-i18next';
 import { Messages } from 'primereact/messages';
 import styles from '../../style/editUser.module.css';
@@ -20,6 +21,12 @@ const EditUserArea = ({ ExperimentId }) => {
   const { t } = useTranslation();
   const [usersInExperiment, setUsersInExperiment] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const handleCopyInviteLink = () => {
+    const link = `${window.location.origin}/join/${ExperimentId.experimentId}`;
+    navigator.clipboard.writeText(link).then(() => setLinkCopied(true));
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -122,6 +129,15 @@ const EditUserArea = ({ ExperimentId }) => {
           </div>
           <div className={styles.buttonContainer}>
             <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleCopyInviteLink}
+              startIcon={<LinkIcon />}
+              sx={{ width: '200px', mr: 1 }}
+            >
+              {t('copy_invite_link')}
+            </Button>
+            <Button
               variant="contained"
               color="primary"
               onClick={saveChanges}
@@ -142,6 +158,13 @@ const EditUserArea = ({ ExperimentId }) => {
       >
         <Messages ref={msgs} />
       </Box>
+      <Snackbar
+        open={linkCopied}
+        autoHideDuration={2500}
+        onClose={() => setLinkCopied(false)}
+        message={t('invite_link_copied')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </>
   );
 };

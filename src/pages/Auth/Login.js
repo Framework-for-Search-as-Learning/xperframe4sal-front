@@ -80,7 +80,13 @@ const Login = () => {
         const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000;
         localStorage.setItem('user', JSON.stringify({ ...user, expirationTime }));
         setUser(user);
-        navigate('/experiments');
+        const pendingJoin = sessionStorage.getItem('pendingJoinExperimentId');
+        if (pendingJoin) {
+          sessionStorage.removeItem('pendingJoinExperimentId');
+          navigate(`/join/${pendingJoin}`);
+        } else {
+          navigate('/experiments');
+        }
       } else {
         setAlertMessage(t('data_retrieval_error'));
         setMessageType('fail');
