@@ -22,6 +22,7 @@ import {
   Experiments,
   ExperimentMonitoring,
   ICF,
+  JoinExperiment,
   Questionnaire,
   Questionnaires,
   Task,
@@ -74,6 +75,7 @@ const Router = () => {
           <Route path=":experimentId/tasks/" element={<Tasks />} />
           <Route path=":experimentId/tasks/:taskId" element={<Task />} />
         </Route>
+        <Route path="/join/:experimentId" element={<JoinExperiment />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </ThemeProvider>

@@ -170,10 +170,10 @@ const ActionButton = ({
     </Button>
   );
 
-  if (tooltip && disabled) {
+  if (tooltip) {
     return (
       <Tooltip title={tooltip}>
-        <span style={{ display: 'contents' }}>{button}</span>
+        <span style={{ display: 'inline-flex' }}>{button}</span>
       </Tooltip>
     );
   }
@@ -191,10 +191,9 @@ const OwnerActions = ({
   onViewStats,
   t,
 }) => {
-  const cannotEdit = hasActiveParticipants;
   const editTooltip = hasActiveParticipants
-    ? (t?.('cannot_edit_experiment_with_participants') ??
-      'Não é possível editar este experimento pois há participantes que já iniciaram.')
+    ? (t?.('edit_experiment_with_participants_warning') ??
+      'Há participantes que já iniciaram este experimento. Alterações podem afetar os dados coletados.')
     : '';
 
   return (
@@ -204,7 +203,6 @@ const OwnerActions = ({
         desktopText={t?.('edit') ?? 'EDITAR'}
         Icon={EditIcon}
         className={styles.actionButton}
-        disabled={cannotEdit}
         tooltip={editTooltip}
       />
       <ActionButton

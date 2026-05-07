@@ -20,10 +20,11 @@ export const INITIAL_FORM_STATE = {
   taskSummary: '',
   taskDescription: '',
   origin: '',
-  llm: 'gemini',
-  llmProvider: 'gemini',
+  llm: '',
+  llmProvider: '',
   searchEngine: 'google',
   geminiApiKey: '',
+  systemInstruction: '',
   googleApiKey: '',
   googleCx: '',
   RulesExperiment: 'score',
@@ -35,10 +36,5 @@ export const INITIAL_FORM_STATE = {
   isValidSumaryTask: true,
   selectedQuestion: null,
   scoreType: '',
-};
-
-export const LLM_PROVIDERS = [{ value: 'google', label: 'Google' }];
-
-export const LLM_MODELS_BY_PROVIDER = {
-  google: [{ value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' }],
+  linkedSurveyRefs: [],
 };

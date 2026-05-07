@@ -6,15 +6,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { api } from '../../config/axios';
-import {
-  Typography,
-  Container,
-  Paper,
-  Button,
-  FormControlLabel,
-  Checkbox,
-  Link,
-} from '@mui/material';
+import { Typography, Container, Paper, Button, FormControlLabel, Checkbox } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 const ICF = () => {
@@ -129,15 +121,6 @@ const ICF = () => {
             gutterBottom
             dangerouslySetInnerHTML={{ __html: icf.icfText }}
           />
-          <Typography variant="body1" paragraph>
-            {t('view_signed_document')}{' '}
-            <Link
-              target="_blank"
-              href="https://drive.google.com/file/d/1_SdcAhNBvnLjamilScjOkHJAP4q5_-em/view?usp=sharing"
-            >
-              {t('click_here')}
-            </Link>
-          </Typography>
           <Typography
             variant="body1"
             gutterBottom

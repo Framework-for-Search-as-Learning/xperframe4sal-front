@@ -7,6 +7,11 @@ import { createContext } from 'react';
 const StepContext = createContext({
   step: 0,
   setStep: () => {},
+  isCurrentStepValid: true,
+  setIsCurrentStepValid: () => {},
+  isEditMode: false,
+  handleSaveExperiment: () => {},
+  handleCreateExperiment: () => {},
   ExperimentTitle: '',
   setExperimentTitle: () => {},
   ExperimentType: '',
