@@ -81,8 +81,8 @@ async function updateUserExperimentStatus(
         }
         if (finishedExperiment) {
           await api.patch(
-            `user-experiment/${userExperiment._id}`,
-            { hasFinished: true },
+            `user-experiment/${userExperiment._id}/finish`,
+            {},
             {
               headers: {
                 Authorization: `Bearer ${user.accessToken}`,
