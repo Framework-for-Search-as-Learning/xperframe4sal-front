@@ -74,7 +74,7 @@ const ExperimentTemplate = ({ steps, headerTitle, children }) => {
         {headerTitle}
       </Typography>
       {children}
-      {steps.length === completeds.length && (
+      {steps.length > 0 && steps.length === completeds.length && (
         <div className={styles.buttonContainer}>
           <Button variant="contained" color="primary" onClick={handleFinish}>
             {t('finish')}
