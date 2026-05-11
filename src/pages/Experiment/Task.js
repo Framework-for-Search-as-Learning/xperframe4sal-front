@@ -12,7 +12,6 @@ import { Tooltip, IconButton, Box } from '@mui/material';
 import Stop from '@mui/icons-material/Stop';
 // import PlayArrow from '@mui/icons-material/PlayArrow';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
-import { ErrorMessage } from '../../components/ErrorMessage.js';
 import { ConfirmDialog } from '../../components/ConfirmDialog.js';
 import { CustomSnackbar } from '../../components/CustomSnackbar.js';
 import { useTranslation } from 'react-i18next';
@@ -49,7 +48,6 @@ const Task = () => {
   const [titleResultModal, setTitleResultModal] = useState('');
   const [session, setSession] = useState({});
   const [clickedResultRank, setClickedResultRank] = useState(null);
-  const [paused, setPaused] = useState(false);
   const [finished, setFinished] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [showSnackBar, setShowSnackBar] = useState(false);
@@ -87,7 +85,6 @@ const Task = () => {
         setTask(taskResult);
         setUserTask(userTaskResult);
         setFinished(userTaskResult.hasFinishedTask);
-        setPaused(userTaskResult.isPaused);
       } catch (error) {
         setOpen(true);
         setIsSuccess(false);
@@ -107,52 +104,6 @@ const Task = () => {
       document.body.style.overflow = 'auto';
     };
   }, [finished, experimentId, navigate]);
-
-  // const handlePauseTask = async () => {
-  //   try {
-  //     const userTaskBackup = await api.patch(`user-task/${userTask._id}/pause`, userTask, {
-  //       headers: { Authorization: `Bearer ${user.accessToken}` },
-  //     });
-  //     setUserTask(userTaskBackup.data);
-  //     setPaused(true);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  useEffect(() => {
-    const handleBeforeUnload = async () => {
-      if (!paused) {
-        try {
-          const userTaskBackup = await api.patch(`user-task/${userTask._id}/pause`, userTask, {
-            headers: { Authorization: `Bearer ${user.accessToken}` },
-          });
-          setUserTask(userTaskBackup.data);
-          setPaused(true);
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload, { passive: false });
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [user.accessToken, userTask, paused]);
-
-  // const handleResumeTask = async () => {
-  //   try {
-  //     const userTaskBackup = await api.patch(`user-task/${userTask._id}/resume`, userTask, {
-  //       headers: { Authorization: `Bearer ${user.accessToken}` },
-  //     });
-  //     setUserTask(userTaskBackup.data);
-  //     setPaused(false);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   const openFinishDialog = () => setConfirmDialogOpen(true);
   const closeFinishDialog = () => setConfirmDialogOpen(false);
@@ -277,19 +228,6 @@ const Task = () => {
 
   return (
     <div style={{ minWidth: '326px' }}>
-      {(userTask?.isPaused || paused) && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'rgba(0, 0, 0, 0.8)',
-            zIndex: 2,
-          }}
-        />
-      )}
       <Box sx={{ display: 'flex', position: 'fixed', zIndex: 3, right: 10 }}>
         <CustomSnackbar
           open={showSnackBar}
@@ -301,11 +239,7 @@ const Task = () => {
           variant="filled"
           showLinear={true}
         />
-        <Box sx={{ flexGrow: 1, marginBottom: 2, zIndex: 2 }}>
-          {(userTask?.isPaused || paused) && (
-            <ErrorMessage message={t('task_paused')} messageType={'warning'} />
-          )}
-        </Box>
+        <Box sx={{ flexGrow: 1, marginBottom: 2, zIndex: 2 }} />
         <Box sx={{ paddingLeft: 2, paddingTop: 0.5 }}>
           <Tooltip title={t('view_task_instructions')} placement="bottom-start">
             <IconButton
