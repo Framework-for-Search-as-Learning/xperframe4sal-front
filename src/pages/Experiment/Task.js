@@ -8,9 +8,9 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../config/axios.js';
 import { ResultModal } from '../../components/ResultModal.js';
 import { Tooltip, IconButton, Box } from '@mui/material';
-import Pause from '@mui/icons-material/Pause';
+// import Pause from '@mui/icons-material/Pause';
 import Stop from '@mui/icons-material/Stop';
-import PlayArrow from '@mui/icons-material/PlayArrow';
+// import PlayArrow from '@mui/icons-material/PlayArrow';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import { ErrorMessage } from '../../components/ErrorMessage.js';
 import { ConfirmDialog } from '../../components/ConfirmDialog.js';
@@ -108,17 +108,17 @@ const Task = () => {
     };
   }, [finished, experimentId, navigate]);
 
-  const handlePauseTask = async () => {
-    try {
-      const userTaskBackup = await api.patch(`user-task/${userTask._id}/pause`, userTask, {
-        headers: { Authorization: `Bearer ${user.accessToken}` },
-      });
-      setUserTask(userTaskBackup.data);
-      setPaused(true);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const handlePauseTask = async () => {
+  //   try {
+  //     const userTaskBackup = await api.patch(`user-task/${userTask._id}/pause`, userTask, {
+  //       headers: { Authorization: `Bearer ${user.accessToken}` },
+  //     });
+  //     setUserTask(userTaskBackup.data);
+  //     setPaused(true);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   useEffect(() => {
     const handleBeforeUnload = async () => {
@@ -142,17 +142,17 @@ const Task = () => {
     };
   }, [user.accessToken, userTask, paused]);
 
-  const handleResumeTask = async () => {
-    try {
-      const userTaskBackup = await api.patch(`user-task/${userTask._id}/resume`, userTask, {
-        headers: { Authorization: `Bearer ${user.accessToken}` },
-      });
-      setUserTask(userTaskBackup.data);
-      setPaused(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const handleResumeTask = async () => {
+  //   try {
+  //     const userTaskBackup = await api.patch(`user-task/${userTask._id}/resume`, userTask, {
+  //       headers: { Authorization: `Bearer ${user.accessToken}` },
+  //     });
+  //     setUserTask(userTaskBackup.data);
+  //     setPaused(false);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const openFinishDialog = () => setConfirmDialogOpen(true);
   const closeFinishDialog = () => setConfirmDialogOpen(false);
@@ -318,7 +318,7 @@ const Task = () => {
               <InfoOutlined />
             </IconButton>
           </Tooltip>
-          {userTask?.isPaused || paused ? (
+          {/* {userTask?.isPaused || paused ? (
             <Tooltip title={t('iniciar')} placement="bottom-start">
               <IconButton
                 size="large"
@@ -342,7 +342,7 @@ const Task = () => {
                 <Pause />
               </IconButton>
             </Tooltip>
-          )}
+          )} */}
           <Tooltip title={t('finalizar')} placement="bottom-start">
             <IconButton
               size="large"
