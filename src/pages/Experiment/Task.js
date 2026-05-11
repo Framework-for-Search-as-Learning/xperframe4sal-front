@@ -11,12 +11,14 @@ import { Tooltip, IconButton, Box } from '@mui/material';
 import Pause from '@mui/icons-material/Pause';
 import Stop from '@mui/icons-material/Stop';
 import PlayArrow from '@mui/icons-material/PlayArrow';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import { ErrorMessage } from '../../components/ErrorMessage.js';
 import { ConfirmDialog } from '../../components/ConfirmDialog.js';
 import { CustomSnackbar } from '../../components/CustomSnackbar.js';
 import { useTranslation } from 'react-i18next';
 import { Google } from '../../components/SearchEngines/Google.js';
 import { Chatbot } from '../../components/Chatbot/Chatbot.js';
+import { TaskInstructionModal } from '../../components/TaskInstructionModal.js';
 import useCookies from '../../lib/useCookies.js';
 
 async function updateUserExperimentStatus(userExperiment, user, api) {
@@ -53,6 +55,7 @@ const Task = () => {
   const [showSnackBar, setShowSnackBar] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('success');
+  const [instructionModalOpen, setInstructionModalOpen] = useState(false);
 
   const history = useCookies('history');
 
@@ -304,6 +307,17 @@ const Task = () => {
           )}
         </Box>
         <Box sx={{ paddingLeft: 2, paddingTop: 0.5 }}>
+          <Tooltip title={t('view_task_instructions')} placement="bottom-start">
+            <IconButton
+              size="large"
+              sx={{ zIndex: 2 }}
+              color="info"
+              style={{ backgroundColor: 'white', marginRight: 5, border: '2px solid #dfe1e5' }}
+              onClick={() => setInstructionModalOpen(true)}
+            >
+              <InfoOutlined />
+            </IconButton>
+          </Tooltip>
           {userTask?.isPaused || paused ? (
             <Tooltip title={t('iniciar')} placement="bottom-start">
               <IconButton
@@ -341,6 +355,11 @@ const Task = () => {
             </IconButton>
           </Tooltip>
         </Box>
+        <TaskInstructionModal
+          open={instructionModalOpen}
+          onClose={() => setInstructionModalOpen(false)}
+          task={task}
+        />
         <ConfirmDialog
           open={confirmDialogOpen}
           onClose={closeFinishDialog}

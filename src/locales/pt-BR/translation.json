@@ -457,5 +457,7 @@
   "join_experiment_researcher_error": "Pesquisadores não podem ingressar em experimentos como participantes.",
   "join_experiment_redirect": "Redirecionando para seus experimentos...",
   "copy_invite_link": "Copiar link de convite",
-  "invite_link_copied": "Link copiado!"
+  "invite_link_copied": "Link copiado!",
+  "view_task_instructions": "Ver instruções da tarefa",
+  "task_instructions_title": "Instruções da Tarefa"
 }
