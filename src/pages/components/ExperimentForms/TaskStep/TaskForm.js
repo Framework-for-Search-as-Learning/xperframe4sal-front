@@ -198,45 +198,9 @@ const TaskForm = ({
     };
   }, [origin, llmProvider, accessToken]);
 
-  useEffect(() => {
-    if (origin !== 'llm' || providersLoading || llmProviders.length === 0) return;
-
-    if (!llmProvider) {
-      const nextProvider = getFirstProviderValue(llmProviders);
-      setLlmProviderRef.current(nextProvider);
-      return;
-    }
-
-    if (!getProviderByValue(llmProviders, llmProvider)) {
-      const nextProvider = getFirstProviderValue(llmProviders);
-      setLlmProviderRef.current(nextProvider);
-      return;
-    }
-
-    if (!llm && !modelsLoading) {
-      setLlmRef.current(getDefaultModel(llmProviders, llmProvider) || '');
-    }
-  }, [origin, llmProvider, llm, llmProviders, providersLoading, modelsLoading]);
-
   const getApiKeyFieldInfo = () => {
     if (config.origin !== 'llm' || !config.llmProvider) return null;
-
-    switch (config.llmProvider) {
-      case 'openai':
-        return { label: 'OpenAI API Key', placeholder: 'sk-...' };
-      case 'anthropic':
-        return { label: 'Anthropic API Key', placeholder: 'sk-ant-...' };
-      case 'google':
-        return { label: 'Google AI API Key', placeholder: 'AIza...' };
-      case 'meta':
-        return { label: 'Meta API Key', placeholder: '...' };
-      case 'mistral':
-        return { label: 'Mistral API Key', placeholder: '...' };
-      case 'deepseek':
-        return { label: 'DeepSeek API Key', placeholder: '...' };
-      default:
-        return { label: 'API Key', placeholder: '...' };
-    }
+    return { label: 'API Key', placeholder: 'sk-or-...' };
   };
 
   const apiKeyInfo = getApiKeyFieldInfo();
