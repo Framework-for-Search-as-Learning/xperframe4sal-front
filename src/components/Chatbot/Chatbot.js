@@ -15,9 +15,16 @@ import { useTranslation } from 'react-i18next';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/searchat-behavior';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   chatContainer: {
-    height: '100vh',
+    position: 'fixed',
+    top: 56,
+    [theme.breakpoints.up('sm')]: {
+      top: 64,
+    },
+    left: 0,
+    right: 0,
+    bottom: 0,
     display: 'flex',
     flexDirection: 'row',
     padding: '0 !important',
