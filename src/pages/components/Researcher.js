@@ -348,9 +348,9 @@ const Researcher = () => {
 
   const handleEditExperimentStatus = async (experimentId, currentStatus) => {
     const newStatus =
-      currentStatus === experimentStatus.FINISHED
-        ? experimentStatus.IN_PROGRESS
-        : experimentStatus.FINISHED;
+      currentStatus === experimentStatus.IN_PROGRESS
+        ? experimentStatus.FINISHED
+        : experimentStatus.IN_PROGRESS;
 
     try {
       await api.patch(

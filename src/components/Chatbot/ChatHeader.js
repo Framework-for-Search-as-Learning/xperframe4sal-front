@@ -4,9 +4,10 @@
  */
 
 import React from 'react';
-import { Box, Typography, Avatar } from '@mui/material';
+import { Box, Typography, Avatar, IconButton } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
+import MenuIcon from '@mui/icons-material/Menu';
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -40,12 +41,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ChatHeader = ({ bot_name }) => {
+const ChatHeader = ({ bot_name, onToggleSidebar }) => {
   const classes = useStyles();
 
   return (
     <>
       <Box className={classes.header}>
+        <IconButton onClick={onToggleSidebar} size="small" style={{ marginRight: '8px' }}>
+          <MenuIcon />
+        </IconButton>
         <Avatar className={classes.avatar}>
           <SmartToyIcon />
         </Avatar>
