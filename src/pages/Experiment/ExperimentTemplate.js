@@ -28,7 +28,7 @@ const mountSteps = (steps, stepsCompleted) => {
   return stepsToReturn;
 };
 
-const ExperimentTemplate = ({ steps, headerTitle, children }) => {
+const ExperimentTemplate = ({ steps, headerTitle, children, hideFinishButton = false }) => {
   const { experimentId } = useParams();
   const navigate = useNavigate();
   const [user] = useState(JSON.parse(localStorage.getItem('user')));
@@ -74,7 +74,7 @@ const ExperimentTemplate = ({ steps, headerTitle, children }) => {
         {headerTitle}
       </Typography>
       {children}
-      {steps.length > 0 && steps.length === completeds.length && (
+      {!hideFinishButton && steps.length > 0 && steps.length === completeds.length && (
         <div className={styles.buttonContainer}>
           <Button variant="contained" color="primary" onClick={handleFinish}>
             {t('finish')}

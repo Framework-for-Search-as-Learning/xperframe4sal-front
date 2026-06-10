@@ -209,7 +209,7 @@ const Questionnaires = () => {
   };
 
   return (
-    <ExperimentTemplate headerTitle={t('questionnaire_list_header')} steps={steps}>
+    <ExperimentTemplate headerTitle={t('questionnaire_list_header')} steps={steps} hideFinishButton>
       <CustomSnackbar open={open} time={1500} message={message} severity={severity} />
 
       <div style={{ display: 'flex', marginBottom: 10 }}>
