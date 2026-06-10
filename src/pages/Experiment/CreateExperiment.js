@@ -38,6 +38,8 @@ const CreateExperiment = () => {
 
   const [step, setStep] = useState(0);
   const [maxStep, setMaxStep] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState(new Set());
+  const [isCurrentStepValid, setIsCurrentStepValid] = useState(true);
 
   const [feedback, setFeedback] = useState({
     open: false,
@@ -60,11 +62,17 @@ const CreateExperiment = () => {
   ];
 
   const handleSetStep = (newStep) => {
+    if (newStep > step && !isCurrentStepValid) return;
+    if (newStep > step) {
+      setCompletedSteps((prev) => new Set([...prev, step]));
+    }
+    setIsCurrentStepValid(true);
     setStep(newStep);
     if (newStep > maxStep) setMaxStep(newStep);
   };
 
   const handleStepClick = (stepIndex) => {
+    if (stepIndex > step && !isCurrentStepValid) return;
     if (stepIndex <= maxStep) setStep(stepIndex);
   };
 
@@ -116,8 +124,51 @@ const CreateExperiment = () => {
     }
   };
 
-  const CustomStepIcon = ({ active, completed, icon }) => {
-    if (completed) {
+  const makeStepIcon =
+    (completedSteps) =>
+    ({ active, icon }) => {
+      const isCompleted = completedSteps.has(icon - 1);
+
+      if (isCompleted) {
+        return (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 30,
+              height: 30,
+              borderRadius: '50%',
+              backgroundColor: '#1976d2',
+              color: '#fff',
+              fontSize: 16,
+            }}
+          >
+            ✓
+          </div>
+        );
+      }
+      if (active) {
+        return (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 30,
+              height: 30,
+              borderRadius: '50%',
+              backgroundColor: '#f2912d',
+              color: '#fff',
+              fontSize: 14,
+              fontWeight: 'bold',
+              boxShadow: '0 0 0 4px rgba(242, 145, 45, 0.25)',
+            }}
+          >
+            {icon}
+          </div>
+        );
+      }
       return (
         <div
           style={{
@@ -127,54 +178,16 @@ const CreateExperiment = () => {
             width: 30,
             height: 30,
             borderRadius: '50%',
-            backgroundColor: '#1976d2',
-            color: '#fff',
-            fontSize: 16,
-          }}
-        >
-          ✓
-        </div>
-      );
-    }
-    if (active) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 30,
-            height: 30,
-            borderRadius: '50%',
-            backgroundColor: '#f2912d',
-            color: '#fff',
+            backgroundColor: '#e0e0e0',
+            color: '#9e9e9e',
             fontSize: 14,
-            fontWeight: 'bold',
-            boxShadow: '0 0 0 4px rgba(242, 145, 45, 0.25)',
           }}
         >
           {icon}
         </div>
       );
-    }
-    return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: 30,
-          height: 30,
-          borderRadius: '50%',
-          backgroundColor: '#e0e0e0',
-          color: '#9e9e9e',
-          fontSize: 14,
-        }}
-      >
-        {icon}
-      </div>
-    );
-  };
+    };
+  const CustomStepIcon = makeStepIcon(completedSteps);
 
   return (
     <>
@@ -239,6 +252,8 @@ const CreateExperiment = () => {
           setExperimentTitleICF,
           ExperimentDescICF,
           setExperimentDescICF,
+          isCurrentStepValid,
+          setIsCurrentStepValid,
         }}
       >
         {step === 0 && <ExperimentMetadataForm />}

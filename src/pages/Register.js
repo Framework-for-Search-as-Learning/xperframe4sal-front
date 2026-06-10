@@ -99,7 +99,13 @@ const Register = () => {
 
             setAlertMessage(t('success_message'));
             setMessageType('success');
-            navigate('/experiments');
+            const pendingJoin = sessionStorage.getItem('pendingJoinExperimentId');
+            if (pendingJoin) {
+              sessionStorage.removeItem('pendingJoinExperimentId');
+              navigate(`/join/${pendingJoin}`);
+            } else {
+              navigate('/experiments');
+            }
           } else {
             navigate('/login');
           }

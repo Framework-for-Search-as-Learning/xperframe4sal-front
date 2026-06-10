@@ -13,3 +13,4 @@ export { default as Task } from './Task';
 export { default as Tasks } from './Tasks';
 export { default as Experiments } from './Experiments';
 export { ExperimentTemplate, mountSteps } from './ExperimentTemplate';
+export { default as JoinExperiment } from './JoinExperiment';

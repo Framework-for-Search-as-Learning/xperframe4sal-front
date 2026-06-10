@@ -57,6 +57,62 @@ import { api } from '../../config/axios';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
+const ChartLegend = ({ items, title }) => (
+  <Box
+    sx={{
+      display: 'grid',
+      gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
+      gap: 1,
+      mt: 2,
+      p: 1.5,
+      border: '1px solid',
+      borderColor: 'divider',
+      borderRadius: 1,
+      bgcolor: 'grey.50',
+    }}
+  >
+    {title && (
+      <Typography
+        variant="subtitle2"
+        sx={{ gridColumn: '1 / -1', fontWeight: 700, color: 'text.secondary' }}
+      >
+        {title}
+      </Typography>
+    )}
+    {items.map((item) => (
+      <Box
+        key={item.label}
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'auto 1fr',
+          columnGap: 1,
+          alignItems: 'start',
+          minWidth: 0,
+        }}
+      >
+        <Box
+          sx={{
+            width: 12,
+            height: 12,
+            mt: 0.5,
+            borderRadius: '2px',
+            bgcolor: item.color,
+            flexShrink: 0,
+          }}
+        />
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, overflowWrap: 'anywhere' }}>
+            {item.label}: {item.name}
+          </Typography>
+          <Typography variant="caption" color="textSecondary">
+            {item.details}
+          </Typography>
+        </Box>
+      </Box>
+    ))}
+  </Box>
+);
+
 const InteractionMetrics = ({ tasksExecution, participants, experimentId, accessToken, t }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [exporting, setExporting] = useState(false);
@@ -196,7 +252,7 @@ const InteractionMetrics = ({ tasksExecution, participants, experimentId, access
         if (execution.taskType === 'search-engine') {
           searchTasks++;
           if (execution.searchDetails) {
-            totalResourcesAccessed += execution.searchDetails.resourcesAccessedDepth || 0;
+            totalResourcesAccessed += execution.searchDetails.resourcesAccessedTotal || 0;
             totalQueries += execution.searchDetails.queriesCount || 0;
           }
         } else if (execution.taskType === 'llm') {
@@ -325,14 +381,21 @@ const SummaryTab = ({ stats, tasksExecution, handleExportMetrics, exporting, for
     return [
       {
         name: t('search_tasks') || 'Tarefas de Busca',
+        label: `${t('type') || 'Tipo'} 1`,
         value: stats.searchTasks,
+        color: COLORS[0],
       },
-      { name: t('llm_tasks') || 'Tarefas Chat', value: stats.llmTasks },
+      {
+        name: t('llm_tasks') || 'Tarefas Chat',
+        label: `${t('type') || 'Tipo'} 2`,
+        value: stats.llmTasks,
+        color: COLORS[1],
+      },
     ];
   };
 
   const prepareExecutionTimeData = () => {
-    return tasksExecution.map((task) => {
+    return tasksExecution.map((task, index) => {
       const avgTime =
         task.executions.length > 0
           ? task.executions.reduce((sum, ex) => sum + (ex.executionTime || 0), 0) /
@@ -340,12 +403,29 @@ const SummaryTab = ({ stats, tasksExecution, handleExportMetrics, exporting, for
           : 0;
 
       return {
-        name: task.taskTitle.substring(0, 30) + (task.taskTitle.length > 30 ? '...' : ''),
+        name: task.taskTitle,
+        label: `${t('task') || 'Tarefa'} ${index + 1}`,
         tempo: Math.round(avgTime / 1000),
         execucoes: task.executions.length,
+        color: COLORS[index % COLORS.length],
       };
     });
   };
+
+  const taskTypeData = prepareTaskTypeData();
+  const taskTypeLegendItems = taskTypeData.map((item) => ({
+    label: item.label,
+    name: item.name,
+    color: item.color,
+    details: `${item.value} ${t('executions') || 'execuções'}`,
+  }));
+  const executionTimeData = prepareExecutionTimeData();
+  const executionTimeLegendItems = executionTimeData.map((item) => ({
+    label: item.label,
+    name: item.name,
+    color: item.color,
+    details: `${item.tempo}s - ${item.execucoes} ${t('executions') || 'execuções'}`,
+  }));
 
   return (
     <Box>
@@ -458,38 +538,60 @@ const SummaryTab = ({ stats, tasksExecution, handleExportMetrics, exporting, for
 
         <Grid container spacing={3} sx={{ mt: 2 }}>
           <Grid item xs={12} md={6}>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={prepareTaskTypeData()}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="value" fill="#1976d2" name={t('executions') || 'Execuções'} />
-              </BarChart>
-            </ResponsiveContainer>
+            <Box>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={taskTypeData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="label" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip formatter={(value, name, props) => [value, props.payload.name]} />
+                  <Legend />
+                  <Bar dataKey="value" name={t('executions') || 'Execuções'}>
+                    {taskTypeData.map((entry) => (
+                      <Cell key={entry.label} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <ChartLegend
+                items={taskTypeLegendItems}
+                title={t('bar_chart_legend') || 'Legenda das barras'}
+              />
+            </Box>
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={prepareTaskTypeData()}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {prepareTaskTypeData().map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            <Box>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={taskTypeData}
+                    cx="50%"
+                    cy="50%"
+                    label={false}
+                    labelLine={false}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                    nameKey="label"
+                  >
+                    {taskTypeData.map((entry) => (
+                      <Cell key={entry.label} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value, name, props) => [
+                      value,
+                      `${props.payload.label}: ${props.payload.name}`,
+                    ]}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <ChartLegend
+                items={taskTypeLegendItems}
+                title={t('pie_chart_legend') || 'Legenda das cores'}
+              />
+            </Box>
           </Grid>
         </Grid>
       </Paper>
@@ -500,20 +602,26 @@ const SummaryTab = ({ stats, tasksExecution, handleExportMetrics, exporting, for
         </Typography>
 
         <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={prepareExecutionTimeData()}>
+          <BarChart data={executionTimeData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" angle={-45} textAnchor="end" height={150} interval={0} />
+            <XAxis dataKey="label" interval={0} />
             <YAxis label={{ value: 'Segundos', angle: -90, position: 'insideLeft' }} />
             <Tooltip
-              formatter={(value, name) => {
-                if (name === 'tempo') return [`${value}s`, t('avg_time') || 'Tempo Médio'];
-                return [value, t('executions') || 'Execuções'];
+              formatter={(value, name, props) => {
+                if (props.dataKey === 'tempo') return [`${value}s`, t('avg_time') || 'Tempo Médio'];
+                return [value, props.payload.name];
               }}
+              labelFormatter={(label, payload) => payload?.[0]?.payload?.name || label}
             />
             <Legend />
-            <Bar dataKey="tempo" fill="#2e7d32" name={t('avg_time_seconds') || 'Tempo Médio (s)'} />
+            <Bar dataKey="tempo" name={t('avg_time_seconds') || 'Tempo Médio (s)'}>
+              {executionTimeData.map((entry) => (
+                <Cell key={entry.label} fill={entry.color} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
+        <ChartLegend items={executionTimeLegendItems} />
       </Paper>
 
       <Paper sx={{ p: 3 }}>
@@ -556,7 +664,7 @@ const SummaryTab = ({ stats, tasksExecution, handleExportMetrics, exporting, for
                 let additionalInfo = '-';
                 if (taskType === 'search-engine') {
                   const totalResources = task.executions.reduce(
-                    (sum, ex) => sum + (ex.searchDetails?.resourcesAccessedDepth || 0),
+                    (sum, ex) => sum + (ex.searchDetails?.resourcesAccessedTotal || 0),
                     0,
                   );
                   const totalQueries = task.executions.reduce(
@@ -614,6 +722,7 @@ const ByTaskTab = ({
 
   const taskType = taskData.executions[0]?.taskType;
   const isSearchTask = taskType === 'search-engine';
+  const systemInstruction = taskData.systemInstruction?.trim();
 
   const avgTime =
     taskData.executions.length > 0
@@ -623,7 +732,7 @@ const ByTaskTab = ({
 
   const totalResources = isSearchTask
     ? taskData.executions.reduce(
-        (sum, ex) => sum + (ex.searchDetails?.resourcesAccessedDepth || 0),
+        (sum, ex) => sum + (ex.searchDetails?.resourcesAccessedTotal || 0),
         0,
       )
     : 0;
@@ -671,6 +780,17 @@ const ByTaskTab = ({
             size="small"
             sx={{ mb: 2 }}
           />
+
+          {!isSearchTask && systemInstruction && (
+            <Paper variant="outlined" sx={{ p: 2, mb: 2, bgcolor: 'grey.50' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                {t('system_instruction') || 'Instruções de Sistema'}
+              </Typography>
+              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                {systemInstruction}
+              </Typography>
+            </Paper>
+          )}
 
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12} sm={6} md={3}>
@@ -783,7 +903,7 @@ const ByTaskTab = ({
                   {isSearchTask && (
                     <>
                       <TableCell align="center">
-                        {exec.searchDetails?.resourcesAccessedDepth || 0}
+                        {exec.searchDetails?.resourcesAccessedTotal || 0}
                       </TableCell>
                       <TableCell align="center">{exec.searchDetails?.queriesCount || 0}</TableCell>
                     </>
@@ -1028,6 +1148,18 @@ const ByParticipantTab = ({
                             </>
                           )}
                         </Grid>
+
+                        {detail.taskType === 'llm' &&
+                          detail.llmDetails?.systemInstruction?.trim() && (
+                            <Paper variant="outlined" sx={{ p: 2, mb: 4, bgcolor: 'grey.50' }}>
+                              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                {t('system_instruction') || 'Instruções de Sistema'}
+                              </Typography>
+                              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                                {detail.llmDetails.systemInstruction.trim()}
+                              </Typography>
+                            </Paper>
+                          )}
 
                         {detail.taskType === 'search-engine' &&
                           chronologicalResources.length > 0 && (

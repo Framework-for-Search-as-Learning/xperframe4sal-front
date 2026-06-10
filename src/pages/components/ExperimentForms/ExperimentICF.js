@@ -3,7 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Box, TextField, Button, styled, Typography } from '@mui/material';
 import FormStepContainer from '../../../components/Forms/FormStepContainer';
 import { useTranslation } from 'react-i18next';
@@ -42,6 +42,7 @@ const ExperimentICF = () => {
     setExperimentDescICF,
     isEditMode,
     handleSaveExperiment,
+    setIsCurrentStepValid,
   } = useContext(StepContext);
 
   const { t } = useTranslation();
@@ -64,6 +65,10 @@ const ExperimentICF = () => {
   const handleBackResearcher = () => {
     setStep(step - 1);
   };
+
+  useEffect(() => {
+    setIsCurrentStepValid(isValidFormExperiment);
+  }, [isValidFormExperiment, setIsCurrentStepValid]);
 
   return (
     <FormStepContainer>
