@@ -37,9 +37,12 @@ const Register = () => {
   const [isValidLastName, setIsValidLastName] = useState(true);
   const [isValidPassword, setIsValidPassword] = useState(true);
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isValidConfirmPassword, setIsValidConfirmPassword] = useState(true);
   const [alertMessage, setAlertMessage] = useState(null);
   const [messageType, setMessageType] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailChange = (e) => {
@@ -55,6 +58,13 @@ const Register = () => {
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\]*@#$%^<>'";|}{:,./?~()`&\-_+=![]).{6,}$/;
     setIsValidPassword(passwordRegex.test(inputPassword));
+    setIsValidConfirmPassword(confirmPassword === '' || confirmPassword === inputPassword);
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const inputConfirm = e.target.value;
+    setConfirmPassword(inputConfirm);
+    setIsValidConfirmPassword(inputConfirm === password);
   };
 
   const handleNameChange = (e) => {
@@ -74,7 +84,7 @@ const Register = () => {
   };
 
   const handleRegister = async () => {
-    if (!isValidEmail || !isValidName || !isValidLastName || !isValidPassword) {
+    if (!isValidEmail || !isValidName || !isValidLastName || !isValidPassword || !isValidConfirmPassword) {
       setAlertMessage(t('form_invalid_message'));
       setMessageType('fail');
       return;
@@ -128,6 +138,8 @@ const Register = () => {
     email &&
     isValidPassword &&
     password &&
+    isValidConfirmPassword &&
+    confirmPassword &&
     isValidName &&
     name &&
     isValidLastName &&
@@ -213,7 +225,7 @@ const Register = () => {
               error={!isValidPassword}
               helperText={!isValidPassword ? t('invalid_password_message') : ''}
               fullWidth
-              autoComplete="current-password"
+              autoComplete="new-password"
               margin="normal"
               type={showPassword ? 'text' : 'password'}
               value={password}
@@ -227,6 +239,30 @@ const Register = () => {
                       title={showPassword ? t('hide_password') : t('show_password')}
                     >
                       {showPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              label={t('repeat_password')}
+              error={!isValidConfirmPassword}
+              helperText={!isValidConfirmPassword ? t('passwords_dont_match') : ''}
+              fullWidth
+              autoComplete="new-password"
+              margin="normal"
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={handleConfirmPasswordChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      edge="end"
+                      title={showConfirmPassword ? t('hide_password') : t('show_password')}
+                    >
+                      {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
                     </IconButton>
                   </InputAdornment>
                 ),
