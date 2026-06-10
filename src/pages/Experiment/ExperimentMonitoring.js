@@ -307,7 +307,7 @@ const ExperimentMonitoring = () => {
             sx={{ fontSize: { xs: '0.65rem', sm: '0.875rem' }, minWidth: 0, px: { xs: 1, sm: 2 } }}
           />
           <Tab
-            label={t('questionnaires') || 'Questionários'}
+            label={t('questionnaires_monitoring_tab')}
             sx={{ fontSize: { xs: '0.65rem', sm: '0.875rem' }, minWidth: 0, px: { xs: 1, sm: 2 } }}
           />
           <Tab
