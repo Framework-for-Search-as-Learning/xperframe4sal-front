@@ -139,7 +139,7 @@ const ParticipantsOverview = ({ participants, stats, experimentId, t }) => {
               <TableCell>{t('start_date') || 'Data Início'}</TableCell>
               <TableCell>{t('completion_date') || 'Data Conclusão'}</TableCell>
               <TableCell>{t('time_taken') || 'Tempo Gasto'}</TableCell>
-              <TableCell align="center">{t('progress') || 'Progresso'}</TableCell>
+              <TableCell align="center">{t('progress')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

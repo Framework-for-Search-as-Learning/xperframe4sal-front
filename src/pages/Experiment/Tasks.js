@@ -140,7 +140,7 @@ const Tasks = () => {
                       color="success"
                       onClick={() => handleTaskAction(task._id, 'start')}
                     >
-                      {t('start') || 'Começar'} <PlayArrow />
+                      {t('Start')} <PlayArrow />
                     </Button>
                   ))}
               </div>
