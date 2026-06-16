@@ -7,7 +7,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../config/axios.js';
 import { ResultModal } from '../../components/ResultModal.js';
-import { Tooltip, IconButton, Box } from '@mui/material';
+import { Tooltip, IconButton, Box, Collapse, Button, Typography } from '@mui/material';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 // import Pause from '@mui/icons-material/Pause';
 import Stop from '@mui/icons-material/Stop';
 // import PlayArrow from '@mui/icons-material/PlayArrow';
@@ -53,7 +55,7 @@ const Task = () => {
   const [showSnackBar, setShowSnackBar] = useState(false);
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('success');
-  const [instructionModalOpen, setInstructionModalOpen] = useState(false);
+  const [instructionsOpen, setInstructionsOpen] = useState(false);
 
   const history = useCookies('history');
 
@@ -241,17 +243,24 @@ const Task = () => {
         />
         <Box sx={{ flexGrow: 1, marginBottom: 2, zIndex: 2 }} />
         <Box sx={{ paddingLeft: 2, paddingTop: 0.5 }}>
-          <Tooltip title={t('view_task_instructions')} placement="bottom-start">
-            <IconButton
-              size="large"
-              sx={{ zIndex: 2 }}
-              color="info"
-              style={{ backgroundColor: 'white', marginRight: 5, border: '2px solid #dfe1e5' }}
-              onClick={() => setInstructionModalOpen(true)}
-            >
-              <InfoOutlined />
-            </IconButton>
-          </Tooltip>
+          <Button
+            onClick={() => setInstructionsOpen((prev) => !prev)}
+            startIcon={<InfoOutlined />}
+            endIcon={instructionsOpen ? <ExpandLess /> : <ExpandMore />}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 500,
+              color: 'text.primary',
+              backgroundColor: 'white',
+              border: '2px solid #dfe1e5',
+              borderRadius: 2,
+              px: 2,
+              mr: 1,
+              '&:hover': { backgroundColor: 'grey.100' },
+            }}
+          >
+            {t('view_task_instructions')}
+          </Button>
           {/* {userTask?.isPaused || paused ? (
             <Tooltip title={t('iniciar')} placement="bottom-start">
               <IconButton
@@ -288,12 +297,27 @@ const Task = () => {
               <Stop />
             </IconButton>
           </Tooltip>
+
+          <Collapse in={instructionsOpen}>
+            <Box
+              sx={{
+                px: 3,
+                py: 2,
+                backgroundColor: 'white',
+                borderBottom: '1px solid #dfe1e5',
+                mt: 7,
+              }}
+            >
+              <Typography variant="subtitle1" fontWeight={500} mb={1}>
+                {task?.summary}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {task?.description}
+              </Typography>
+            </Box>
+          </Collapse>
         </Box>
-        <TaskInstructionModal
-          open={instructionModalOpen}
-          onClose={() => setInstructionModalOpen(false)}
-          task={task}
-        />
+
         <ConfirmDialog
           open={confirmDialogOpen}
           onClose={closeFinishDialog}

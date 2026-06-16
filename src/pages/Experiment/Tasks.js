@@ -32,6 +32,8 @@ const Tasks = () => {
   const [steps, setSteps] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [instructionsOpen, setInstructionsOpen] = useState(false);
+
   const fetchTaskData = useCallback(async () => {
     try {
       setIsLoading(true);
