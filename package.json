@@ -2,7 +2,6 @@
   "name": "cbtl-app-prototype",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.34.3",
   "dependencies": {
     "@craco/craco": "^7.1.0",
     "@dnd-kit/core": "^6.3.1",
@@ -49,7 +48,7 @@
     "uuid": "^11.1.0"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "scripts": {
     "start": "craco start",
