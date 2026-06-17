@@ -6,3 +6,5 @@ build
 pnpm-workspace.yaml
 .DS_Store
 .vercel
+.husky
+.idea
