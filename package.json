@@ -48,7 +48,7 @@
     "uuid": "^11.1.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "scripts": {
     "start": "craco start",

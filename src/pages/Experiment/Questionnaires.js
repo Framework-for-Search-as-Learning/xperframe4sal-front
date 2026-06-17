@@ -232,8 +232,7 @@ const Questionnaires = () => {
           </Button>
         )}
         {hasFinishedTasks &&
-          postSurveys.filter((s) => !answeredPostSurveys[s._id] || !s?.uniqueAnswer).length ===
-            0 && (
+          postSurveys.filter((s) => !answeredPostSurveys[s._id]).length === 0 && (
             <Button
               variant="contained"
               color="primary"

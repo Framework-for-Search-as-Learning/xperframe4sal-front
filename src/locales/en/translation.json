@@ -232,6 +232,7 @@
   "random": "Random",
   "recover_button": "Recover",
   "register_fail_message": "Registration failed. Please check your information and try again.",
+  "email_already_registered": "This email is already registered. Please use a different email or sign in.",
   "repeat_password": "Repeat Password",
   "required": "Required",
   "researcher_experiments_title": "Created Experiments",
