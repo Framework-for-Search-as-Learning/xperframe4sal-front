@@ -66,7 +66,7 @@ const Chatbot = ({ taskId, user }) => {
 
   const [sessionId, setSessionId] = useState(null);
   const [sessions, setSessions] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState(() => [buildWelcomeMessage(t)]);
 
@@ -255,9 +255,9 @@ const Chatbot = ({ taskId, user }) => {
       console.error('Erro:', error);
       const errorText = error.translationKey
         ? t(error.translationKey, {
-            ...error.translationParams,
-            defaultValue: t('llm_error_unexpected'),
-          })
+          ...error.translationParams,
+          defaultValue: t('llm_error_unexpected'),
+        })
         : t('llm_error_unexpected');
       setMessages((prev) => [
         ...prev,
