@@ -207,6 +207,14 @@ const Chatbot = ({ taskId, user }) => {
         signal: abortControllerRef.current.signal,
       });
 
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw Object.assign(new Error(errorBody.message || 'request_failed'), {
+          translationKey: errorBody.message,
+          translationParams: { model: errorBody.model },
+        });
+      }
+
       if (!response.body) throw new Error('ReadableStream not supported.');
 
       const reader = response.body.getReader();
@@ -245,11 +253,17 @@ const Chatbot = ({ taskId, user }) => {
       setIsTyping(false);
       if (error.name === 'AbortError') return;
       console.error('Erro:', error);
+      const errorText = error.translationKey
+        ? t(error.translationKey, {
+            ...error.translationParams,
+            defaultValue: t('llm_error_unexpected'),
+          })
+        : t('llm_error_unexpected');
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 2,
-          text: 'Erro de conexão ou resposta interrompida.',
+          text: errorText,
           sender: 'bot',
           role: 'model',
           timestamp: new Date(),
