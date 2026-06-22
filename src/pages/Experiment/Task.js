@@ -228,6 +228,47 @@ const Task = () => {
 
   return (
     <div style={{ minWidth: '326px' }}>
+      {/* Barriga / puxador centralizado no topo */}
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 64,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 64,
+          height: 26,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          pointerEvents: 'none',
+          zIndex: 1300,
+        }}
+      >
+        <Tooltip title={t('view_task_instructions')} placement="bottom">
+          <IconButton
+            size="small"
+            onClick={() => setInstructionModalOpen(true)}
+            sx={{
+              pointerEvents: 'auto',
+              backgroundColor: '#155293',
+              color: '#fff',
+              width: 64,
+              height: 22,
+              borderRadius: '0 0 14px 14px',
+              boxShadow: '0 2px 6px rgba(0,0,0,.18)',
+              transition: 'height .18s ease, background-color .18s',
+              '&:hover': {
+                backgroundColor: '#1b62ad',
+                height: 26,
+              },
+            }}
+          >
+            <InfoOutlined sx={{ fontSize: 16 }} />
+          </IconButton>
+        </Tooltip>
+      </Box>
+
+      {/* Controles (Stop) à direita */}
       <Box sx={{ display: 'flex', position: 'fixed', zIndex: 3, right: 10 }}>
         <CustomSnackbar
           open={showSnackBar}
@@ -240,18 +281,7 @@ const Task = () => {
           showLinear={true}
         />
         <Box sx={{ flexGrow: 1, marginBottom: 2, zIndex: 2 }} />
-        <Box sx={{ paddingLeft: 2, paddingTop: 0.5 }}>
-          <Tooltip title={t('view_task_instructions')} placement="bottom-start">
-            <IconButton
-              size="large"
-              sx={{ zIndex: 2 }}
-              color="info"
-              style={{ backgroundColor: 'white', marginRight: 5, border: '2px solid #dfe1e5' }}
-              onClick={() => setInstructionModalOpen(true)}
-            >
-              <InfoOutlined />
-            </IconButton>
-          </Tooltip>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           {/* {userTask?.isPaused || paused ? (
             <Tooltip title={t('iniciar')} placement="bottom-start">
               <IconButton
