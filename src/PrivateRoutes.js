@@ -96,7 +96,7 @@ export function PrivateRoutes(props) {
       >
         <Box
           onClick={handleGoHome}
-          sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', width: 'fit-content' }}
         >
           <img
             src={logo}
@@ -152,20 +152,17 @@ export function PrivateRoutes(props) {
               <MenuIcon />
             </IconButton>
           </Box>
-          <Box
-            onClick={handleGoHome}
-            sx={{
-              flexGrow: 1,
-              cursor: 'pointer',
-              alignItems: 'center',
-              display: { xs: 'none', sm: 'flex' },
-            }}
-          >
-            <img
-              src={logo}
-              alt={t('system_name')}
-              style={{ height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-            />
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
+            <Box
+              onClick={handleGoHome}
+              sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', width: 'fit-content' }}
+            >
+              <img
+                src={logo}
+                alt={t('system_name')}
+                style={{ height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+              />
+            </Box>
           </Box>
           <Box
             sx={{
