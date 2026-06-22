@@ -126,7 +126,11 @@ const Register = () => {
         }
       }
     } catch (e) {
-      setAlertMessage(t('register_fail_message'));
+      if (e?.response?.status === 409) {
+        setAlertMessage(t('email_already_registered'));
+      } else {
+        setAlertMessage(t('register_fail_message'));
+      }
       setMessageType('fail');
     } finally {
       setIsLoading(false);

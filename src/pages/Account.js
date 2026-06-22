@@ -30,7 +30,10 @@ const Account = () => {
   const handleDeleteAllData = async () => {
     try {
       setConfirmDialogOpen(false);
-      await api.patch(`user/${user.id}/delete-data`);
+      await api.delete(`user/${user.id}`, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      });
+      localStorage.removeItem('user');
       setShowSnackBar(true);
       setIsSuccess(true);
       setSeverity('success');
@@ -59,7 +62,7 @@ const Account = () => {
 
   useEffect(() => {
     if (redirect) {
-      navigate(`/experiments`);
+      navigate(`/`);
     }
   }, [redirect, navigate]);
 

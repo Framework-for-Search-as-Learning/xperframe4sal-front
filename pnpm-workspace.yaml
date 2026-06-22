@@ -1,0 +1,6 @@
+allowBuilds:
+  '@google/genai': true
+  bcrypt: true
+  protobufjs: true
+  core-js: true
+  core-js-pure: true
