@@ -81,9 +81,11 @@ const MessageBubble = ({ message }) => {
 
       <Box className={`${classes.messageContent} ${isUser ? 'user' : 'bot'}`}>
         <Box className={`${classes.messageBubble} ${isUser ? 'user' : 'bot'}`}>
-          <Typography className={classes.messageText}>
-            <div dangerouslySetInnerHTML={{ __html: message.text }} />
-          </Typography>
+          <Typography
+            component="div"
+            className={classes.messageText}
+            dangerouslySetInnerHTML={{ __html: message.text }}
+          />
         </Box>
         <Typography className={classes.timestamp}>{formatTime(message.timestamp)}</Typography>
       </Box>
