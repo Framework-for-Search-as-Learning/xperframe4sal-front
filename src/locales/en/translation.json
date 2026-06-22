@@ -470,5 +470,6 @@
   "copy_invite_link": "Copy invite link",
   "invite_link_copied": "Link copied!",
   "view_task_instructions": "View task instructions",
-  "task_instructions_title": "Task Instructions"
+  "task_instructions_title": "Task Instructions",
+  "task_instruction": "Task Instruction"
 }

@@ -19,6 +19,9 @@ import { Google } from '../../components/SearchEngines/Google.js';
 import { Chatbot } from '../../components/Chatbot/Chatbot.js';
 import { TaskInstructionModal } from '../../components/TaskInstructionModal.js';
 import useCookies from '../../lib/useCookies.js';
+import Chip from '@mui/material/Chip';
+import InfoIcon from '@mui/icons-material/Info';
+
 
 async function updateUserExperimentStatus(userExperiment, user, api) {
   try {
@@ -226,48 +229,28 @@ const Task = () => {
     };
   }, [user.accessToken]);
 
+
   return (
     <div style={{ minWidth: '326px' }}>
       {/* Barriga / puxador centralizado no topo */}
-      <Box
-        sx={{
-          position: 'fixed',
-          top: 64,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 64,
-          height: 26,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          pointerEvents: 'none',
-          zIndex: 1300,
-        }}
-      >
-        <Tooltip title={t('view_task_instructions')} placement="bottom">
-          <IconButton
-            size="small"
-            onClick={() => setInstructionModalOpen(true)}
-            sx={{
-              pointerEvents: 'auto',
-              backgroundColor: '#155293',
-              color: '#fff',
-              width: 64,
-              height: 22,
-              borderRadius: '0 0 14px 14px',
-              boxShadow: '0 2px 6px rgba(0,0,0,.18)',
-              transition: 'height .18s ease, background-color .18s',
-              '&:hover': {
-                backgroundColor: '#1b62ad',
-                height: 26,
-              },
-            }}
-          >
-            <InfoOutlined sx={{ fontSize: 16 }} />
-          </IconButton>
-        </Tooltip>
+      <Box sx={{ position: 'fixed', top: task.search_source === 'llm' ? 88 : 75, left: '50%', transform: 'translateX(-50%)', zIndex: 1300 }}>
+        <Chip
+          icon={<InfoIcon />}
+          label={t('task_instruction')}
+          variant="outlined"
+          onClick={() => setInstructionModalOpen(true)}
+          sx={{
+            borderColor: 'primary.main',
+            '&:hover': {
+              backgroundColor: '#E6F1FB !important',
+              borderColor: 'primary.main',
+              cursor: 'pointer',
+            },
+            color: 'primary.main',
+            '& .MuiChip-icon': { color: 'primary.main' }
+          }}
+        />
       </Box>
-
       {/* Controles (Stop) à direita */}
       <Box sx={{ display: 'flex', position: 'fixed', zIndex: 3, right: 10 }}>
         <CustomSnackbar
@@ -334,6 +317,7 @@ const Task = () => {
       </Box>
 
       {task.search_source === 'search-engine' && (
+         <div style={{ marginTop: '48px' }}>
         <Google
           user={user}
           taskId={taskId}
@@ -345,6 +329,7 @@ const Task = () => {
           setIsShowingResultModal={setIsShowingResultModal}
           setClickedResultRank={setClickedResultRank}
         />
+        </div>
       )}
       {task.search_source === 'llm' && <Chatbot taskId={taskId} user={user} />}
 

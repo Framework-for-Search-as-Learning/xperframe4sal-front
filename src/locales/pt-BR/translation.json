@@ -395,6 +395,7 @@
   "not_started": "Não Iniciado",
   "progress": "Progresso",
   "Start": "Iniciar",
+  "task_instruction": "Instrução da Tarefa",
   "completion_rate": "Taxa de Conclusão",
   "participants_list": "Lista de Participantes",
   "export_all_data": "Exportar Todos",
@@ -472,4 +473,5 @@
   "invite_link_copied": "Link copiado!",
   "view_task_instructions": "Ver instruções da tarefa",
   "task_instructions_title": "Instruções da Tarefa"
+  
 }
