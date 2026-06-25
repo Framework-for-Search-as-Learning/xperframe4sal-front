@@ -288,7 +288,7 @@ const ExperimentTask = () => {
       try {
         setIsLoadingTask(true);
         const taskId = task._id || task.id || task.uuid;
-        const response = await api.get(`task/${taskId}`, {
+        const response = await api.get(`task/${taskId}/duplicate-source`, {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         });
         task = response.data;
@@ -306,17 +306,14 @@ const ExperimentTask = () => {
       }
     }
 
-    const { taskOrigin } = await populateFormFromTask(createForm, task, {
-      copySecrets: false,
+    await populateFormFromTask(createForm, task, {
+      copySecrets: true,
       titleTransform: (title) => `${title} ${t('duplicate_task_title_suffix')}`,
     });
 
     setFeedback({
       open: true,
-      message:
-        taskOrigin === 'llm' || taskOrigin === 'search-engine'
-          ? t('duplicate_task_api_key_notice')
-          : t('success_duplicate'),
+      message: t('success_duplicate'),
       severity: 'info',
     });
 

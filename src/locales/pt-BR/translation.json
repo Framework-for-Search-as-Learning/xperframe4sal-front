@@ -455,7 +455,6 @@
   "duplicate_task_title_suffix": "(cópia)",
   "success_duplicate": "Tarefa duplicada! Revise os detalhes e salve.",
   "error_duplicate": "Erro ao duplicar tarefa.",
-  "duplicate_task_api_key_notice": "Por segurança, a chave de API não foi copiada. Informe-a novamente, se necessário.",
   "cannot_delete_min_2_tasks": "Não é possível excluir. Experimentos 'Entre sujeitos' exigem pelo menos 2 tarefas.",
   "cannot_delete_min_1_task": "Não é possível excluir a única tarefa do experimento.",
   "Success_Delete": "Excluído com sucesso!",

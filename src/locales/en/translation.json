@@ -454,7 +454,6 @@
   "duplicate_task_title_suffix": "(copy)",
   "success_duplicate": "Task duplicated! Review the details and save.",
   "error_duplicate": "Error duplicating task.",
-  "duplicate_task_api_key_notice": "For security reasons, the API key was not copied. Please enter it again if needed.",
   "cannot_delete_min_2_tasks": "Cannot delete. 'Between-subject' experiments require at least 2 tasks.",
   "cannot_delete_min_1_task": "Cannot delete the only task in the experiment.",
   "Success_Delete": "Deleted successfully!",
