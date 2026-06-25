@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
+
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Typography,
   FormControlLabel,
@@ -119,6 +121,7 @@ const Questionnaire = ({ survey, callback, params, initialAnswers }) => {
 };
 
 const Question = ({ question, questionIndex, callback, params, initialAnswer }) => {
+  const { t } = useTranslation();
   const initialRadioIndex =
     question.type === 'multiple-choices' && initialAnswer?.selectedOptions?.[0]
       ? question.options.findIndex(
@@ -367,7 +370,7 @@ const Question = ({ question, questionIndex, callback, params, initialAnswer }) 
           </Typography>
           <TextField
             name={Math.random().toString(36).substring(2, 10) + questionIndex}
-            label="Resposta"
+            label={t('answer') || 'Answer'}
             variant="outlined"
             fullWidth
             multiline
