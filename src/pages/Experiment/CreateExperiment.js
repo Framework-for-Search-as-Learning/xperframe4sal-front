@@ -13,6 +13,12 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
@@ -23,10 +29,20 @@ import ConfirmCreateExperiment from '../components/ExperimentForms/ConfirmCreate
 import ExperimentICF from '../components/ExperimentForms/ExperimentICF';
 import ExperimentMetadataForm from '../components/ExperimentForms/ExperimentMetadataForm';
 import StudyDesignForm from '../components/ExperimentForms/StudyDesignForm';
+import {
+  clearExperimentDraft,
+  isExperimentDraftMeaningful,
+  loadExperimentDraft,
+  useExperimentDraftAutosave,
+} from '../../hooks/useExperimentDraftAutosave';
 
 const CreateExperiment = () => {
   const { t } = useTranslation();
   const [user] = useState(JSON.parse(localStorage.getItem('user')));
+  const [pendingDraft] = useState(() => loadExperimentDraft(user?.id));
+  const [isDraftPromptOpen, setIsDraftPromptOpen] = useState(() =>
+    isExperimentDraftMeaningful(pendingDraft),
+  );
   const [ExperimentTitle, setExperimentTitle] = useState('');
   const [ExperimentTitleICF, setExperimentTitleICF] = useState('');
   const [ExperimentDescICF, setExperimentDescICF] = useState('');
@@ -40,6 +56,44 @@ const CreateExperiment = () => {
   const [maxStep, setMaxStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState(new Set());
   const [isCurrentStepValid, setIsCurrentStepValid] = useState(true);
+
+  const handleResumeDraft = () => {
+    setExperimentTitle(pendingDraft.ExperimentTitle || '');
+    setExperimentTitleICF(pendingDraft.ExperimentTitleICF || '');
+    setExperimentDescICF(pendingDraft.ExperimentDescICF || '');
+    setExperimentType(pendingDraft.ExperimentType || 'within-subject');
+    setBtypeExperiment(pendingDraft.BtypeExperiment || 'random');
+    setExperimentDesc(pendingDraft.ExperimentDesc || '');
+    setExperimentTasks(pendingDraft.ExperimentTasks || []);
+    setExperimentSurveys(pendingDraft.ExperimentSurveys || []);
+    setStep(pendingDraft.step || 0);
+    setMaxStep(pendingDraft.maxStep || 0);
+    setCompletedSteps(new Set(pendingDraft.completedSteps || []));
+    setIsDraftPromptOpen(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearExperimentDraft(user?.id);
+    setIsDraftPromptOpen(false);
+  };
+
+  useExperimentDraftAutosave(
+    user?.id,
+    {
+      step,
+      maxStep,
+      completedSteps: [...completedSteps],
+      ExperimentTitle,
+      ExperimentTitleICF,
+      ExperimentDescICF,
+      ExperimentType,
+      BtypeExperiment,
+      ExperimentDesc,
+      ExperimentTasks,
+      ExperimentSurveys,
+    },
+    { enabled: !isDraftPromptOpen },
+  );
 
   const [feedback, setFeedback] = useState({
     open: false,
@@ -105,6 +159,7 @@ const CreateExperiment = () => {
         { headers: { Authorization: `Bearer ${user.accessToken}` } },
       );
 
+      clearExperimentDraft(user?.id);
       setFeedback({
         open: true,
         message: t('Success') || 'Experimento criado!',
@@ -191,6 +246,19 @@ const CreateExperiment = () => {
 
   return (
     <>
+      <Dialog open={isDraftPromptOpen} onClose={handleDiscardDraft}>
+        <DialogTitle>{t('resume_draft_title')}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{t('resume_draft_message')}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDiscardDraft}>{t('resume_draft_discard')}</Button>
+          <Button onClick={handleResumeDraft} variant="contained" autoFocus>
+            {t('resume_draft_continue')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Typography variant="h4" component="h1" gutterBottom align="center">
         {t('Experiment_create')}
       </Typography>

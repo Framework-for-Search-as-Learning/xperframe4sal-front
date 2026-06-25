@@ -477,5 +477,9 @@
   "copy_invite_link": "Copiar link de convite",
   "invite_link_copied": "Link copiado!",
   "view_task_instructions": "Ver instruções da tarefa",
-  "task_instructions_title": "Instruções da Tarefa"
+  "task_instructions_title": "Instruções da Tarefa",
+  "resume_draft_title": "Continuar rascunho?",
+  "resume_draft_message": "Encontramos um experimento que você estava criando e não finalizou. Deseja continuar de onde parou ou começar um novo?",
+  "resume_draft_continue": "Continuar rascunho",
+  "resume_draft_discard": "Começar novo"
 }
