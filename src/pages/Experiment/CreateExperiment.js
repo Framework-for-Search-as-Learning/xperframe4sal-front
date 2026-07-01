@@ -3,9 +3,11 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import * as yaml from 'js-yaml';
 import { api } from '../../config/axios';
 import {
+  Box,
   Typography,
   Stepper,
   Step,
@@ -57,43 +59,46 @@ const CreateExperiment = () => {
   const [completedSteps, setCompletedSteps] = useState(new Set());
   const [isCurrentStepValid, setIsCurrentStepValid] = useState(true);
 
-  const handleResumeDraft = () => {
-    setExperimentTitle(pendingDraft.ExperimentTitle || '');
-    setExperimentTitleICF(pendingDraft.ExperimentTitleICF || '');
-    setExperimentDescICF(pendingDraft.ExperimentDescICF || '');
-    setExperimentType(pendingDraft.ExperimentType || 'within-subject');
-    setBtypeExperiment(pendingDraft.BtypeExperiment || 'random');
-    setExperimentDesc(pendingDraft.ExperimentDesc || '');
-    setExperimentTasks(pendingDraft.ExperimentTasks || []);
-    setExperimentSurveys(pendingDraft.ExperimentSurveys || []);
-    setStep(pendingDraft.step || 0);
-    setMaxStep(pendingDraft.maxStep || 0);
-    setCompletedSteps(new Set(pendingDraft.completedSteps || []));
+  const [saveFailure, setSaveFailure] = useState({ open: false, message: '' });
+  const draftFileInputRef = useRef(null);
+
+  const applyDraftValues = (values) => {
+    setExperimentTitle(values.ExperimentTitle || '');
+    setExperimentTitleICF(values.ExperimentTitleICF || '');
+    setExperimentDescICF(values.ExperimentDescICF || '');
+    setExperimentType(values.ExperimentType || 'within-subject');
+    setBtypeExperiment(values.BtypeExperiment || 'random');
+    setExperimentDesc(values.ExperimentDesc || '');
+    setExperimentTasks(values.ExperimentTasks || []);
+    setExperimentSurveys(values.ExperimentSurveys || []);
+    setStep(values.step || 0);
+    setMaxStep(values.maxStep || 0);
+    setCompletedSteps(new Set(values.completedSteps || []));
     setIsDraftPromptOpen(false);
   };
+
+  const handleResumeDraft = () => applyDraftValues(pendingDraft);
 
   const handleDiscardDraft = () => {
     clearExperimentDraft(user?.id);
     setIsDraftPromptOpen(false);
   };
 
-  useExperimentDraftAutosave(
-    user?.id,
-    {
-      step,
-      maxStep,
-      completedSteps: [...completedSteps],
-      ExperimentTitle,
-      ExperimentTitleICF,
-      ExperimentDescICF,
-      ExperimentType,
-      BtypeExperiment,
-      ExperimentDesc,
-      ExperimentTasks,
-      ExperimentSurveys,
-    },
-    { enabled: !isDraftPromptOpen },
-  );
+  const currentDraftValues = {
+    step,
+    maxStep,
+    completedSteps: [...completedSteps],
+    ExperimentTitle,
+    ExperimentTitleICF,
+    ExperimentDescICF,
+    ExperimentType,
+    BtypeExperiment,
+    ExperimentDesc,
+    ExperimentTasks,
+    ExperimentSurveys,
+  };
+
+  useExperimentDraftAutosave(user?.id, currentDraftValues, { enabled: !isDraftPromptOpen });
 
   const [feedback, setFeedback] = useState({
     open: false,
@@ -104,6 +109,89 @@ const CreateExperiment = () => {
   const handleCloseFeedback = (event, reason) => {
     if (reason === 'clickaway') return;
     setFeedback({ ...feedback, open: false });
+  };
+
+  const getExperimentErrorMessage = (error) => {
+    if (!error?.response) {
+      return t('experiment_create_network_error');
+    }
+    const data = error.response.data;
+    if (Array.isArray(data?.message)) {
+      return data.message.map((msg) => t(msg, { defaultValue: msg })).join(' ');
+    }
+    if (typeof data?.message === 'string') {
+      return t(data.message, { defaultValue: data.message });
+    }
+    return t('experiment_create_unknown_error');
+  };
+
+  // Backup export/import happens entirely client-side: this is the escape
+  // hatch offered when the backend is unreachable, so it must not itself
+  // depend on the backend.
+  const handleDownloadDraftBackup = () => {
+    try {
+      const yamlContent = yaml.dump(currentDraftValues);
+      const blob = new Blob([yamlContent], { type: 'application/x-yaml' });
+      const url = window.URL.createObjectURL(blob);
+      const slug =
+        (ExperimentTitle || 'experimento').trim().replace(/[^a-zA-Z0-9]+/g, '_').slice(0, 60) ||
+        'experimento';
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `rascunho_${slug}.yaml`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erro ao exportar rascunho:', error);
+      setFeedback({
+        open: true,
+        message: t('draft_export_error'),
+        severity: 'error',
+        isLoading: false,
+      });
+    }
+  };
+
+  const handleDraftFileSelected = async (event) => {
+    const file = event.target.files[0];
+    event.target.value = '';
+    if (!file) return;
+
+    if (!file.name.endsWith('.yaml') && !file.name.endsWith('.yml')) {
+      setFeedback({
+        open: true,
+        message: t('import_invalid_file'),
+        severity: 'error',
+        isLoading: false,
+      });
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const parsed = yaml.load(text);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error('Invalid draft structure');
+      }
+      applyDraftValues(parsed);
+      setFeedback({
+        open: true,
+        message: t('draft_imported_success'),
+        severity: 'success',
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error('Erro ao importar rascunho:', error);
+      setFeedback({
+        open: true,
+        message: t('draft_import_invalid_file'),
+        severity: 'error',
+        isLoading: false,
+      });
+    }
   };
 
   const STEPS = [
@@ -168,15 +256,16 @@ const CreateExperiment = () => {
       });
       return true;
     } catch (error) {
-      console.error(t('Error creating experiment'), error);
-      setFeedback({
-        open: true,
-        message: t('Error') || 'Falha ao criar o experimento.',
-        severity: 'error',
-        isLoading: false,
-      });
+      console.error('Erro ao criar experimento:', error);
+      setFeedback({ open: false, message: '', severity: 'error', isLoading: false });
+      setSaveFailure({ open: true, message: getExperimentErrorMessage(error) });
       return false;
     }
+  };
+
+  const handleRetryCreateExperiment = () => {
+    setSaveFailure({ open: false, message: '' });
+    handleCreateExperiment();
   };
 
   const makeStepIcon =
@@ -259,9 +348,40 @@ const CreateExperiment = () => {
         </DialogActions>
       </Dialog>
 
+      <Dialog
+        open={saveFailure.open}
+        onClose={() => setSaveFailure({ open: false, message: '' })}
+      >
+        <DialogTitle>{t('experiment_save_failed_title')}</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 1 }}>{saveFailure.message}</DialogContentText>
+          <DialogContentText>{t('experiment_save_failed_message')}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSaveFailure({ open: false, message: '' })}>{t('close')}</Button>
+          <Button onClick={handleDownloadDraftBackup}>{t('download_draft_backup')}</Button>
+          <Button onClick={handleRetryCreateExperiment} variant="contained" autoFocus>
+            {t('retry')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Typography variant="h4" component="h1" gutterBottom align="center">
         {t('Experiment_create')}
       </Typography>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <input
+          ref={draftFileInputRef}
+          type="file"
+          accept=".yaml,.yml"
+          style={{ display: 'none' }}
+          onChange={handleDraftFileSelected}
+        />
+        <Button size="small" onClick={() => draftFileInputRef.current?.click()}>
+          {t('import_draft')}
+        </Button>
+      </Box>
 
       <Stepper sx={{ display: { xs: 'none', sm: 'flex' } }} activeStep={step} alternativeLabel>
         {STEPS.map((s) => (

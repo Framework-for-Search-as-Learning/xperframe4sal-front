@@ -480,5 +480,16 @@
   "resume_draft_title": "Resume draft?",
   "resume_draft_message": "We found an experiment you were creating that wasn't finished. Do you want to continue where you left off or start a new one?",
   "resume_draft_continue": "Resume draft",
-  "resume_draft_discard": "Start new"
+  "resume_draft_discard": "Start new",
+  "experiment_create_network_error": "Could not connect to the server. Check your connection and try again.",
+  "experiment_create_unknown_error": "An unexpected error occurred while saving the experiment.",
+  "experiment_save_failed_title": "Could not save the experiment",
+  "experiment_save_failed_message": "Your data is still filled in on this screen and was automatically saved in this browser. You can also download a backup to continue later, even on a different computer.",
+  "download_draft_backup": "Download draft (.yaml)",
+  "retry": "Retry",
+  "draft_export_error": "Error generating the draft backup.",
+  "import_draft": "Import draft (.yaml)",
+  "draft_imported_success": "Draft imported successfully!",
+  "draft_import_error": "Error importing the draft.",
+  "draft_import_invalid_file": "Invalid draft file."
 }

@@ -481,5 +481,16 @@
   "resume_draft_title": "Continuar rascunho?",
   "resume_draft_message": "Encontramos um experimento que você estava criando e não finalizou. Deseja continuar de onde parou ou começar um novo?",
   "resume_draft_continue": "Continuar rascunho",
-  "resume_draft_discard": "Começar novo"
+  "resume_draft_discard": "Começar novo",
+  "experiment_create_network_error": "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.",
+  "experiment_create_unknown_error": "Ocorreu um erro inesperado ao salvar o experimento.",
+  "experiment_save_failed_title": "Não foi possível salvar o experimento",
+  "experiment_save_failed_message": "Seus dados continuam preenchidos nesta tela e foram salvos automaticamente neste navegador. Você também pode baixar um backup para continuar depois, inclusive em outro computador.",
+  "download_draft_backup": "Baixar rascunho (.yaml)",
+  "retry": "Tentar novamente",
+  "draft_export_error": "Erro ao gerar o backup do rascunho.",
+  "import_draft": "Importar rascunho (.yaml)",
+  "draft_imported_success": "Rascunho importado com sucesso!",
+  "draft_import_error": "Erro ao importar o rascunho.",
+  "draft_import_invalid_file": "Arquivo de rascunho inválido."
 }
