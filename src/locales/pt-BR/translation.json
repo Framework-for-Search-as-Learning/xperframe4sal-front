@@ -492,5 +492,12 @@
   "import_draft": "Importar rascunho (.yaml)",
   "draft_imported_success": "Rascunho importado com sucesso!",
   "draft_import_error": "Erro ao importar o rascunho.",
-  "draft_import_invalid_file": "Arquivo de rascunho inválido."
+  "draft_import_invalid_file": "Arquivo de rascunho inválido.",
+  "draft_badge_label": "Rascunho",
+  "draft_card_untitled": "Experimento sem título",
+  "draft_card_last_saved": "Salvo automaticamente em {{date}}",
+  "draft_card_continue": "Continuar rascunho",
+  "draft_card_discard": "Descartar",
+  "discard_draft_title": "Descartar rascunho?",
+  "discard_draft_message": "Isso vai apagar definitivamente o rascunho do experimento em andamento. Essa ação não pode ser desfeita."
 }

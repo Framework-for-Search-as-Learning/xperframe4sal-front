@@ -491,5 +491,12 @@
   "import_draft": "Import draft (.yaml)",
   "draft_imported_success": "Draft imported successfully!",
   "draft_import_error": "Error importing the draft.",
-  "draft_import_invalid_file": "Invalid draft file."
+  "draft_import_invalid_file": "Invalid draft file.",
+  "draft_badge_label": "Draft",
+  "draft_card_untitled": "Untitled experiment",
+  "draft_card_last_saved": "Automatically saved on {{date}}",
+  "draft_card_continue": "Continue draft",
+  "draft_card_discard": "Discard",
+  "discard_draft_title": "Discard draft?",
+  "discard_draft_message": "This will permanently delete the in-progress experiment draft. This action cannot be undone."
 }
