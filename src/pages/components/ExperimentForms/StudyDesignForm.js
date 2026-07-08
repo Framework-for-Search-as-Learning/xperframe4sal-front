@@ -41,6 +41,8 @@ const StudyDesignForm = () => {
         return t('explanation_rules');
       case 'manual':
         return t('explanation_manual');
+      case 'balanced':
+        return t('explanation_balanced');
       default:
         return '';
     }
@@ -89,6 +91,7 @@ const StudyDesignForm = () => {
               <MenuItem value="random">{t('random')}</MenuItem>
               <MenuItem value="rules_based">{t('rules_based')}</MenuItem>
               <MenuItem value="manual">{t('manual')}</MenuItem>
+              <MenuItem value="balanced">{t('balanced')}</MenuItem>
             </Select>
           </FormControl>
 
