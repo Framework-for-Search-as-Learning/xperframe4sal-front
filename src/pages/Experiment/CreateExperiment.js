@@ -3,7 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as yaml from 'js-yaml';
 import { api } from '../../config/axios';
 import {
@@ -33,18 +33,43 @@ import ExperimentMetadataForm from '../components/ExperimentForms/ExperimentMeta
 import StudyDesignForm from '../components/ExperimentForms/StudyDesignForm';
 import {
   clearExperimentDraft,
+  clearExperimentDraftFromServer,
   isExperimentDraftMeaningful,
   loadExperimentDraft,
+  loadExperimentDraftFromServer,
+  pickFreshestDraft,
   useExperimentDraftAutosave,
 } from '../../hooks/useExperimentDraftAutosave';
 
 const CreateExperiment = () => {
   const { t } = useTranslation();
   const [user] = useState(JSON.parse(localStorage.getItem('user')));
-  const [pendingDraft] = useState(() => loadExperimentDraft(user?.id));
+  const [pendingDraft, setPendingDraft] = useState(() => loadExperimentDraft(user?.id));
   const [isDraftPromptOpen, setIsDraftPromptOpen] = useState(() =>
     isExperimentDraftMeaningful(pendingDraft),
   );
+  const hasUserActedOnDraftRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const syncWithServerDraft = async () => {
+      const serverDraft = await loadExperimentDraftFromServer(user);
+      if (cancelled || hasUserActedOnDraftRef.current) return;
+
+      const freshest = pickFreshestDraft(pendingDraft, serverDraft);
+      if (freshest && freshest !== pendingDraft) {
+        setPendingDraft(freshest);
+        setIsDraftPromptOpen(true);
+      }
+    };
+
+    syncWithServerDraft();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [ExperimentTitle, setExperimentTitle] = useState('');
   const [ExperimentTitleICF, setExperimentTitleICF] = useState('');
   const [ExperimentDescICF, setExperimentDescICF] = useState('');
@@ -77,10 +102,15 @@ const CreateExperiment = () => {
     setIsDraftPromptOpen(false);
   };
 
-  const handleResumeDraft = () => applyDraftValues(pendingDraft);
+  const handleResumeDraft = () => {
+    hasUserActedOnDraftRef.current = true;
+    applyDraftValues(pendingDraft);
+  };
 
   const handleDiscardDraft = () => {
+    hasUserActedOnDraftRef.current = true;
     clearExperimentDraft(user?.id);
+    clearExperimentDraftFromServer(user);
     setIsDraftPromptOpen(false);
   };
 
@@ -98,7 +128,7 @@ const CreateExperiment = () => {
     ExperimentSurveys,
   };
 
-  useExperimentDraftAutosave(user?.id, currentDraftValues, { enabled: !isDraftPromptOpen });
+  useExperimentDraftAutosave(user, currentDraftValues, { enabled: !isDraftPromptOpen });
 
   const [feedback, setFeedback] = useState({
     open: false,
@@ -139,7 +169,7 @@ const CreateExperiment = () => {
 
       const link = document.createElement('a');
       link.href = url;
-      link.download = `rascunho_${slug}.yaml`;
+      link.download = `draft_${slug}.yaml`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -248,6 +278,7 @@ const CreateExperiment = () => {
       );
 
       clearExperimentDraft(user?.id);
+      clearExperimentDraftFromServer(user);
       setFeedback({
         open: true,
         message: t('Success') || 'Experimento criado!',
@@ -270,10 +301,49 @@ const CreateExperiment = () => {
 
   const makeStepIcon =
     (completedSteps) =>
-    ({ active, icon }) => {
-      const isCompleted = completedSteps.has(icon - 1);
+      ({ active, icon }) => {
+        const isCompleted = completedSteps.has(icon - 1);
 
-      if (isCompleted) {
+        if (isCompleted) {
+          return (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                backgroundColor: '#1976d2',
+                color: '#fff',
+                fontSize: 16,
+              }}
+            >
+              ✓
+            </div>
+          );
+        }
+        if (active) {
+          return (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                backgroundColor: '#f2912d',
+                color: '#fff',
+                fontSize: 14,
+                fontWeight: 'bold',
+                boxShadow: '0 0 0 4px rgba(242, 145, 45, 0.25)',
+              }}
+            >
+              {icon}
+            </div>
+          );
+        }
         return (
           <div
             style={{
@@ -283,54 +353,15 @@ const CreateExperiment = () => {
               width: 30,
               height: 30,
               borderRadius: '50%',
-              backgroundColor: '#1976d2',
-              color: '#fff',
-              fontSize: 16,
-            }}
-          >
-            ✓
-          </div>
-        );
-      }
-      if (active) {
-        return (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 30,
-              height: 30,
-              borderRadius: '50%',
-              backgroundColor: '#f2912d',
-              color: '#fff',
+              backgroundColor: '#e0e0e0',
+              color: '#9e9e9e',
               fontSize: 14,
-              fontWeight: 'bold',
-              boxShadow: '0 0 0 4px rgba(242, 145, 45, 0.25)',
             }}
           >
             {icon}
           </div>
         );
-      }
-      return (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 30,
-            height: 30,
-            borderRadius: '50%',
-            backgroundColor: '#e0e0e0',
-            color: '#9e9e9e',
-            fontSize: 14,
-          }}
-        >
-          {icon}
-        </div>
-      );
-    };
+      };
   const CustomStepIcon = makeStepIcon(completedSteps);
 
   return (
