@@ -19,8 +19,14 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ExperimentAccordion } from '../../components/Researcher/ExperimentAccordion';
+import { DraftExperimentCard } from '../../components/Researcher/DraftExperimentCard';
 import styles from '../../style/researcher.module.css';
 import { LoadingState } from '../../components/Researcher/LoadingState';
+import {
+  clearExperimentDraft,
+  clearExperimentDraftFromServer,
+  isExperimentDraftMeaningful,
+} from '../../hooks/useExperimentDraftAutosave';
 
 const experimentStatus = Object.freeze({
   NOT_STARTED: 'NOT_STARTED',
@@ -41,6 +47,8 @@ const Researcher = () => {
   const [experimentToDelete, setExperimentToDelete] = useState(null);
   const [editWarningModalOpen, setEditWarningModalOpen] = useState(false);
   const [experimentToEdit, setExperimentToEdit] = useState(null);
+  const [draft, setDraft] = useState(null);
+  const [discardDraftModalOpen, setDiscardDraftModalOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem('user'));
   const { t } = useTranslation();
   const fileInputRef = useRef(null);
@@ -91,9 +99,26 @@ const Researcher = () => {
     [checkExperimentParticipants],
   );
 
+  const fetchDraft = useCallback(async () => {
+    try {
+      const { data: serverDraft } = await api.get(`experiment-draft/${user.id}`, {
+        headers: { Authorization: `Bearer ${user.accessToken}` },
+      });
+      setDraft(
+        serverDraft?.payload && isExperimentDraftMeaningful(serverDraft.payload)
+          ? { ...serverDraft.payload, savedAt: serverDraft.lastChangeAt }
+          : null,
+      );
+    } catch (error) {
+      console.error('Error fetching experiment draft:', error);
+    }
+  }, [user.accessToken, user.id]);
+
   const fetchAllExperiments = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+
+    fetchDraft();
 
     try {
       const { data: ownedExperiments } = await api.get(`experiment/owner/${user.id}`, {
@@ -121,7 +146,7 @@ const Researcher = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user.accessToken, user.id, t, checkAllExperimentsParticipants]);
+  }, [user.accessToken, user.id, t, checkAllExperimentsParticipants, fetchDraft]);
 
   useEffect(() => {
     fetchAllExperiments();
@@ -394,6 +419,19 @@ const Researcher = () => {
     navigate(`/experiments/${experimentId}/participants`);
   };
 
+  const handleContinueDraft = () => navigate('/experiments/new');
+
+  const handleDiscardDraftClick = () => setDiscardDraftModalOpen(true);
+
+  const cancelDiscardDraft = () => setDiscardDraftModalOpen(false);
+
+  const confirmDiscardDraft = () => {
+    clearExperimentDraft(user.id);
+    clearExperimentDraftFromServer(user);
+    setDraft(null);
+    setDiscardDraftModalOpen(false);
+  };
+
   return (
     <div className={styles.researcherContainer}>
       <Dialog
@@ -425,6 +463,27 @@ const Researcher = () => {
           </Button>
           <Button onClick={confirmDeleteExperiment} color="error" variant="contained" autoFocus>
             {t('delete_confirm') || 'EXCLUIR'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={discardDraftModalOpen}
+        onClose={cancelDiscardDraft}
+        aria-labelledby="discard-draft-dialog-title"
+        aria-describedby="discard-draft-dialog-description"
+      >
+        <DialogTitle id="discard-draft-dialog-title">{t('discard_draft_title')}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="discard-draft-dialog-description">
+            {t('discard_draft_message')}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ padding: '16px 24px' }}>
+          <Button onClick={cancelDiscardDraft} color="primary" variant="outlined">
+            {t('cancel') || 'CANCELAR'}
+          </Button>
+          <Button onClick={confirmDiscardDraft} color="error" variant="contained" autoFocus>
+            {t('draft_card_discard')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -504,6 +563,14 @@ const Researcher = () => {
 
         {activeTab === 0 && (
           <>
+            {draft && (
+              <DraftExperimentCard
+                draft={draft}
+                onContinue={handleContinueDraft}
+                onDiscard={handleDiscardDraftClick}
+                t={t}
+              />
+            )}
             {experimentsOwner?.length > 0 ? (
               experimentsOwner.map((experiment, index) => (
                 <ExperimentAccordion
