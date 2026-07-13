@@ -191,11 +191,16 @@ const Questionnaires = () => {
         { hasFinished: true },
         { headers: { Authorization: `Bearer ${user.accessToken}` } },
       );
-      navigate('/experiments');
+      setOpen(true);
+      setSeverity('success');
+      setMessage(t('experiment_finished_success'));
+      setTimeout(() => {
+        navigate('/experiments');
+      }, 1500);
     } catch (error) {
       setOpen(true);
       setSeverity('error');
-      setMessage(error?.message || String(error));
+      setMessage(t('experiment_finish_error'));
     }
   };
 

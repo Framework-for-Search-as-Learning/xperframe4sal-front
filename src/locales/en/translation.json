@@ -144,6 +144,8 @@
   "executions_list": "Executions List",
   "finalizar": "Finish",
   "finish_experiment": "Finish experiment",
+  "experiment_finished_success": "Experiment finished successfully!",
+  "experiment_finish_error": "Error finishing experiment",  
   "finalizar_tarefa": "Once you finish the task, you will no longer have access to it and will be redirected to answer the final questionnaires.",
   "forgot_password": "Forgot Password?",
   "forgot_password_title": "Forgot your password?",
