@@ -489,15 +489,14 @@
   "download_draft_backup": "Baixar rascunho (.yaml)",
   "retry": "Tentar novamente",
   "draft_export_error": "Erro ao gerar o backup do rascunho.",
-  "import_draft": "Importar rascunho (.yaml)",
-  "draft_imported_success": "Rascunho importado com sucesso!",
-  "draft_import_error": "Erro ao importar o rascunho.",
-  "draft_import_invalid_file": "Arquivo de rascunho inválido.",
   "draft_badge_label": "Rascunho",
   "draft_card_untitled": "Experimento sem título",
   "draft_card_last_saved": "Salvo automaticamente em {{date}}",
   "draft_card_continue": "Continuar rascunho",
   "draft_card_discard": "Descartar",
   "discard_draft_title": "Descartar rascunho?",
-  "discard_draft_message": "Isso vai apagar definitivamente o rascunho do experimento em andamento. Essa ação não pode ser desfeita."
+  "discard_draft_message": "Isso vai apagar definitivamente o rascunho do experimento em andamento. Essa ação não pode ser desfeita.",
+  "autosave_saving": "Salvando rascunho...",
+  "autosave_saved": "Rascunho salvo automaticamente",
+  "autosave_error": "Não foi possível salvar o rascunho automaticamente no servidor. Seu progresso continua neste navegador, mas recomendamos pausar até a conexão ser restabelecida, para não perder o trabalho caso este navegador seja fechado ou trave."
 }

@@ -21,6 +21,7 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  LinearProgress,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
@@ -32,6 +33,7 @@ import ExperimentICF from '../components/ExperimentForms/ExperimentICF';
 import ExperimentMetadataForm from '../components/ExperimentForms/ExperimentMetadataForm';
 import StudyDesignForm from '../components/ExperimentForms/StudyDesignForm';
 import {
+  AUTOSAVE_STATUS,
   clearExperimentDraft,
   clearExperimentDraftFromServer,
   isExperimentDraftMeaningful,
@@ -85,7 +87,6 @@ const CreateExperiment = () => {
   const [isCurrentStepValid, setIsCurrentStepValid] = useState(true);
 
   const [saveFailure, setSaveFailure] = useState({ open: false, message: '' });
-  const draftFileInputRef = useRef(null);
 
   const applyDraftValues = (values) => {
     setExperimentTitle(values.ExperimentTitle || '');
@@ -128,7 +129,9 @@ const CreateExperiment = () => {
     ExperimentSurveys,
   };
 
-  useExperimentDraftAutosave(user, currentDraftValues, { enabled: !isDraftPromptOpen });
+  const autosaveStatus = useExperimentDraftAutosave(user, currentDraftValues, {
+    enabled: !isDraftPromptOpen,
+  });
 
   const [feedback, setFeedback] = useState({
     open: false,
@@ -179,45 +182,6 @@ const CreateExperiment = () => {
       setFeedback({
         open: true,
         message: t('draft_export_error'),
-        severity: 'error',
-        isLoading: false,
-      });
-    }
-  };
-
-  const handleDraftFileSelected = async (event) => {
-    const file = event.target.files[0];
-    event.target.value = '';
-    if (!file) return;
-
-    if (!file.name.endsWith('.yaml') && !file.name.endsWith('.yml')) {
-      setFeedback({
-        open: true,
-        message: t('import_invalid_file'),
-        severity: 'error',
-        isLoading: false,
-      });
-      return;
-    }
-
-    try {
-      const text = await file.text();
-      const parsed = yaml.load(text);
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        throw new Error('Invalid draft structure');
-      }
-      applyDraftValues(parsed);
-      setFeedback({
-        open: true,
-        message: t('draft_imported_success'),
-        severity: 'success',
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error('Erro ao importar rascunho:', error);
-      setFeedback({
-        open: true,
-        message: t('draft_import_invalid_file'),
         severity: 'error',
         isLoading: false,
       });
@@ -401,18 +365,23 @@ const CreateExperiment = () => {
         {t('Experiment_create')}
       </Typography>
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-        <input
-          ref={draftFileInputRef}
-          type="file"
-          accept=".yaml,.yml"
-          style={{ display: 'none' }}
-          onChange={handleDraftFileSelected}
+      {(autosaveStatus === AUTOSAVE_STATUS.SAVING || autosaveStatus === AUTOSAVE_STATUS.SAVED) && (
+        <LinearProgress
+          role="status"
+          aria-label={t(
+            autosaveStatus === AUTOSAVE_STATUS.SAVING ? 'autosave_saving' : 'autosave_saved',
+          )}
+          sx={{ position: 'fixed', top: 0, left: 0, width: '100%', height: 3, zIndex: 1400 }}
         />
-        <Button size="small" onClick={() => draftFileInputRef.current?.click()}>
-          {t('import_draft')}
-        </Button>
-      </Box>
+      )}
+
+      {autosaveStatus === AUTOSAVE_STATUS.ERROR && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          <Alert severity="warning" sx={{ py: 0, alignItems: 'center' }}>
+            {t('autosave_error')}
+          </Alert>
+        </Box>
+      )}
 
       <Stepper sx={{ display: { xs: 'none', sm: 'flex' } }} activeStep={step} alternativeLabel>
         {STEPS.map((s) => (

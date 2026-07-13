@@ -3,11 +3,18 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../config/axios';
 
 const DRAFT_VERSION = 1;
 const AUTOSAVE_DEBOUNCE_MS = 800;
+
+export const AUTOSAVE_STATUS = {
+  IDLE: 'idle',
+  SAVING: 'saving',
+  SAVED: 'saved',
+  ERROR: 'error',
+};
 
 const storageKey = (userId) => `experiment_draft_${userId}`;
 
@@ -45,15 +52,17 @@ export const isExperimentDraftMeaningful = (draft) => {
 // browser too, not just a crash. Best-effort: the local copy in
 // localStorage remains the source of truth if this fails (offline backend).
 export const saveExperimentDraftToServer = async (user, values) => {
-  if (!user?.id) return;
+  if (!user?.id) return false;
   try {
     await api.put(
       `/experiment-draft/${user.id}`,
       { payload: values },
       { headers: { Authorization: `Bearer ${user.accessToken}` } },
     );
+    return true;
   } catch (error) {
     console.error('Erro ao salvar rascunho do experimento no servidor:', error);
+    return false;
   }
 };
 
@@ -98,11 +107,22 @@ export const pickFreshestDraft = (localDraft, serverDraft) => {
 
 // Persists `values` to localStorage (debounced) so an in-progress experiment
 // survives backend failures, refreshes or crashes before the final submit.
-// Also mirrors the same values to the backend when reachable.
+// Also mirrors the same values to the backend when reachable, and reports
+// the outcome so the caller can warn the user when the backend is unreachable.
 export const useExperimentDraftAutosave = (user, values, { enabled }) => {
   const timeoutRef = useRef(null);
+  const savedFeedbackTimeoutRef = useRef(null);
   const lastSavedRef = useRef(null);
   const userId = user?.id;
+  const [status, setStatus] = useState(AUTOSAVE_STATUS.IDLE);
+
+  useEffect(
+    () => () => {
+      clearTimeout(timeoutRef.current);
+      clearTimeout(savedFeedbackTimeoutRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!enabled || !userId) return undefined;
@@ -111,21 +131,34 @@ export const useExperimentDraftAutosave = (user, values, { enabled }) => {
     if (serialized === lastSavedRef.current) return undefined;
 
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = setTimeout(async () => {
       const draftWithMeta = {
         ...values,
         version: DRAFT_VERSION,
         savedAt: new Date().toISOString(),
       };
+      setStatus(AUTOSAVE_STATUS.SAVING);
       try {
         window.localStorage.setItem(storageKey(userId), JSON.stringify(draftWithMeta));
         lastSavedRef.current = serialized;
       } catch (error) {
         console.error('Erro ao salvar rascunho do experimento:', error);
       }
-      saveExperimentDraftToServer(user, draftWithMeta);
+      const savedToServer = await saveExperimentDraftToServer(user, draftWithMeta);
+
+      clearTimeout(savedFeedbackTimeoutRef.current);
+      if (savedToServer) {
+        setStatus(AUTOSAVE_STATUS.SAVED);
+        savedFeedbackTimeoutRef.current = setTimeout(() => {
+          setStatus(AUTOSAVE_STATUS.IDLE);
+        }, 500);
+      } else {
+        setStatus(AUTOSAVE_STATUS.ERROR);
+      }
     }, AUTOSAVE_DEBOUNCE_MS);
 
     return () => clearTimeout(timeoutRef.current);
   }, [user, userId, values, enabled]);
+
+  return status;
 };

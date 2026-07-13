@@ -488,15 +488,14 @@
   "download_draft_backup": "Download draft (.yaml)",
   "retry": "Retry",
   "draft_export_error": "Error generating the draft backup.",
-  "import_draft": "Import draft (.yaml)",
-  "draft_imported_success": "Draft imported successfully!",
-  "draft_import_error": "Error importing the draft.",
-  "draft_import_invalid_file": "Invalid draft file.",
   "draft_badge_label": "Draft",
   "draft_card_untitled": "Untitled experiment",
   "draft_card_last_saved": "Automatically saved on {{date}}",
   "draft_card_continue": "Continue draft",
   "draft_card_discard": "Discard",
   "discard_draft_title": "Discard draft?",
-  "discard_draft_message": "This will permanently delete the in-progress experiment draft. This action cannot be undone."
+  "discard_draft_message": "This will permanently delete the in-progress experiment draft. This action cannot be undone.",
+  "autosave_saving": "Saving draft...",
+  "autosave_saved": "Draft saved automatically",
+  "autosave_error": "Couldn't reach the server to save your draft automatically. Your progress is still kept in this browser, but we recommend pausing until the connection is restored, so you don't lose work if this browser is closed or crashes."
 }
