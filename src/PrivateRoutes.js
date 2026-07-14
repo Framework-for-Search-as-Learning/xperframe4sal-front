@@ -4,7 +4,7 @@
  */
 
 import { useState, React } from 'react';
-import { Outlet, useNavigate, Navigate } from 'react-router-dom';
+import { Outlet, useNavigate, Navigate, useLocation, matchPath } from 'react-router-dom';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -31,15 +31,19 @@ import {
 import HomeIcon from '@mui/icons-material/Home';
 import MailIcon from '@mui/icons-material/Mail';
 
+
 const drawerWidth = '240';
 
 export function PrivateRoutes(props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isOnTaskPage = !!matchPath('/experiments/:experimentId/tasks/:taskId', location.pathname);
 
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [taskInstructionHandler, setTaskInstructionHandler] = useState(null);
   const { window } = props;
 
   const isAuthenticated = !!(
@@ -167,7 +171,7 @@ export function PrivateRoutes(props) {
               style={{ height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
             />
           </Box>
-          <Box
+         <Box
             sx={{
               display: { xs: 'none', sm: 'flex' },
               gap: 1,
@@ -175,6 +179,15 @@ export function PrivateRoutes(props) {
               alignItems: 'center',
             }}
           >
+            {isOnTaskPage && (
+              <Button
+                sx={{ color: '#FFD54F', display: 'flex', alignItems: 'center' }}
+                onClick={() => taskInstructionHandler?.()}
+              >
+                {t('task_instructions_title')}
+              </Button>
+            )}
+
             <Button
               sx={{ color: '#fff', display: 'flex', alignItems: 'center' }}
               onClick={handleGoHome}
@@ -253,7 +266,7 @@ export function PrivateRoutes(props) {
       </nav>
       <Box component="main" sx={{ p: 2 }}>
         <Toolbar />
-        <Outlet />
+        <Outlet context={{ registerTaskInstructionHandler: setTaskInstructionHandler }} />
       </Box>
     </Box>
   ) : (
