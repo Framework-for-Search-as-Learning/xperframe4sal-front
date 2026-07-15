@@ -7,6 +7,7 @@ import React, { useContext } from 'react';
 import {
   Box,
   Button,
+  Checkbox,
   FormControl,
   InputLabel,
   Select,
@@ -18,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import StepContext from './context/StepContext';
 import FormStepContainer from '../../../components/Forms/FormStepContainer';
+import { RULES_EXPERIMENT_TYPES } from './constants/experimentConstants';
 
 const StudyDesignForm = () => {
   const { t } = useTranslation();
@@ -31,7 +33,23 @@ const StudyDesignForm = () => {
     isEditMode,
     handleSaveExperiment,
     ExperimentTasks,
+    ExperimentSurveys,
+    BalancedRuleType,
+    setBalancedRuleType,
+    BalancedSurveyId,
+    setBalancedSurveyId,
+    BalancedQuestionIds,
+    setBalancedQuestionIds,
   } = useContext(StepContext);
+
+  const balancedSurvey = ExperimentSurveys?.find(
+    (survey) => (survey._id || survey.uuid || survey.id) === BalancedSurveyId,
+  );
+
+  const handleBalancedSurveyChange = (event) => {
+    setBalancedSurveyId(event.target.value);
+    setBalancedQuestionIds([]);
+  };
 
   const getMethodExplanation = () => {
     switch (BtypeExperiment) {
@@ -98,6 +116,87 @@ const StudyDesignForm = () => {
           <Alert severity="info" variant="outlined" sx={{ mt: 1, width: '100%' }}>
             {getMethodExplanation()}
           </Alert>
+
+          {BtypeExperiment === 'balanced' && (
+            <>
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="balanced-survey-label">{t('select_survey')}</InputLabel>
+                <Select
+                  labelId="balanced-survey-label"
+                  label={t('select_survey')}
+                  value={BalancedSurveyId || ''}
+                  onChange={handleBalancedSurveyChange}
+                >
+                  {ExperimentSurveys?.length > 0 ? (
+                    ExperimentSurveys.map((survey) => (
+                      <MenuItem
+                        key={survey._id || survey.uuid || survey.id}
+                        value={survey._id || survey.uuid || survey.id}
+                      >
+                        {survey.title}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>{t('no_survey_available')}</MenuItem>
+                  )}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="balanced-rule-label">{t('Separation_rule')}</InputLabel>
+                <Select
+                  labelId="balanced-rule-label"
+                  label={t('Separation_rule')}
+                  value={BalancedRuleType || 'score'}
+                  onChange={(e) => setBalancedRuleType(e.target.value)}
+                >
+                  {RULES_EXPERIMENT_TYPES.map((stype) => (
+                    <MenuItem key={stype.value} value={stype.value}>
+                      {stype.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {BalancedRuleType === 'question' && (
+                <FormControl fullWidth margin="normal">
+                  <InputLabel id="balanced-question-label">{t('select_question')}</InputLabel>
+                  <Select
+                    labelId="balanced-question-label"
+                    label={t('select_question')}
+                    value={BalancedQuestionIds || []}
+                    onChange={(e) => setBalancedQuestionIds(e.target.value)}
+                    multiple
+                    renderValue={(selectedIds) =>
+                      balancedSurvey?.questions
+                        ?.filter((q) => selectedIds.includes(q.id))
+                        .map((q) => q.statement || 'Sem enunciado')
+                        .join(', ') || ''
+                    }
+                  >
+                    {balancedSurvey?.questions && balancedSurvey.questions.length > 0 ? (
+                      balancedSurvey.questions
+                        .filter(
+                          (q) =>
+                            (q.type === 'multiple-selection' || q.type === 'multiple-choices') &&
+                            q.hasscore,
+                        )
+                        .map((question) => (
+                          <MenuItem key={question.id} value={question.id}>
+                            <Checkbox
+                              checked={(BalancedQuestionIds || []).includes(question.id)}
+                            />
+                            {question.statement || 'Sem enunciado'}
+                          </MenuItem>
+                        ))
+                    ) : (
+                      <MenuItem disabled>{t('no_questions_available')}</MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+              )}
+            </>
+          )}
         </>
       )}
 

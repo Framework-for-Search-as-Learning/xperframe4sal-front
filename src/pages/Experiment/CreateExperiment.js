@@ -77,6 +77,9 @@ const CreateExperiment = () => {
   const [ExperimentDescICF, setExperimentDescICF] = useState('');
   const [ExperimentType, setExperimentType] = useState('within-subject');
   const [BtypeExperiment, setBtypeExperiment] = useState('random');
+  const [BalancedRuleType, setBalancedRuleType] = useState('score');
+  const [BalancedSurveyId, setBalancedSurveyId] = useState('');
+  const [BalancedQuestionIds, setBalancedQuestionIds] = useState([]);
   const [ExperimentDesc, setExperimentDesc] = useState('');
   const [ExperimentTasks, setExperimentTasks] = useState([]);
   const [ExperimentSurveys, setExperimentSurveys] = useState([]);
@@ -94,6 +97,9 @@ const CreateExperiment = () => {
     setExperimentDescICF(values.ExperimentDescICF || '');
     setExperimentType(values.ExperimentType || 'within-subject');
     setBtypeExperiment(values.BtypeExperiment || 'random');
+    setBalancedRuleType(values.BalancedRuleType || 'score');
+    setBalancedSurveyId(values.BalancedSurveyId || '');
+    setBalancedQuestionIds(values.BalancedQuestionIds || []);
     setExperimentDesc(values.ExperimentDesc || '');
     setExperimentTasks(values.ExperimentTasks || []);
     setExperimentSurveys(values.ExperimentSurveys || []);
@@ -124,6 +130,9 @@ const CreateExperiment = () => {
     ExperimentDescICF,
     ExperimentType,
     BtypeExperiment,
+    BalancedRuleType,
+    BalancedSurveyId,
+    BalancedQuestionIds,
     ExperimentDesc,
     ExperimentTasks,
     ExperimentSurveys,
@@ -234,6 +243,12 @@ const CreateExperiment = () => {
           summary: ExperimentDesc,
           typeExperiment: ExperimentType,
           betweenExperimentType: BtypeExperiment,
+          balancedRuleType: BtypeExperiment === 'balanced' ? BalancedRuleType : undefined,
+          balancedSurveyId: BtypeExperiment === 'balanced' ? BalancedSurveyId || undefined : undefined,
+          balancedQuestionIds:
+            BtypeExperiment === 'balanced' && BalancedRuleType === 'question'
+              ? BalancedQuestionIds
+              : undefined,
           surveysProps: ExperimentSurveys,
           tasksProps: ExperimentTasks,
           icf: experimentIcf,
@@ -430,6 +445,12 @@ const CreateExperiment = () => {
           setExperimentType,
           BtypeExperiment,
           setBtypeExperiment,
+          BalancedRuleType,
+          setBalancedRuleType,
+          BalancedSurveyId,
+          setBalancedSurveyId,
+          BalancedQuestionIds,
+          setBalancedQuestionIds,
           ExperimentDesc,
           setExperimentDesc,
           ExperimentTasks,
