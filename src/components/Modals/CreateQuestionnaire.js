@@ -40,6 +40,7 @@ const QUESTION_TYPES = (t) => [
   { value: 'multiple-choices', label: t('multiple_choices') },
   { value: 'multiple-selection', label: t('multiple_selection') },
   { value: 'open', label: t('open') },
+  { value: 'short-answer', label: t('short_answer') },
 ];
 
 const CreateQuestionnaire = ({

@@ -368,6 +368,7 @@ const Question = ({ question, questionIndex, callback, params, initialAnswer }) 
             }
             {question.required && <span style={{ color: 'red' }}> *</span>}
           </Typography>
+
           <TextField
             name={Math.random().toString(36).substring(2, 10) + questionIndex}
             label={t('answer') || 'Answer'}
@@ -387,6 +388,39 @@ const Question = ({ question, questionIndex, callback, params, initialAnswer }) 
           />
         </>
       )}
+
+      {question.type === 'short-answer' && (
+        <>
+          <Typography variant="body1">
+            {
+              <span>
+                {' '}
+                {questionIndex + 1}
+                {') '}
+                <span dangerouslySetInnerHTML={{ __html: question.statement }} />{' '}
+              </span>
+            }
+            {question.required && <span style={{ color: 'red' }}> *</span>}
+          </Typography>
+
+          <TextField
+            name={Math.random().toString(36).substring(2, 10) + questionIndex}
+            label={t('answer') || 'Answer'}
+            variant="outlined"
+            fullWidth
+            defaultValue={initialAnswer?.textAnswer ?? ''}
+            helperText={
+              question.helperText ? (
+                <span dangerouslySetInnerHTML={{ __html: question.helperText }} />
+              ) : (
+                ''
+              )
+            }
+            onChange={(event) => handleChangeOpen(question.statement, questionIndex, event)}
+          />
+        </>
+      )}
+
       <Divider variant="fullWidth" />
     </div>
   );
