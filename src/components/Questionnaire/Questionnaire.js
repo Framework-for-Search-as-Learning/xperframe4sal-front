@@ -20,6 +20,8 @@ import {
   Divider,
 } from '@mui/material';
 
+import RichTextField from './RichTextField';
+
 import { FunctionsToOptions } from './FunctionsToOptions';
 
 function buildInitialFormData(initialAnswers, questions) {
@@ -369,6 +371,13 @@ const Question = ({ question, questionIndex, callback, params, initialAnswer }) 
             {question.required && <span style={{ color: 'red' }}> *</span>}
           </Typography>
 
+          {question.richText ? (
+            <RichTextField
+              defaultValue={initialAnswer?.textAnswer ?? ''}
+              onChange={(event) => handleChangeOpen(question.statement, questionIndex, event)}
+            />
+          ) : (
+
           <TextField
             sx={{ mt: 1 }}
             name={Math.random().toString(36).substring(2, 10) + questionIndex}
@@ -386,7 +395,8 @@ const Question = ({ question, questionIndex, callback, params, initialAnswer }) 
               )
             }
             onChange={(event) => handleChangeOpen(question.statement, questionIndex, event)}
-          />
+              />
+          )}
         </>
       )}
 
@@ -404,10 +414,17 @@ const Question = ({ question, questionIndex, callback, params, initialAnswer }) 
             {question.required && <span style={{ color: 'red' }}> *</span>}
           </Typography>
 
+            {question.richText ? (
+            <RichTextField
+              defaultValue={initialAnswer?.textAnswer ?? ''}
+              onChange={(event) => handleChangeOpen(question.statement, questionIndex, event)}
+            />
+          ) : (
+
           <TextField
             sx={{ mt: 1 }}
             name={Math.random().toString(36).substring(2, 10) + questionIndex}
-            label={t('answer') || 'Answer'}
+            label={t('short-answer') || 'Short Answer'}
             variant="outlined"
             fullWidth
             defaultValue={initialAnswer?.textAnswer ?? ''}
@@ -419,7 +436,8 @@ const Question = ({ question, questionIndex, callback, params, initialAnswer }) 
               )
             }
             onChange={(event) => handleChangeOpen(question.statement, questionIndex, event)}
-          />
+            />
+          )}
         </>
       )}
 
