@@ -129,7 +129,7 @@ const CreateQuestionnaire = ({
     >
       <DialogContent sx={{ backgroundColor: '#f9f9f9', p: { xs: 2, sm: 3 } }}>
         <Typography variant="h5" align="center" gutterBottom sx={{ fontWeight: 600 }}>
-          {t('create_survey')}
+          {t('add_questionnaire')}
         </Typography>
 
         <form onSubmit={handleSubmit}>
@@ -235,7 +235,7 @@ const CreateQuestionnaire = ({
               color="primary"
               disabled={!isValid || hasEmptyStatement || isLoading}
             >
-              {isLoading ? <CircularProgress size={24} /> : t('create_survey')}
+              {isLoading ? <CircularProgress size={24} /> : t('save')}
             </Button>
           </Box>
           <Box sx={{ display: { xs: 'flex', sm: 'none' }, justifyContent: 'space-between', mt: 2 }}>

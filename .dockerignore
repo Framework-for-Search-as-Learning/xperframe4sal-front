@@ -8,7 +8,10 @@ dist
 .env
 .env.local
 .DS_Store
+.pnpm-store
+pnpm-lock.yaml
 Dockerfile
 Dockerfile.dev
 docker-compose.yml
 README.md
+.next

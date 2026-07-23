@@ -3,21 +3,25 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Box,
   Button,
+  Checkbox,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   Typography,
   Alert,
+  Link,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import StepContext from './context/StepContext';
 import FormStepContainer from '../../../components/Forms/FormStepContainer';
+import GroupSeparationInfoModal from '../../../components/Modals/GroupSeparationInfoModal';
+import { RULES_EXPERIMENT_TYPES } from './constants/experimentConstants';
 
 const StudyDesignForm = () => {
   const { t } = useTranslation();
@@ -31,9 +35,30 @@ const StudyDesignForm = () => {
     isEditMode,
     handleSaveExperiment,
     ExperimentTasks,
+    ExperimentSurveys,
+    BalancedRuleType,
+    setBalancedRuleType,
+    BalancedSurveyId,
+    setBalancedSurveyId,
+    BalancedQuestionIds,
+    setBalancedQuestionIds,
   } = useContext(StepContext);
 
+  const [isSeparationInfoOpen, setIsSeparationInfoOpen] = useState(false);
+
+  const balancedSurvey = ExperimentSurveys?.find(
+    (survey) => (survey._id || survey.uuid || survey.id) === BalancedSurveyId,
+  );
+
+  const handleBalancedSurveyChange = (event) => {
+    setBalancedSurveyId(event.target.value);
+    setBalancedQuestionIds([]);
+  };
+
   const getMethodExplanation = () => {
+    if (ExperimentType === 'within-subject') {
+      return t('explanation_within');
+    }
     switch (BtypeExperiment) {
       case 'random':
         return t('explanation_random');
@@ -41,6 +66,8 @@ const StudyDesignForm = () => {
         return t('explanation_rules');
       case 'manual':
         return t('explanation_manual');
+      case 'balanced':
+        return t('explanation_balanced');
       default:
         return '';
     }
@@ -57,6 +84,20 @@ const StudyDesignForm = () => {
         {t('step_design')}
       </Typography>
 
+      {(ExperimentType === 'within-subject' || (isBetweenSubject && BtypeExperiment)) && (
+        <Alert severity="info" variant="outlined" sx={{ mb: 2, width: '100%' }}>
+          {getMethodExplanation()}{' '}
+          <Link
+            component="button"
+            type="button"
+            onClick={() => setIsSeparationInfoOpen(true)}
+            sx={{ fontWeight: 600, verticalAlign: 'baseline' }}
+          >
+            {t('learn_more')}
+          </Link>
+        </Alert>
+      )}
+
       <FormControl fullWidth margin="normal">
         <InputLabel id="type-label">{t('Experiment_Type')}</InputLabel>
         <Select
@@ -69,12 +110,6 @@ const StudyDesignForm = () => {
           <MenuItem value="within-subject">{t('within-subject')}</MenuItem>
         </Select>
       </FormControl>
-
-      {ExperimentType === 'within-subject' && (
-        <Alert severity="info" variant="outlined" sx={{ mt: 1, width: '100%' }}>
-          {t('explanation_within')}
-        </Alert>
-      )}
 
       {ExperimentType === 'between-subject' && (
         <>
@@ -89,12 +124,110 @@ const StudyDesignForm = () => {
               <MenuItem value="random">{t('random')}</MenuItem>
               <MenuItem value="rules_based">{t('rules_based')}</MenuItem>
               <MenuItem value="manual">{t('manual')}</MenuItem>
+              <MenuItem value="balanced">{t('balanced')}</MenuItem>
             </Select>
           </FormControl>
 
-          <Alert severity="info" variant="outlined" sx={{ mt: 1, width: '100%' }}>
-            {getMethodExplanation()}
-          </Alert>
+          {BtypeExperiment === 'balanced' && (
+            <>
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="balanced-survey-label">{t('select_survey')}</InputLabel>
+                <Select
+                  labelId="balanced-survey-label"
+                  label={t('select_survey')}
+                  value={BalancedSurveyId || ''}
+                  onChange={handleBalancedSurveyChange}
+                >
+                  {ExperimentSurveys?.length > 0 ? (
+                    ExperimentSurveys.map((survey) => (
+                      <MenuItem
+                        key={survey._id || survey.uuid || survey.id}
+                        value={survey._id || survey.uuid || survey.id}
+                      >
+                        {survey.title}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem disabled>{t('no_survey_available')}</MenuItem>
+                  )}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="balanced-rule-label">{t('Separation_rule')}</InputLabel>
+                <Select
+                  labelId="balanced-rule-label"
+                  label={t('Separation_rule')}
+                  value={BalancedRuleType || 'score'}
+                  onChange={(e) => setBalancedRuleType(e.target.value)}
+                >
+                  {RULES_EXPERIMENT_TYPES.map((stype) => (
+                    <MenuItem key={stype.value} value={stype.value}>
+                      {stype.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {BalancedRuleType === 'question' && (
+                <FormControl
+                  fullWidth
+                  margin="normal"
+                  sx={{ minWidth: 0, maxWidth: '100%' }}
+                >
+                  <InputLabel id="balanced-question-label">{t('select_question')}</InputLabel>
+                  <Select
+                    labelId="balanced-question-label"
+                    label={t('select_question')}
+                    value={BalancedQuestionIds || []}
+                    onChange={(e) => setBalancedQuestionIds(e.target.value)}
+                    multiple
+                    sx={{
+                      minWidth: 0,
+                      maxWidth: '100%',
+                      '& .MuiSelect-select': {
+                        display: 'block',
+                        minWidth: 0,
+                        maxWidth: '100%',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      },
+                    }}
+                    renderValue={(selectedIds) => {
+                      const labels =
+                        balancedSurvey?.questions
+                          ?.filter((q) => selectedIds.includes(q.id))
+                          .map((q) => q.statement || 'Sem enunciado') || [];
+
+                      if (labels.length === 0) return '';
+                      if (labels.length === 1) return labels[0];
+                      return t('questions_selected_count', { count: labels.length });
+                    }}
+                  >
+                    {balancedSurvey?.questions && balancedSurvey.questions.length > 0 ? (
+                      balancedSurvey.questions
+                        .filter(
+                          (q) =>
+                            (q.type === 'multiple-selection' || q.type === 'multiple-choices') &&
+                            q.hasscore,
+                        )
+                        .map((question) => (
+                          <MenuItem key={question.id} value={question.id}>
+                            <Checkbox
+                              checked={(BalancedQuestionIds || []).includes(question.id)}
+                            />
+                            {question.statement || 'Sem enunciado'}
+                          </MenuItem>
+                        ))
+                    ) : (
+                      <MenuItem disabled>{t('no_questions_available')}</MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+              )}
+            </>
+          )}
         </>
       )}
 
@@ -166,6 +299,11 @@ const StudyDesignForm = () => {
           {isEditMode ? t('save') : <ArrowForward />}
         </Button>
       </Box>
+
+      <GroupSeparationInfoModal
+        open={isSeparationInfoOpen}
+        onClose={() => setIsSeparationInfoOpen(false)}
+      />
     </FormStepContainer>
   );
 };
