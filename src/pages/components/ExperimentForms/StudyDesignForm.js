@@ -170,7 +170,11 @@ const StudyDesignForm = () => {
               </FormControl>
 
               {BalancedRuleType === 'question' && (
-                <FormControl fullWidth margin="normal" sx={{ minWidth: 0 }}>
+                <FormControl
+                  fullWidth
+                  margin="normal"
+                  sx={{ minWidth: 0, maxWidth: '100%' }}
+                >
                   <InputLabel id="balanced-question-label">{t('select_question')}</InputLabel>
                   <Select
                     labelId="balanced-question-label"
@@ -179,19 +183,27 @@ const StudyDesignForm = () => {
                     onChange={(e) => setBalancedQuestionIds(e.target.value)}
                     multiple
                     sx={{
+                      minWidth: 0,
+                      maxWidth: '100%',
                       '& .MuiSelect-select': {
+                        display: 'block',
+                        minWidth: 0,
+                        maxWidth: '100%',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
-                        display: 'block',
                       },
                     }}
-                    renderValue={(selectedIds) =>
-                      balancedSurvey?.questions
-                        ?.filter((q) => selectedIds.includes(q.id))
-                        .map((q) => q.statement || 'Sem enunciado')
-                        .join(', ') || ''
-                    }
+                    renderValue={(selectedIds) => {
+                      const labels =
+                        balancedSurvey?.questions
+                          ?.filter((q) => selectedIds.includes(q.id))
+                          .map((q) => q.statement || 'Sem enunciado') || [];
+
+                      if (labels.length === 0) return '';
+                      if (labels.length === 1) return labels[0];
+                      return t('questions_selected_count', { count: labels.length });
+                    }}
                   >
                     {balancedSurvey?.questions && balancedSurvey.questions.length > 0 ? (
                       balancedSurvey.questions

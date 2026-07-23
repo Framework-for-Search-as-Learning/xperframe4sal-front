@@ -233,6 +233,7 @@
   "questionType": "Tipo",
   "questionnaire_list_header": "Veja a seguir a lista de questionários disponíveis para você:",
   "questions": "Questões",
+  "questions_selected_count": "{{count}} questões selecionadas",
   "questionnaires_monitoring_tab": "Questionários",
   "queries": "Consultas",
   "queries_made": "Consultas Realizadas",

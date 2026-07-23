@@ -234,6 +234,7 @@
   "questionType": "Type",
   "questionnaire_list_header": "Here is the list of available surveys for you:",
   "questions": "Questions",
+  "questions_selected_count": "{{count}} questions selected",
   "queries": "Queries",
   "queries_made": "Queries Made",
   "random": "Random",
