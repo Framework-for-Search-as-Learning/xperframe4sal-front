@@ -386,7 +386,14 @@ const CreateExperiment = () => {
           aria-label={t(
             autosaveStatus === AUTOSAVE_STATUS.SAVING ? 'autosave_saving' : 'autosave_saved',
           )}
-          sx={{ position: 'fixed', top: 0, left: 0, width: '100%', height: 3, zIndex: 1400 }}
+          sx={{
+            position: 'fixed',
+            top: { xs: 56, sm: 64 },
+            left: 0,
+            width: '100%',
+            height: 3,
+            zIndex: 1400,
+          }}
         />
       )}
 
