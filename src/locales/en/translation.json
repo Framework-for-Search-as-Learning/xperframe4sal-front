@@ -449,7 +449,7 @@
   "explanation_random": "Participants are randomly allocated across task groups.",
   "explanation_rules": "Participants are separated into groups based on weights assigned to questionnaire responses.",
   "explanation_manual": "Participants are manually allocated. You will need to edit participants after experiment creation to assign them to tasks.",
-  "explanation_balanced": "Participants are assigned to the group with the lowest average questionnaire score, keeping group performance as even as possible.",
+  "explanation_balanced": "Participants are assigned to the group with the lowest average score, keeping group performance as even as possible. The score can be calculated from all scored questions in the questionnaire or from a single specific question.",
   "at_least_one_option_required": "Add at least one option",
   "choice_questions_need_options": "Multiple choice questions need at least one option",
   "error_creating_survey": "Error creating questionnaire",

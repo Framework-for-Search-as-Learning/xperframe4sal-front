@@ -450,7 +450,7 @@
   "explanation_random": "Os participantes são alocados aleatoriamente entre os grupos de tarefas.",
   "explanation_rules": "Os participantes são separados em grupos com base em pesos atribuídos às respostas dos questionários.",
   "explanation_manual": "Os participantes são alocados manualmente. Será necessário editar os participantes após a criação do experimento para atribuí-los às tarefas.",
-  "explanation_balanced": "Os participantes são alocados no grupo com a menor média de pontuação no questionário, mantendo o desempenho dos grupos o mais equilibrado possível.",
+  "explanation_balanced": "Os participantes são alocados no grupo com a menor média de pontuação, mantendo o desempenho dos grupos o mais equilibrado possível. A pontuação pode ser calculada com base em todas as questões com pontuação do questionário ou em apenas uma questão específica.",
   "at_least_one_option_required": "Adicione ao menos uma opção",
   "choice_questions_need_options": "Questões de múltipla escolha precisam de ao menos uma opção",
   "error_creating_survey": "Erro ao criar questionário",

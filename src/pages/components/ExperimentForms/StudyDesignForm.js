@@ -170,7 +170,7 @@ const StudyDesignForm = () => {
               </FormControl>
 
               {BalancedRuleType === 'question' && (
-                <FormControl fullWidth margin="normal">
+                <FormControl fullWidth margin="normal" sx={{ minWidth: 0 }}>
                   <InputLabel id="balanced-question-label">{t('select_question')}</InputLabel>
                   <Select
                     labelId="balanced-question-label"
@@ -178,6 +178,14 @@ const StudyDesignForm = () => {
                     value={BalancedQuestionIds || []}
                     onChange={(e) => setBalancedQuestionIds(e.target.value)}
                     multiple
+                    sx={{
+                      '& .MuiSelect-select': {
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        display: 'block',
+                      },
+                    }}
                     renderValue={(selectedIds) =>
                       balancedSurvey?.questions
                         ?.filter((q) => selectedIds.includes(q.id))
