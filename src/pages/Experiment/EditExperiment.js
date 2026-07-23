@@ -50,6 +50,9 @@ const EditExperiment = () => {
   const [ExperimentTitle, setExperimentTitle] = useState('');
   const [ExperimentType, setExperimentType] = useState('within-subject');
   const [BtypeExperiment, setBtypeExperiment] = useState('random');
+  const [BalancedRuleType, setBalancedRuleType] = useState('score');
+  const [BalancedSurveyId, setBalancedSurveyId] = useState('');
+  const [BalancedQuestionIds, setBalancedQuestionIds] = useState([]);
   const [ExperimentDesc, setExperimentDesc] = useState('');
   const [Icfid, setIcfid] = useState('');
   const [ExperimentTitleICF, setExperimentTitleICF] = useState('');
@@ -111,6 +114,9 @@ const EditExperiment = () => {
       setExperimentTitle(experimentData.name || '');
       setExperimentType(experimentData.typeExperiment || 'within-subject');
       setBtypeExperiment(experimentData.betweenExperimentType || 'random');
+      setBalancedRuleType(experimentData.balancedRuleType || 'score');
+      setBalancedSurveyId(experimentData.balancedSurveyId || '');
+      setBalancedQuestionIds(experimentData.balancedQuestionIds || []);
       setExperimentDesc(experimentData.summary || '');
 
       fetchIcf();
@@ -127,6 +133,12 @@ const EditExperiment = () => {
           summary: ExperimentDesc,
           typeExperiment: ExperimentType,
           betweenExperimentType: BtypeExperiment,
+          balancedRuleType: BtypeExperiment === 'balanced' ? BalancedRuleType : null,
+          balancedSurveyId: BtypeExperiment === 'balanced' ? BalancedSurveyId || null : null,
+          balancedQuestionIds:
+            BtypeExperiment === 'balanced' && BalancedRuleType === 'question'
+              ? BalancedQuestionIds
+              : [],
         };
         await api.patch(`/experiment/${experimentId}`, updatedExperiment, {
           headers: { Authorization: `Bearer ${user.accessToken}` },
@@ -209,6 +221,12 @@ const EditExperiment = () => {
             setExperimentType,
             BtypeExperiment,
             setBtypeExperiment,
+            BalancedRuleType,
+            setBalancedRuleType,
+            BalancedSurveyId,
+            setBalancedSurveyId,
+            BalancedQuestionIds,
+            setBalancedQuestionIds,
             ExperimentDesc,
             setExperimentDesc,
             ExperimentTitleICF,

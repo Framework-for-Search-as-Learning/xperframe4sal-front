@@ -37,6 +37,7 @@ const useQuestionnaireForm = (initial = {}) => {
         required: false,
         hasscore: false,
         options: [],
+        richText: false,
       },
     ]);
   };
@@ -67,6 +68,7 @@ const useQuestionnaireForm = (initial = {}) => {
         type: q.type,
         required: q.required,
         hasscore: q.hasscore,
+        richText: q.richText,
       };
       if (q.type === 'open') {
         question.options = [];

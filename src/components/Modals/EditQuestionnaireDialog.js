@@ -34,6 +34,7 @@ const QUESTION_TYPES = (t) => [
   { value: 'open', label: t('open') },
   { value: 'multiple-selection', label: t('multiple_selection') },
   { value: 'multiple-choices', label: t('multiple_choices') },
+  { value: 'short-answer', label: t('short_answer') },
 ];
 
 const EditQuestionnaireDialog = ({ open, onClose, survey, onSave }) => {

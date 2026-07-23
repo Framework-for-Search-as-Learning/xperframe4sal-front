@@ -88,9 +88,9 @@ const ExperimentTask = () => {
         message:
           ExperimentType === 'between-subject'
             ? t('cannot_delete_min_2_tasks') ||
-              "Não é possível excluir. Experimentos 'Between-subject' exigem pelo menos 2 tarefas."
+            "Não é possível excluir. Experimentos 'Between-subject' exigem pelo menos 2 tarefas."
             : t('cannot_delete_min_1_task') ||
-              'Não é possível excluir a única tarefa do experimento.',
+            'Não é possível excluir a única tarefa do experimento.',
         severity: 'warning',
       });
       handleCloseDeleteDialog();
@@ -162,39 +162,23 @@ const ExperimentTask = () => {
     toggleCreateTask();
   };
 
-  const handleEditTask = async (index) => {
-    setEditTaskIndex(index);
-    let task = ExperimentTasks[index];
-
-    if (isEditMode) {
-      try {
-        setIsLoadingTask(true);
-        const taskId = task._id || task.id || task.uuid;
-        const response = await api.get(`task/${taskId}`, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        });
-        task = response.data;
-      } catch (error) {
-        console.error('Erro ao carregar tarefa:', error);
-      } finally {
-        setIsLoadingTask(false);
-      }
-    }
-
+  const populateFormFromTask = async (form, task, { copySecrets, titleTransform } = {}) => {
     const config = task.provider_config || {};
     const masked = task.provider_config_masked?.masked || config;
 
-    editForm.setTaskTitle(task.title);
-    editForm.setTaskSummary(task.summary);
-    editForm.setTaskDescription(task.description);
+    form.setTaskTitle(titleTransform ? titleTransform(task.title) : task.title);
+    form.setTaskSummary(task.summary);
+    form.setTaskDescription(task.description);
+    form.setIsValidTitleTask(true);
+    form.setIsValidSumaryTask(true);
 
     const ruleType = task.rule_type || task.RulesExperiment || 'score';
-    editForm.setRulesExperiment(ruleType);
+    form.setRulesExperiment(ruleType);
 
     const minScore = task.min_score ?? task.ScoreThreshold ?? 0;
     const maxScore = task.max_score ?? task.ScoreThresholdmx ?? 0;
-    editForm.setScoreThreshold(minScore);
-    editForm.setScoreThresholdmx(maxScore);
+    form.setScoreThreshold(minScore);
+    form.setScoreThresholdmx(maxScore);
     setscoreType(minScore !== maxScore ? 'min_max' : 'unic');
 
     let loadedQuestionIds = [];
@@ -204,8 +188,8 @@ const ExperimentTask = () => {
         const [questionsResponse, linkedSurveysResponse] = await Promise.all([
           ruleType === 'question'
             ? api.get(`task-question-map/task/${taskId}`, {
-                headers: { Authorization: `Bearer ${user.accessToken}` },
-              })
+              headers: { Authorization: `Bearer ${user.accessToken}` },
+            })
             : Promise.resolve({ data: [] }),
           api.get(`task-survey/task/${taskId}`, {
             headers: { Authorization: `Bearer ${user.accessToken}` },
@@ -214,23 +198,23 @@ const ExperimentTask = () => {
 
         if (ruleType === 'question') {
           loadedQuestionIds = questionsResponse.data || [];
-          editForm.setSelectedQuestionIds(loadedQuestionIds.map((id) => ({ id })));
+          form.setSelectedQuestionIds(loadedQuestionIds.map((id) => ({ id })));
         } else {
-          editForm.setSelectedQuestionIds([]);
+          form.setSelectedQuestionIds([]);
         }
 
         const linkedSurveyIds = (linkedSurveysResponse.data || []).map((s) => s._id);
-        editForm.setLinkedSurveyRefs(linkedSurveyIds);
+        form.setLinkedSurveyRefs(linkedSurveyIds);
       } catch (error) {
         console.error('Erro ao carregar dados da tarefa:', error);
-        editForm.setSelectedQuestionIds([]);
-        editForm.setLinkedSurveyRefs([]);
+        form.setSelectedQuestionIds([]);
+        form.setLinkedSurveyRefs([]);
       }
     } else {
       const rawQuestions = task.questionsId || task.selectedQuestionIds || [];
       loadedQuestionIds = rawQuestions.map((q) => (typeof q === 'string' ? q : q.id));
-      editForm.setSelectedQuestionIds(loadedQuestionIds.map((id) => ({ id })));
-      editForm.setLinkedSurveyRefs(task.linkedSurveyRefs || []);
+      form.setSelectedQuestionIds(loadedQuestionIds.map((id) => ({ id })));
+      form.setLinkedSurveyRefs(task.linkedSurveyRefs || []);
     }
 
     const surveyRef =
@@ -252,25 +236,88 @@ const ExperimentTask = () => {
           s.questions?.some((q) => loadedQuestionIds.includes(q._id || q.id || q.uuid)),
         ) || null;
     }
-    editForm.setSelectedSurvey(surveyObj);
+    form.setSelectedSurvey(surveyObj);
 
     const taskOrigin =
       task.search_source ||
       (config.modelProvider || config.model ? 'llm' : config.searchProvider ? 'search-engine' : '');
-    editForm.setOrigin(taskOrigin);
+    form.setOrigin(taskOrigin);
 
     if (taskOrigin === 'llm') {
-      editForm.setLlmProvider(config.modelProvider || '');
-      editForm.setLlm(config.model || '');
-      editForm.setGeminiApiKey(masked.apiKey || config.apiKey || '');
-      editForm.setSystemInstruction(config.systemInstruction || '');
+      form.setLlmProvider(config.modelProvider || '');
+      form.setLlm(config.model || '');
+      form.setGeminiApiKey(copySecrets ? masked.apiKey || config.apiKey || '' : '');
+      form.setSystemInstruction(config.systemInstruction || '');
     } else if (taskOrigin === 'search-engine') {
-      editForm.setSearchEngine(config.searchProvider || 'google');
-      editForm.setGoogleApikey(masked.apiKey || config.apiKey || '');
-      editForm.setGoogleCx(masked.cx || config.cx || '');
+      form.setSearchEngine(config.searchProvider || 'google');
+      form.setGoogleApikey(copySecrets ? masked.apiKey || config.apiKey || '' : '');
+      form.setGoogleCx(copySecrets ? masked.cx || config.cx || '' : '');
     }
 
+    return { taskOrigin };
+  };
+
+  const handleEditTask = async (index) => {
+    setEditTaskIndex(index);
+    let task = ExperimentTasks[index];
+
+    if (isEditMode) {
+      try {
+        setIsLoadingTask(true);
+        const taskId = task._id || task.id || task.uuid;
+        const response = await api.get(`task/${taskId}`, {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        });
+        task = response.data;
+      } catch (error) {
+        console.error('Erro ao carregar tarefa:', error);
+      } finally {
+        setIsLoadingTask(false);
+      }
+    }
+
+    await populateFormFromTask(editForm, task, { copySecrets: true });
+
     toggleEditTask();
+  };
+
+  const handleDuplicateTask = async (index) => {
+    let task = ExperimentTasks[index];
+
+    if (isEditMode) {
+      try {
+        setIsLoadingTask(true);
+        const taskId = task._id || task.id || task.uuid;
+        const response = await api.get(`task/${taskId}/duplicate-source`, {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        });
+        task = response.data;
+      } catch (error) {
+        console.error('Erro ao carregar tarefa para duplicar:', error);
+        setFeedback({
+          open: true,
+          message: t('error_duplicate') || 'Erro ao duplicar tarefa.',
+          severity: 'error',
+        });
+        setIsLoadingTask(false);
+        return;
+      } finally {
+        setIsLoadingTask(false);
+      }
+    }
+
+    await populateFormFromTask(createForm, task, {
+      copySecrets: true,
+      titleTransform: (title) => `${title} ${t('duplicate_task_title_suffix')}`,
+    });
+
+    setFeedback({
+      open: true,
+      message: t('success_duplicate'),
+      severity: 'info',
+    });
+
+    setIsCreateTaskOpen(true);
   };
 
   const handleEditTaskSubmit = async (e) => {
@@ -440,6 +487,7 @@ const ExperimentTask = () => {
               onToggleDescription={toggleTaskDescription}
               onEditTask={handleEditTask}
               onDeleteTask={handleOpenDeleteDialog}
+              onDuplicateTask={handleDuplicateTask}
               t={t}
             />
           ) : (

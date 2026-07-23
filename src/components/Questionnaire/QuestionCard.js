@@ -35,6 +35,7 @@ const QuestionCard = ({
   isDragging,
 }) => {
   const isChoice = q.type === 'multiple-selection' || q.type === 'multiple-choices';
+  const isTextType = q.type === 'open' || q.type === 'short-answer';
   const hasNoOptions = isChoice && q.options.length === 0;
   const OptionIcon = q.type === 'multiple-choices' ? Radio : Checkbox;
 
@@ -199,6 +200,19 @@ const QuestionCard = ({
               label={<Typography variant="caption">{t('score')}</Typography>}
             />
           </>
+        )}
+
+        {isTextType && (
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={Boolean(q.richText)}
+                onChange={(e) => onUpdate(q.id, 'richText', e.target.checked)}
+              />
+            }
+            label={<Typography variant="caption">{t('rich_Text')}</Typography>}
+          />
         )}
 
         <Box sx={{ marginLeft: 'auto' }}>
