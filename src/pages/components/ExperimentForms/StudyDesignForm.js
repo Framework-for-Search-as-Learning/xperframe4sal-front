@@ -3,7 +3,7 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Box,
   Button,
@@ -14,11 +14,13 @@ import {
   MenuItem,
   Typography,
   Alert,
+  Link,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import StepContext from './context/StepContext';
 import FormStepContainer from '../../../components/Forms/FormStepContainer';
+import GroupSeparationInfoModal from '../../../components/Modals/GroupSeparationInfoModal';
 import { RULES_EXPERIMENT_TYPES } from './constants/experimentConstants';
 
 const StudyDesignForm = () => {
@@ -42,6 +44,8 @@ const StudyDesignForm = () => {
     setBalancedQuestionIds,
   } = useContext(StepContext);
 
+  const [isSeparationInfoOpen, setIsSeparationInfoOpen] = useState(false);
+
   const balancedSurvey = ExperimentSurveys?.find(
     (survey) => (survey._id || survey.uuid || survey.id) === BalancedSurveyId,
   );
@@ -52,6 +56,9 @@ const StudyDesignForm = () => {
   };
 
   const getMethodExplanation = () => {
+    if (ExperimentType === 'within-subject') {
+      return t('explanation_within');
+    }
     switch (BtypeExperiment) {
       case 'random':
         return t('explanation_random');
@@ -77,6 +84,20 @@ const StudyDesignForm = () => {
         {t('step_design')}
       </Typography>
 
+      {(ExperimentType === 'within-subject' || (isBetweenSubject && BtypeExperiment)) && (
+        <Alert severity="info" variant="outlined" sx={{ mb: 2, width: '100%' }}>
+          {getMethodExplanation()}{' '}
+          <Link
+            component="button"
+            type="button"
+            onClick={() => setIsSeparationInfoOpen(true)}
+            sx={{ fontWeight: 600, verticalAlign: 'baseline' }}
+          >
+            {t('learn_more')}
+          </Link>
+        </Alert>
+      )}
+
       <FormControl fullWidth margin="normal">
         <InputLabel id="type-label">{t('Experiment_Type')}</InputLabel>
         <Select
@@ -89,12 +110,6 @@ const StudyDesignForm = () => {
           <MenuItem value="within-subject">{t('within-subject')}</MenuItem>
         </Select>
       </FormControl>
-
-      {ExperimentType === 'within-subject' && (
-        <Alert severity="info" variant="outlined" sx={{ mt: 1, width: '100%' }}>
-          {t('explanation_within')}
-        </Alert>
-      )}
 
       {ExperimentType === 'between-subject' && (
         <>
@@ -112,10 +127,6 @@ const StudyDesignForm = () => {
               <MenuItem value="balanced">{t('balanced')}</MenuItem>
             </Select>
           </FormControl>
-
-          <Alert severity="info" variant="outlined" sx={{ mt: 1, width: '100%' }}>
-            {getMethodExplanation()}
-          </Alert>
 
           {BtypeExperiment === 'balanced' && (
             <>
@@ -268,6 +279,11 @@ const StudyDesignForm = () => {
           {isEditMode ? t('save') : <ArrowForward />}
         </Button>
       </Box>
+
+      <GroupSeparationInfoModal
+        open={isSeparationInfoOpen}
+        onClose={() => setIsSeparationInfoOpen(false)}
+      />
     </FormStepContainer>
   );
 };
