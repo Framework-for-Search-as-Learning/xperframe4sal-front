@@ -29,7 +29,6 @@ const RichTextField = ({ defaultValue, onChange, placeholder }) => {
     content: defaultValue || '',
 
     onUpdate: ({ editor }) => {
-      // Imita o formato de "event" que handleChangeOpen espera
       onChange({ target: { value: editor.getHTML() } });
     },
       onTransaction: () => {
@@ -49,8 +48,8 @@ const RichTextField = ({ defaultValue, onChange, placeholder }) => {
           borderWidth: '1px',
         },
         '& .ProseMirror': {
-          outline: 'none',        // <- remove o contorno preto do navegador
-          padding: '16.5px 14px', // <- mesmo padding do TextField do MUI
+          outline: 'none',
+          padding: '16.5px 14px',
           minHeight: '56px',
           fontFamily: 'inherit',
           fontSize: '1rem',
