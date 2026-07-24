@@ -123,7 +123,11 @@ const Tasks = () => {
             </AccordionSummary>
             <Divider />
             <AccordionDetails>
-              <Typography dangerouslySetInnerHTML={{ __html: task.description }} />
+              <Typography
+                component="div"
+                className="rich-text-preview"
+                dangerouslySetInnerHTML={{ __html: task.description }}
+              />
               <div style={{ textAlign: 'right', marginTop: '15px' }}>
                 {!hasFinished &&
                   (isPaused ? (

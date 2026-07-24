@@ -305,6 +305,8 @@ const ExperimentAccordion = ({
       <AccordionDetails sx={{ padding: '16px' }}>
         <Typography
           variant="body2"
+          component="div"
+          className="rich-text-preview"
           sx={{ marginBottom: '16px', color: 'rgba(0, 0, 0, 0.87)' }}
           style={{ wordBreak: 'break-word' }}
           dangerouslySetInnerHTML={{ __html: experiment.summary }}

@@ -17,3 +17,21 @@ html {
 * {
   box-sizing: border-box;
 }
+
+/* Matches the ReactQuill editor's own paragraph reset (.ql-editor p { margin: 0 })
+   so saved rich-text content looks the same in read-only previews as it did
+   while being typed, instead of picking up the browser's default 1em <p> margin. */
+.rich-text-preview p,
+.rich-text-preview ol,
+.rich-text-preview ul,
+.rich-text-preview pre,
+.rich-text-preview blockquote,
+.rich-text-preview h1,
+.rich-text-preview h2,
+.rich-text-preview h3,
+.rich-text-preview h4,
+.rich-text-preview h5,
+.rich-text-preview h6 {
+  margin: 0;
+  padding: 0;
+}

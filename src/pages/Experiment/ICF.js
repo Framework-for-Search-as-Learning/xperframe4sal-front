@@ -112,17 +112,23 @@ const ICF = () => {
 
           <Typography
             variant="body1"
-            paragraph
+            component="div"
+            className="rich-text-preview"
+            sx={{ mb: 2 }}
             dangerouslySetInnerHTML={{ __html: icf.description }}
           />
 
           <Typography
             variant="body1"
+            component="div"
+            className="rich-text-preview"
             gutterBottom
             dangerouslySetInnerHTML={{ __html: icf.icfText }}
           />
           <Typography
             variant="body1"
+            component="div"
+            className="rich-text-preview"
             gutterBottom
             dangerouslySetInnerHTML={{
               __html: icf.agreementStatement,

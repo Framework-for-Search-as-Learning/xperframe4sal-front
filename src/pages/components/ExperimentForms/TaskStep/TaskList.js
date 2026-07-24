@@ -100,6 +100,7 @@ const TaskList = ({
 
             {openTaskIds.includes(index) && (
               <Box
+                className="rich-text-preview"
                 sx={{
                   marginTop: 0,
                   padding: 1,
