@@ -44,23 +44,13 @@ const TaskInstructionModal = ({ open, onClose, task }) => {
 
       <DialogContent>
         {task?.summary && (
-          <>
-            <Typography variant="overline" color="text.secondary">
-              {t('task_summary')}
-            </Typography>
-            <Typography variant="body1" gutterBottom sx={{ mb: 2 }}>
-              {task.summary}
-            </Typography>
-          </>
+          <Typography variant="body1" gutterBottom sx={{ mb: 2 }}>
+            {task.summary}
+          </Typography>
         )}
 
         {task?.description && (
-          <>
-            <Typography variant="overline" color="text.secondary">
-              {t('task_Desc')}
-            </Typography>
-            <div dangerouslySetInnerHTML={{ __html: task.description }} style={{ marginTop: 4 }} />
-          </>
+          <div className="rich-text-preview" dangerouslySetInnerHTML={{ __html: task.description }} />
         )}
       </DialogContent>
 

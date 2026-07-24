@@ -1,17 +1,17 @@
+
 /*
  * Copyright (c) 2026, lapic-ufjf
  * Licensed under The MIT License [see LICENSE for details]
  */
-
+ 
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import { api } from '../../config/axios.js';
 import { ResultModal } from '../../components/ResultModal.js';
 import { Tooltip, IconButton, Box } from '@mui/material';
 // import Pause from '@mui/icons-material/Pause';
 import Stop from '@mui/icons-material/Stop';
 // import PlayArrow from '@mui/icons-material/PlayArrow';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import { ConfirmDialog } from '../../components/ConfirmDialog.js';
 import { CustomSnackbar } from '../../components/CustomSnackbar.js';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,7 @@ import { Google } from '../../components/SearchEngines/Google.js';
 import { Chatbot } from '../../components/Chatbot/Chatbot.js';
 import { TaskInstructionModal } from '../../components/TaskInstructionModal.js';
 import useCookies from '../../lib/useCookies.js';
-
+ 
 async function updateUserExperimentStatus(userExperiment, user, api) {
   try {
     userExperiment.stepsCompleted = Object.assign(userExperiment.stepsCompleted, { task: true });
@@ -30,11 +30,12 @@ async function updateUserExperimentStatus(userExperiment, user, api) {
     throw new Error(error.message);
   }
 }
-
+ 
 const Task = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const { registerTaskInstructionHandler } = useOutletContext();
   const { experimentId, taskId } = useParams();
   const [task, setTask] = useState(location?.state?.task);
   const [userTask, setUserTask] = useState(null);
@@ -54,20 +55,20 @@ const Task = () => {
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('success');
   const [instructionModalOpen, setInstructionModalOpen] = useState(false);
-
+ 
   const history = useCookies('history');
-
+ 
   const sessionRef = useRef({});
   const clickedResultRankRef = useRef(null);
-
+ 
   useEffect(() => {
     sessionRef.current = session;
   }, [session]);
-
+ 
   useEffect(() => {
     clickedResultRankRef.current = clickedResultRank;
   }, [clickedResultRank]);
-
+ 
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -79,7 +80,7 @@ const Task = () => {
             headers: { Authorization: `Bearer ${user.accessToken}` },
           }),
         ]);
-
+ 
         const taskResult = taskResponse?.data;
         const userTaskResult = userTaskResponse?.data;
         setTask(taskResult);
@@ -92,10 +93,10 @@ const Task = () => {
         setMessage(error.message);
       }
     };
-
+ 
     fetchData();
   }, [taskId, user?.accessToken, user?.id]);
-
+ 
   useEffect(() => {
     if (finished) {
       navigate(`/experiments/${experimentId}/surveys`);
@@ -104,10 +105,10 @@ const Task = () => {
       document.body.style.overflow = 'auto';
     };
   }, [finished, experimentId, navigate]);
-
+ 
   const openFinishDialog = () => setConfirmDialogOpen(true);
   const closeFinishDialog = () => setConfirmDialogOpen(false);
-
+ 
   const handleFinishTask = async () => {
     try {
       const userTaskBackup = await api.patch(
@@ -116,17 +117,17 @@ const Task = () => {
         { headers: { Authorization: `Bearer ${user.accessToken}` } },
       );
       history.clearCookie();
-
+ 
       const allUserTasksResponse = await api.get(
         `user-task/user/${user.id}/experiment/${experimentId}`,
         { headers: { Authorization: `Bearer ${user.accessToken}` } },
       );
       const allUserTasks = allUserTasksResponse.data;
-
+ 
       const otherUnfinishedTasks = allUserTasks.filter(
         (t) => t._id !== userTask._id && t.task.isActive && !t.hasFinishedTask,
       );
-
+ 
       if (otherUnfinishedTasks.length === 0) {
         const userExperiment = await api.get(
           `user-experiment?experimentId=${experimentId}&userId=${user.id}`,
@@ -137,7 +138,7 @@ const Task = () => {
       } else {
         setNextPath(`/experiments/${experimentId}/tasks`);
       }
-
+ 
       setConfirmDialogOpen(false);
       setUserTask(userTaskBackup.data);
       setShowSnackBar(true);
@@ -148,7 +149,7 @@ const Task = () => {
       throw new Error(error.message);
     }
   };
-
+ 
   const handleCloseSuccessSnackbar = async () => {
     setShowSnackBar(false);
     if (isSuccess) {
@@ -157,27 +158,27 @@ const Task = () => {
       setRedirect(true);
     }
   };
-
+ 
   useEffect(() => {
     if (redirect) {
       navigate(nextPath || `/experiments/${experimentId}/surveys`);
     }
   }, [redirect, navigate, experimentId, nextPath]);
-
+ 
   const closeModal = async () => {
     setUrlResultModal('');
     setTitleResultModal('');
     setIsShowingResultModal(false);
     document.body.style.overflow = 'auto';
-
+ 
     const currentSession = sessionRef.current;
     const currentRank = clickedResultRankRef.current;
-
+ 
     if (!currentSession?._id || currentRank === null || currentRank === undefined) {
       console.warn('close-page ignorado: session ou rank inválido');
       return;
     }
-
+ 
     try {
       const response = await api.patch(
         `/user-task-session/${currentSession._id}/close-page/${currentRank}`,
@@ -190,22 +191,27 @@ const Task = () => {
       console.error('Erro ao fechar página:', error);
     }
   };
-
+ 
+  useEffect(() => {
+    registerTaskInstructionHandler(() => () => setInstructionModalOpen(true));
+    return () => registerTaskInstructionHandler(null);
+  }, [registerTaskInstructionHandler]);
+ 
   useEffect(() => {
     const handlePopState = async () => {
       const currentSession = sessionRef.current;
       const currentRank = clickedResultRankRef.current;
-
+ 
       setUrlResultModal('');
       setTitleResultModal('');
       setIsShowingResultModal(false);
       document.body.style.overflow = 'auto';
-
+ 
       if (!currentSession?._id || currentRank === null || currentRank === undefined) {
         console.warn('close-page ignorado: session ou rank inválido');
         return;
       }
-
+ 
       try {
         const sessionResult = await api.patch(
           `/user-task-session/${currentSession._id}/close-page/${currentRank}`,
@@ -218,16 +224,21 @@ const Task = () => {
         console.error('Erro ao fechar página via popstate:', error);
       }
     };
-
+ 
     window.addEventListener('popstate', handlePopState);
-
+ 
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
   }, [user.accessToken]);
-
+ 
+  if (!task) {
+    return null;
+  }
+ 
   return (
     <div style={{ minWidth: '326px' }}>
+      {/* Controles (Stop) à direita */}
       <Box sx={{ display: 'flex', position: 'fixed', zIndex: 3, right: 10 }}>
         <CustomSnackbar
           open={showSnackBar}
@@ -241,17 +252,6 @@ const Task = () => {
         />
         <Box sx={{ flexGrow: 1, marginBottom: 2, zIndex: 2 }} />
         <Box sx={{ paddingLeft: 2, paddingTop: 0.5 }}>
-          <Tooltip title={t('view_task_instructions')} placement="bottom-start">
-            <IconButton
-              size="large"
-              sx={{ zIndex: 2 }}
-              color="info"
-              style={{ backgroundColor: 'white', marginRight: 5, border: '2px solid #dfe1e5' }}
-              onClick={() => setInstructionModalOpen(true)}
-            >
-              <InfoOutlined />
-            </IconButton>
-          </Tooltip>
           {/* {userTask?.isPaused || paused ? (
             <Tooltip title={t('iniciar')} placement="bottom-start">
               <IconButton
@@ -302,22 +302,24 @@ const Task = () => {
           content={t('finalizar_tarefa')}
         />
       </Box>
-
+ 
       {task.search_source === 'search-engine' && (
-        <Google
-          user={user}
-          taskId={taskId}
-          api={api}
-          session={session}
-          setSession={setSession}
-          setUrlResultModal={setUrlResultModal}
-          setTitleResultModal={setTitleResultModal}
-          setIsShowingResultModal={setIsShowingResultModal}
-          setClickedResultRank={setClickedResultRank}
-        />
+        <div style={{ marginTop: '48px' }}>
+          <Google
+            user={user}
+            taskId={taskId}
+            api={api}
+            session={session}
+            setSession={setSession}
+            setUrlResultModal={setUrlResultModal}
+            setTitleResultModal={setTitleResultModal}
+            setIsShowingResultModal={setIsShowingResultModal}
+            setClickedResultRank={setClickedResultRank}
+          />
+        </div>
       )}
       {task.search_source === 'llm' && <Chatbot taskId={taskId} user={user} />}
-
+ 
       {isShowingResultModal && (
         <ResultModal
           show={isShowingResultModal}
@@ -329,5 +331,5 @@ const Task = () => {
     </div>
   );
 };
-
+ 
 export default Task;
