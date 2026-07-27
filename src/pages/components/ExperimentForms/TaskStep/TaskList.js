@@ -10,6 +10,7 @@ import {
   ExpandLess as ExpandLessIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  ContentCopy as ContentCopyIcon,
 } from '@mui/icons-material';
 
 /**
@@ -23,6 +24,7 @@ const TaskList = ({
   onToggleDescription,
   onEditTask,
   onDeleteTask,
+  onDuplicateTask,
   t,
 }) => {
   return (
@@ -80,6 +82,14 @@ const TaskList = ({
                 </IconButton>
                 <IconButton
                   color="primary"
+                  onClick={() => onDuplicateTask(index)}
+                  title={t('duplicate_task')}
+                  sx={{ ml: 1 }}
+                >
+                  <ContentCopyIcon />
+                </IconButton>
+                <IconButton
+                  color="primary"
                   onClick={() => onToggleDescription(index)}
                   sx={{ ml: 1 }}
                 >
@@ -90,6 +100,7 @@ const TaskList = ({
 
             {openTaskIds.includes(index) && (
               <Box
+                className="rich-text-preview"
                 sx={{
                   marginTop: 0,
                   padding: 1,

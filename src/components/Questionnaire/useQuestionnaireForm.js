@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { arrayMove } from '@dnd-kit/sortable';
 
 const useQuestionnaireForm = (initial = {}) => {
   const [title, setTitle] = useState(initial.title || '');
@@ -36,6 +37,7 @@ const useQuestionnaireForm = (initial = {}) => {
         required: false,
         hasscore: false,
         options: [],
+        richText: false,
       },
     ]);
   };
@@ -44,6 +46,13 @@ const useQuestionnaireForm = (initial = {}) => {
 
   const updateQuestion = (qId, field, value) =>
     setQuestions((prev) => prev.map((q) => (q.id === qId ? { ...q, [field]: value } : q)));
+
+  const reorderQuestions = (activeId, overId) =>
+    setQuestions((prev) => {
+      const oldIndex = prev.findIndex((q) => q.id === activeId);
+      const newIndex = prev.findIndex((q) => q.id === overId);
+      return arrayMove(prev, oldIndex, newIndex);
+    });
 
   const buildPayload = () => ({
     name: title,
@@ -59,6 +68,7 @@ const useQuestionnaireForm = (initial = {}) => {
         type: q.type,
         required: q.required,
         hasscore: q.hasscore,
+        richText: q.richText,
       };
       if (q.type === 'open') {
         question.options = [];
@@ -98,6 +108,7 @@ const useQuestionnaireForm = (initial = {}) => {
     addQuestion,
     removeQuestion,
     updateQuestion,
+    reorderQuestions,
     isValid,
     hasInvalidChoiceQuestion,
     buildPayload,

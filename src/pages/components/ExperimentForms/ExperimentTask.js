@@ -5,7 +5,7 @@
 
 import React, { useState, useContext } from 'react';
 import { Box, CircularProgress, Typography, Button, Snackbar, Alert } from '@mui/material';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import { ArrowBack, ArrowForward, Add as AddIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { api } from '../../../config/axios';
@@ -162,59 +162,59 @@ const ExperimentTask = () => {
     toggleCreateTask();
   };
 
-  const handleEditTask = async (index) => {
-    setEditTaskIndex(index);
-    let task = ExperimentTasks[index];
-
-    if (isEditMode) {
-      try {
-        setIsLoadingTask(true);
-        const taskId = task._id || task.id || task.uuid;
-        const response = await api.get(`task/${taskId}`, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        });
-        task = response.data;
-      } catch (error) {
-        console.error('Erro ao carregar tarefa:', error);
-      } finally {
-        setIsLoadingTask(false);
-      }
-    }
-
+  const populateFormFromTask = async (form, task, { copySecrets, titleTransform } = {}) => {
     const config = task.provider_config || {};
     const masked = task.provider_config_masked?.masked || config;
 
-    editForm.setTaskTitle(task.title);
-    editForm.setTaskSummary(task.summary);
-    editForm.setTaskDescription(task.description);
+    form.setTaskTitle(titleTransform ? titleTransform(task.title) : task.title);
+    form.setTaskSummary(task.summary);
+    form.setTaskDescription(task.description);
+    form.setIsValidTitleTask(true);
+    form.setIsValidSumaryTask(true);
 
     const ruleType = task.rule_type || task.RulesExperiment || 'score';
-    editForm.setRulesExperiment(ruleType);
+    form.setRulesExperiment(ruleType);
 
     const minScore = task.min_score ?? task.ScoreThreshold ?? 0;
     const maxScore = task.max_score ?? task.ScoreThresholdmx ?? 0;
-    editForm.setScoreThreshold(minScore);
-    editForm.setScoreThresholdmx(maxScore);
+    form.setScoreThreshold(minScore);
+    form.setScoreThresholdmx(maxScore);
     setscoreType(minScore !== maxScore ? 'min_max' : 'unic');
 
     let loadedQuestionIds = [];
-    if (isEditMode && ruleType === 'question') {
+    if (isEditMode) {
       try {
         const taskId = task._id || task.id || task.uuid;
-        const questionsResponse = await api.get(`task-question-map/task/${taskId}`, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        });
-        loadedQuestionIds = questionsResponse.data || [];
-        editForm.setSelectedQuestionIds(loadedQuestionIds.map((id) => ({ id })));
+        const [questionsResponse, linkedSurveysResponse] = await Promise.all([
+          ruleType === 'question'
+            ? api.get(`task-question-map/task/${taskId}`, {
+                headers: { Authorization: `Bearer ${user.accessToken}` },
+              })
+            : Promise.resolve({ data: [] }),
+          api.get(`task-survey/task/${taskId}`, {
+            headers: { Authorization: `Bearer ${user.accessToken}` },
+          }),
+        ]);
+
+        if (ruleType === 'question') {
+          loadedQuestionIds = questionsResponse.data || [];
+          form.setSelectedQuestionIds(loadedQuestionIds.map((id) => ({ id })));
+        } else {
+          form.setSelectedQuestionIds([]);
+        }
+
+        const linkedSurveyIds = (linkedSurveysResponse.data || []).map((s) => s._id);
+        form.setLinkedSurveyRefs(linkedSurveyIds);
       } catch (error) {
-        console.error('Erro mapa questoes', error);
+        console.error('Erro ao carregar dados da tarefa:', error);
+        form.setSelectedQuestionIds([]);
+        form.setLinkedSurveyRefs([]);
       }
-    } else if (!isEditMode) {
+    } else {
       const rawQuestions = task.questionsId || task.selectedQuestionIds || [];
       loadedQuestionIds = rawQuestions.map((q) => (typeof q === 'string' ? q : q.id));
-      editForm.setSelectedQuestionIds(loadedQuestionIds.map((id) => ({ id })));
-    } else {
-      editForm.setSelectedQuestionIds([]);
+      form.setSelectedQuestionIds(loadedQuestionIds.map((id) => ({ id })));
+      form.setLinkedSurveyRefs(task.linkedSurveyRefs || []);
     }
 
     const surveyRef =
@@ -236,21 +236,88 @@ const ExperimentTask = () => {
           s.questions?.some((q) => loadedQuestionIds.includes(q._id || q.id || q.uuid)),
         ) || null;
     }
-    editForm.setSelectedSurvey(surveyObj);
+    form.setSelectedSurvey(surveyObj);
 
-    editForm.setOrigin(task.search_source || '');
+    const taskOrigin =
+      task.search_source ||
+      (config.modelProvider || config.model ? 'llm' : config.searchProvider ? 'search-engine' : '');
+    form.setOrigin(taskOrigin);
 
-    if (task.search_source === 'llm') {
-      editForm.setLlmProvider(config.modelProvider || '');
-      editForm.setLlm(config.model || '');
-      editForm.setGeminiApiKey(masked.apiKey || config.apiKey || '');
-    } else if (task.search_source === 'search-engine') {
-      editForm.setSearchEngine(config.searchProvider || 'google');
-      editForm.setGoogleApikey(masked.apiKey || config.apiKey || '');
-      editForm.setGoogleCx(masked.cx || config.cx || '');
+    if (taskOrigin === 'llm') {
+      form.setLlmProvider(config.modelProvider || '');
+      form.setLlm(config.model || '');
+      form.setGeminiApiKey(copySecrets ? masked.apiKey || config.apiKey || '' : '');
+      form.setSystemInstruction(config.systemInstruction || '');
+    } else if (taskOrigin === 'search-engine') {
+      form.setSearchEngine(config.searchProvider || 'google');
+      form.setGoogleApikey(copySecrets ? masked.apiKey || config.apiKey || '' : '');
+      form.setGoogleCx(copySecrets ? masked.cx || config.cx || '' : '');
     }
 
+    return { taskOrigin };
+  };
+
+  const handleEditTask = async (index) => {
+    setEditTaskIndex(index);
+    let task = ExperimentTasks[index];
+
+    if (isEditMode) {
+      try {
+        setIsLoadingTask(true);
+        const taskId = task._id || task.id || task.uuid;
+        const response = await api.get(`task/${taskId}`, {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        });
+        task = response.data;
+      } catch (error) {
+        console.error('Erro ao carregar tarefa:', error);
+      } finally {
+        setIsLoadingTask(false);
+      }
+    }
+
+    await populateFormFromTask(editForm, task, { copySecrets: true });
+
     toggleEditTask();
+  };
+
+  const handleDuplicateTask = async (index) => {
+    let task = ExperimentTasks[index];
+
+    if (isEditMode) {
+      try {
+        setIsLoadingTask(true);
+        const taskId = task._id || task.id || task.uuid;
+        const response = await api.get(`task/${taskId}/duplicate-source`, {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        });
+        task = response.data;
+      } catch (error) {
+        console.error('Erro ao carregar tarefa para duplicar:', error);
+        setFeedback({
+          open: true,
+          message: t('error_duplicate') || 'Erro ao duplicar tarefa.',
+          severity: 'error',
+        });
+        setIsLoadingTask(false);
+        return;
+      } finally {
+        setIsLoadingTask(false);
+      }
+    }
+
+    await populateFormFromTask(createForm, task, {
+      copySecrets: true,
+      titleTransform: (title) => `${title} ${t('duplicate_task_title_suffix')}`,
+    });
+
+    setFeedback({
+      open: true,
+      message: t('success_duplicate'),
+      severity: 'info',
+    });
+
+    setIsCreateTaskOpen(true);
   };
 
   const handleEditTaskSubmit = async (e) => {
@@ -361,10 +428,14 @@ const ExperimentTask = () => {
       setSearchEngine: form.setSearchEngine,
       geminiKey: form.formState.geminiApiKey,
       setGeminiKey: form.setGeminiApiKey,
+      systemInstruction: form.formState.systemInstruction,
+      setSystemInstruction: form.setSystemInstruction,
       googleKey: form.formState.googleApiKey,
       setGoogleKey: form.setGoogleApikey,
       cx: form.formState.googleCx,
       setCx: form.setGoogleCx,
+      linkedSurveyRefs: form.formState.linkedSurveyRefs,
+      setLinkedSurveyRefs: form.setLinkedSurveyRefs,
       isValidForm:
         form.formState.isValidTitleTask &&
         form.formState.taskTitle &&
@@ -374,6 +445,7 @@ const ExperimentTask = () => {
   };
 
   const filteredTasks = filterTasks(ExperimentTasks, searchTerm);
+  const hasTasks = Array.isArray(ExperimentTasks) && ExperimentTasks.length > 0;
   const minimal_tasks = ExperimentType === 'between-subject' ? 2 : 1;
   const canGoNext = ExperimentTasks.length >= minimal_tasks;
 
@@ -390,11 +462,9 @@ const ExperimentTask = () => {
       >
         <Box
           sx={{
-            padding: 3,
+            padding: { xs: 2, sm: 3 },
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
             backgroundColor: '#f9f9f9',
             borderRadius: '8px',
             boxShadow: 4,
@@ -405,9 +475,25 @@ const ExperimentTask = () => {
           <Typography variant="h6" align="center" sx={{ mb: 2 }}>
             {t('task')}
           </Typography>
+
+          {hasTasks && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={toggleCreateTask}
+              >
+                {t('create_task')}
+              </Button>
+            </Box>
+          )}
+
           {isLoadingTask ? (
-            <CircularProgress />
-          ) : Array.isArray(ExperimentTasks) && ExperimentTasks.length > 0 ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : hasTasks ? (
             <TaskList
               tasks={filteredTasks}
               searchTerm={searchTerm}
@@ -416,64 +502,79 @@ const ExperimentTask = () => {
               onToggleDescription={toggleTaskDescription}
               onEditTask={handleEditTask}
               onDeleteTask={handleOpenDeleteDialog}
+              onDuplicateTask={handleDuplicateTask}
               t={t}
             />
           ) : (
-            <NotFound title={t('NTaskFound')} subTitle={t('NoTaskcreated')} />
-          )}
-
-          <Box
-            sx={{
-              display: { xs: 'none', sm: 'flex' },
-              justifyContent: isEditMode ? 'flex-end' : 'space-between',
-              mt: 4,
-              width: '100%',
-            }}
-          >
-            {!isEditMode && (
-              <Button variant="contained" onClick={handleBack} sx={{ maxWidth: 150 }}>
-                {t('back')}
-              </Button>
-            )}
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button variant="contained" onClick={toggleCreateTask}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 300,
+                p: 3,
+                backgroundColor: '#fff',
+                borderRadius: '8px',
+                border: '1px dashed #cccccc',
+              }}
+            >
+              <NotFound title={t('NTaskFound')} subTitle={t('NoTaskcreated')} />
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={toggleCreateTask}
+                sx={{ mt: 3, px: 3, py: 1 }}
+              >
                 {t('create_task')}
               </Button>
-              {!isEditMode && (
-                <Button variant="contained" onClick={handleNext} disabled={!canGoNext}>
-                  {t('next')}
-                </Button>
-              )}
             </Box>
-          </Box>
+          )}
 
           {!canGoNext && !isEditMode && (
-            <Typography variant="caption" sx={{ color: 'error.main', mt: 1, fontWeight: 'bold' }}>
+            <Typography
+              variant="caption"
+              align="center"
+              sx={{ color: 'error.main', mt: 2, fontWeight: 'bold' }}
+            >
               {ExperimentType === 'between-subject'
-                ? t('needs_at_least_2_tasks')
-                : t('needs_at_least_1_task')}
+                ? t('needs_at_least_2_tasks') || 'Adicione pelo menos 2 tarefas para prosseguir.'
+                : t('needs_at_least_1_task') || 'Adicione pelo menos 1 tarefa para prosseguir.'}
             </Typography>
           )}
 
           <Box
             sx={{
-              display: { xs: 'flex', sm: 'none' },
-              justifyContent: isEditMode ? 'center' : 'space-between',
-              mt: 4,
+              display: 'flex',
+              justifyContent: isEditMode ? 'flex-end' : 'space-between',
+              alignItems: 'center',
+              mt: 3,
+              pt: 2,
+              borderTop: '1px solid #e0e0e0',
               width: '100%',
             }}
           >
             {!isEditMode && (
-              <Button variant="contained" onClick={handleBack}>
-                <ArrowBack />
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={handleBack}
+                startIcon={<ArrowBack />}
+              >
+                {t('back')}
               </Button>
             )}
-            <Button variant="contained" onClick={toggleCreateTask}>
-              {t('create_task')}
-            </Button>
+
             {!isEditMode && (
-              <Button variant="contained" onClick={handleNext} disabled={!canGoNext}>
-                <ArrowForward />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleNext}
+                endIcon={<ArrowForward />}
+                disabled={!canGoNext}
+              >
+                {t('next')}
               </Button>
             )}
           </Box>

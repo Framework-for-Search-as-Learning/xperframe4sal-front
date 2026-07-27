@@ -21,11 +21,21 @@ import {
   Radio,
   Checkbox,
 } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, DragIndicator } from '@mui/icons-material';
 import ClearIcon from '@mui/icons-material/Clear';
 
-const QuestionCard = ({ q, index, questionTypes, t, onUpdate, onRemove }) => {
+const QuestionCard = ({
+  q,
+  index,
+  questionTypes,
+  t,
+  onUpdate,
+  onRemove,
+  dragHandleProps,
+  isDragging,
+}) => {
   const isChoice = q.type === 'multiple-selection' || q.type === 'multiple-choices';
+  const isTextType = q.type === 'open' || q.type === 'short-answer';
   const hasNoOptions = isChoice && q.options.length === 0;
   const OptionIcon = q.type === 'multiple-choices' ? Radio : Checkbox;
 
@@ -55,12 +65,21 @@ const QuestionCard = ({ q, index, questionTypes, t, onUpdate, onRemove }) => {
         border: '1px solid #e0e0e0',
         borderLeft: '5px solid #0d5086',
         backgroundColor: '#fff',
-        boxShadow: 1,
+        boxShadow: isDragging ? 6 : 1,
+        opacity: isDragging ? 0.85 : 1,
         transition: 'box-shadow 0.2s',
-        '&:hover': { boxShadow: 3 },
+        '&:hover': { boxShadow: isDragging ? 6 : 3 },
       }}
     >
       <Box sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        {dragHandleProps && (
+          <Box
+            {...dragHandleProps}
+            sx={{ display: 'flex', alignItems: 'center', cursor: 'grab', color: '#bbb', pt: 1.5 }}
+          >
+            <DragIndicator />
+          </Box>
+        )}
         <TextField
           label={t('questionStatement', { index: index + 1 })}
           value={q.statement}
@@ -181,6 +200,19 @@ const QuestionCard = ({ q, index, questionTypes, t, onUpdate, onRemove }) => {
               label={<Typography variant="caption">{t('score')}</Typography>}
             />
           </>
+        )}
+
+        {isTextType && (
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={Boolean(q.richText)}
+                onChange={(e) => onUpdate(q.id, 'richText', e.target.checked)}
+              />
+            }
+            label={<Typography variant="caption">{t('rich_Text')}</Typography>}
+          />
         )}
 
         <Box sx={{ marginLeft: 'auto' }}>

@@ -17,8 +17,10 @@ import {
   Alert,
   Typography,
 } from '@mui/material';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import {
+  ArrowBack,
+  ArrowForward,
+  Add as AddIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
   Edit as EditIcon,
@@ -41,6 +43,7 @@ const ExperimentQuestionnaire = () => {
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [openDescIds, setOpenDescIds] = useState([]);
+  const [confirmNextOpen, setConfirmNextOpen] = useState(false);
 
   const [feedback, setFeedback] = useState({ open: false, message: '', severity: 'success' });
 
@@ -111,6 +114,16 @@ const ExperimentQuestionnaire = () => {
     setDeleteTarget(null);
   };
 
+  const hasSurveys = Array.isArray(ExperimentSurveys) && ExperimentSurveys.length > 0;
+
+  const handleNextStep = () => {
+    if (!hasSurveys) {
+      setConfirmNextOpen(true);
+    } else {
+      setStep(step + 1);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -124,7 +137,7 @@ const ExperimentQuestionnaire = () => {
       <Box
         sx={{
           width: { xs: '100%', sm: '60%' },
-          padding: { xs: 1, sm: 3 },
+          padding: { xs: 2, sm: 3 },
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: '#f9f9f9',
@@ -136,11 +149,25 @@ const ExperimentQuestionnaire = () => {
         <Typography variant="h6" align="center" sx={{ mb: 2 }}>
           {t('step_questionnaires')}
         </Typography>
-        {Array.isArray(ExperimentSurveys) && ExperimentSurveys.length > 0 ? (
+
+        {hasSurveys && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={() => setIsCreateOpen(true)}
+            >
+              {t('create_survey')}
+            </Button>
+          </Box>
+        )}
+
+        {hasSurveys ? (
           <FormControl fullWidth sx={{ minHeight: 300, maxHeight: 300, overflowY: 'auto' }}>
             {ExperimentSurveys.map((survey, index) => (
               <Box
-                key={index}
+                key={survey._id || survey.id || survey.uuid || index}
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -185,55 +212,61 @@ const ExperimentQuestionnaire = () => {
             ))}
           </FormControl>
         ) : (
-          <NotFound title={t('NSurveysFound')} subTitle={t('Nosurveyscreated')} />
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 300,
+              p: 3,
+              backgroundColor: '#fff',
+              borderRadius: '8px',
+              border: '1px dashed #cccccc',
+            }}
+          >
+            <NotFound title={t('NSurveysFound')} subTitle={t('Nosurveyscreated')} />
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={() => setIsCreateOpen(true)}
+              sx={{ mt: 3, px: 3, py: 1 }}
+            >
+              {t('create_survey')}
+            </Button>
+          </Box>
         )}
 
         <Box
           sx={{
-            display: { xs: 'none', sm: 'flex' },
+            display: 'flex',
             justifyContent: isEditMode ? 'flex-end' : 'space-between',
-            mt: 2,
+            alignItems: 'center',
+            mt: 3,
+            pt: 2,
+            borderTop: '1px solid #e0e0e0',
           }}
         >
           {!isEditMode && (
-            <Button variant="contained" onClick={() => setStep(step - 1)}>
+            <Button
+              variant="outlined"
+              color="inherit"
+              onClick={() => setStep(step - 1)}
+              startIcon={<ArrowBack />}
+            >
               {t('back')}
             </Button>
           )}
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button variant="contained" onClick={() => setIsCreateOpen(true)}>
-              {t('create_survey')}
-            </Button>
-            {!isEditMode && (
-              <Button
-                variant="contained"
-                onClick={() => setStep(step + 1)}
-                // disabled={!Array.isArray(ExperimentSurveys) || ExperimentSurveys.length === 0}
-              >
-                {t('next')}
-              </Button>
-            )}
-          </Box>
-        </Box>
 
-        <Box
-          sx={{
-            display: { xs: 'flex', sm: 'none' },
-            justifyContent: isEditMode ? 'center' : 'space-between',
-            mt: 2,
-          }}
-        >
           {!isEditMode && (
-            <Button variant="contained" onClick={() => setStep(step - 1)}>
-              <ArrowBack />
-            </Button>
-          )}
-          <Button variant="contained" onClick={() => setIsCreateOpen(true)}>
-            {t('create_survey')}
-          </Button>
-          {!isEditMode && (
-            <Button variant="contained" onClick={() => setStep(step + 1)}>
-              <ArrowForward />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleNextStep}
+              endIcon={<ArrowForward />}
+            >
+              {t('next')}
             </Button>
           )}
         </Box>
@@ -257,6 +290,38 @@ const ExperimentQuestionnaire = () => {
             </Button>
             <Button variant="contained" color="error" onClick={handleConfirmDelete}>
               {t('delete')}
+            </Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={confirmNextOpen}
+        onClose={() => setConfirmNextOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        sx={{ '& .MuiDialog-paper': { borderRadius: '12px', p: 4 } }}
+      >
+        <DialogTitle sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+          {t('confirm_continue')}
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: 'center', color: '#6b7280' }}>
+          <p style={{ margin: '0 0 24px', lineHeight: 1.5 }}>
+            {t('no_survey_warning') }
+          </p>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+            <Button variant="outlined" onClick={() => setConfirmNextOpen(false)}>
+              {t('cancel')}
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                setConfirmNextOpen(false);
+                setStep(step + 1);
+              }}
+            >
+              {t('continue')}
             </Button>
           </Box>
         </DialogContent>

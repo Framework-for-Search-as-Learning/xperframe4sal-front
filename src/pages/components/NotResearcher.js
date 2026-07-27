@@ -133,6 +133,8 @@ const ExperimentItem = ({
       <Divider />
       <AccordionDetails>
         <Typography
+          component="div"
+          className="rich-text-preview"
           dangerouslySetInnerHTML={{
             __html: experiment.summary,
           }}

@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { INITIAL_FORM_STATE } from '../constants/experimentConstants';
 
 export const useTaskForm = (mode = 'create', initialData = null) => {
-  const [formState, setFormState] = useState(initialData || INITIAL_FORM_STATE);
+  const [formState, setFormState] = useState(initialData || { ...INITIAL_FORM_STATE });
 
   const setTaskTitle = (value) => setFormState((prev) => ({ ...prev, taskTitle: value }));
   const setTaskSummary = (value) => setFormState((prev) => ({ ...prev, taskSummary: value }));
@@ -17,6 +17,8 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
   const setLlm = (value) => setFormState((prev) => ({ ...prev, llm: value }));
   const setSearchEngine = (value) => setFormState((prev) => ({ ...prev, searchEngine: value }));
   const setGeminiApiKey = (value) => setFormState((prev) => ({ ...prev, geminiApiKey: value }));
+  const setSystemInstruction = (value) =>
+    setFormState((prev) => ({ ...prev, systemInstruction: value }));
   const setGoogleApikey = (value) => setFormState((prev) => ({ ...prev, googleApiKey: value }));
   const setGoogleCx = (value) => setFormState((prev) => ({ ...prev, googleCx: value }));
   const setRulesExperiment = (value) =>
@@ -35,9 +37,11 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
     setFormState((prev) => ({ ...prev, selectedQuestion: value }));
   const setscoreType = (value) => setFormState((prev) => ({ ...prev, scoreType: value }));
   const setLlmProvider = (value) => setFormState((prev) => ({ ...prev, llmProvider: value }));
+  const setLinkedSurveyRefs = (value) =>
+    setFormState((prev) => ({ ...prev, linkedSurveyRefs: value }));
 
   const resetForm = () => {
-    setFormState(INITIAL_FORM_STATE);
+    setFormState({ ...INITIAL_FORM_STATE });
   };
 
   const loadTaskData = (task) => {
@@ -50,6 +54,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
       llmProvider: task.llmProvider || '',
       searchEngine: task.search_model,
       geminiApiKey: task.geminiApiKey || '',
+      systemInstruction: task.systemInstruction || '',
       googleApiKey: task.googleApiKey || '',
       googleCx: task.googleCx || '',
       RulesExperiment: task.RulesExperiment,
@@ -61,6 +66,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
       isValidSumaryTask: true,
       selectedQuestion: null,
       scoreType: task.ScoreThreshold !== '' && task.ScoreThresholdmx !== '0' ? 'min_max' : 'unic',
+      linkedSurveyRefs: task.linkedSurveyRefs || [],
     });
   };
 
@@ -70,10 +76,17 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
     if (formState.origin === 'llm') {
       providerConfig.modelProvider = formState.llmProvider;
       providerConfig.model = formState.llm;
-      providerConfig.apiKey = formState.geminiApiKey;
+      if (formState.geminiApiKey?.trim()) {
+        providerConfig.apiKey = formState.geminiApiKey;
+      }
+      if (formState.systemInstruction?.trim()) {
+        providerConfig.systemInstruction = formState.systemInstruction;
+      }
     } else if (formState.origin === 'search-engine') {
       providerConfig.searchProvider = formState.searchEngine;
-      providerConfig.apiKey = formState.googleApiKey;
+      if (formState.googleApiKey?.trim()) {
+        providerConfig.apiKey = formState.googleApiKey;
+      }
       providerConfig.cx = formState.googleCx;
     }
 
@@ -99,6 +112,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
       max_score: Number(formState.ScoreThresholdmx) || 0,
       search_source: formState.origin,
       provider_config: providerConfig,
+      linkedSurveyRefs: formState.linkedSurveyRefs || [],
       RulesExperiment: formState.RulesExperiment,
       SelectedSurvey: surveyId,
       selectedQuestionIds: questionIds,
@@ -118,6 +132,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
     setLlmProvider,
     setSearchEngine,
     setGeminiApiKey,
+    setSystemInstruction,
     setGoogleApikey,
     setGoogleCx,
     setRulesExperiment,
@@ -129,6 +144,7 @@ export const useTaskForm = (mode = 'create', initialData = null) => {
     setIsValidSumaryTask,
     setSelectedQuestion,
     setscoreType,
+    setLinkedSurveyRefs,
     resetForm,
     loadTaskData,
     buildTaskObject,

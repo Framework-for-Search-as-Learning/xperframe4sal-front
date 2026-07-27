@@ -4,7 +4,7 @@
  */
 
 import { useState, React } from 'react';
-import { Outlet, useNavigate, Navigate } from 'react-router-dom';
+import { Outlet, useNavigate, Navigate, useLocation, matchPath } from 'react-router-dom';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -29,18 +29,21 @@ import {
   IconButton,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import MailIcon from '@mui/icons-material/Mail';
+
 
 const drawerWidth = '240';
 
 export function PrivateRoutes(props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isOnTaskPage = !!matchPath('/experiments/:experimentId/tasks/:taskId', location.pathname);
 
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [taskInstructionHandler, setTaskInstructionHandler] = useState(null);
   const { window } = props;
 
   const isAuthenticated = !!(
@@ -77,11 +80,6 @@ export function PrivateRoutes(props) {
     setAnchorEl(null);
   };
 
-  const handleGoInstruction = () => {
-    navigate('/instructions');
-    setAnchorEl(null);
-  };
-
   const handleAccountButtonEnter = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -102,7 +100,7 @@ export function PrivateRoutes(props) {
       >
         <Box
           onClick={handleGoHome}
-          sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', width: 'fit-content' }}
         >
           <img
             src={logo}
@@ -121,12 +119,12 @@ export function PrivateRoutes(props) {
           </ListItemButton>
         </ListItem>
 
-        <ListItem disablePadding>
+        {/* <ListItem disablePadding>
           <ListItemButton onClick={handleGoInstruction} sx={{ borderRadius: 2, mb: 0.5 }}>
             <AutoStoriesIcon sx={{ mr: 2, color: 'brand.main' }} />
             <ListItemText primary={t('menu_instructions')} />
           </ListItemButton>
-        </ListItem>
+        </ListItem> */}
 
         <Divider sx={{ my: 1 }} />
 
@@ -158,22 +156,19 @@ export function PrivateRoutes(props) {
               <MenuIcon />
             </IconButton>
           </Box>
-          <Box
-            onClick={handleGoHome}
-            sx={{
-              flexGrow: 1,
-              cursor: 'pointer',
-              alignItems: 'center',
-              display: { xs: 'none', sm: 'flex' },
-            }}
-          >
-            <img
-              src={logo}
-              alt={t('system_name')}
-              style={{ height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-            />
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
+            <Box
+              onClick={handleGoHome}
+              sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', width: 'fit-content' }}
+            >
+              <img
+                src={logo}
+                alt={t('system_name')}
+                style={{ height: '42px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+              />
+            </Box>
           </Box>
-          <Box
+         <Box
             sx={{
               display: { xs: 'none', sm: 'flex' },
               gap: 1,
@@ -181,18 +176,27 @@ export function PrivateRoutes(props) {
               alignItems: 'center',
             }}
           >
+            {isOnTaskPage && (
+              <Button
+                sx={{ color: '#FFD54F', display: 'flex', alignItems: 'center' }}
+                onClick={() => taskInstructionHandler?.()}
+              >
+                {t('task_instructions_title')}
+              </Button>
+            )}
+
             <Button
               sx={{ color: '#fff', display: 'flex', alignItems: 'center' }}
               onClick={handleGoHome}
             >
               {t('menu_home')}
             </Button>
-            <Button
+            {/* <Button
               sx={{ color: '#fff', display: 'flex', alignItems: 'center' }}
               onClick={handleGoInstruction}
             >
               {t('menu_instructions')}
-            </Button>
+            </Button> */}
 
             <Button sx={{ color: '#fff', width: '85px' }} onClick={handleGoContact}>
               {t('menu_contact')}
@@ -259,7 +263,7 @@ export function PrivateRoutes(props) {
       </nav>
       <Box component="main" sx={{ p: 2 }}>
         <Toolbar />
-        <Outlet />
+        <Outlet context={{ registerTaskInstructionHandler: setTaskInstructionHandler }} />
       </Box>
     </Box>
   ) : (

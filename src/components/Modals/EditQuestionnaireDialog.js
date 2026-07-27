@@ -21,7 +21,9 @@ import {
 import { Add } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import useQuestionnaireForm from '../Questionnaire/useQuestionnaireForm';
-import QuestionCard from '../Questionnaire/QuestionCard';
+import SortableQuestionCard from '../Questionnaire/SortableQuestionCard';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 const SURVEY_TYPES = (t) => [
   { value: 'pre', label: t('pre') },
@@ -32,6 +34,7 @@ const QUESTION_TYPES = (t) => [
   { value: 'open', label: t('open') },
   { value: 'multiple-selection', label: t('multiple_selection') },
   { value: 'multiple-choices', label: t('multiple_choices') },
+  { value: 'short-answer', label: t('short_answer') },
 ];
 
 const EditQuestionnaireDialog = ({ open, onClose, survey, onSave }) => {
@@ -52,10 +55,13 @@ const EditQuestionnaireDialog = ({ open, onClose, survey, onSave }) => {
     addQuestion,
     removeQuestion,
     updateQuestion,
+    reorderQuestions,
     isValid,
     buildPayload,
     hasEmptyStatement,
   } = useQuestionnaireForm(survey);
+
+  const sensors = useSensors(useSensor(PointerSensor));
 
   useEffect(() => {
     if (survey) {
@@ -154,17 +160,30 @@ const EditQuestionnaireDialog = ({ open, onClose, survey, onSave }) => {
             {t('questions')}
           </Typography>
 
-          {questions.map((q, idx) => (
-            <QuestionCard
-              key={q.id}
-              q={q}
-              index={idx}
-              questionTypes={questionTypes}
-              t={t}
-              onUpdate={updateQuestion}
-              onRemove={removeQuestion}
-            />
-          ))}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={({ active, over }) => {
+              if (over && active.id !== over.id) reorderQuestions(active.id, over.id);
+            }}
+          >
+            <SortableContext
+              items={questions.map((q) => q.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {questions.map((q, idx) => (
+                <SortableQuestionCard
+                  key={q.id}
+                  q={q}
+                  index={idx}
+                  questionTypes={questionTypes}
+                  t={t}
+                  onUpdate={updateQuestion}
+                  onRemove={removeQuestion}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
 
           <Button
             variant="outlined"

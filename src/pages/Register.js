@@ -99,7 +99,13 @@ const Register = () => {
 
             setAlertMessage(t('success_message'));
             setMessageType('success');
-            navigate('/experiments');
+            const pendingJoin = sessionStorage.getItem('pendingJoinExperimentId');
+            if (pendingJoin) {
+              sessionStorage.removeItem('pendingJoinExperimentId');
+              navigate(`/join/${pendingJoin}`);
+            } else {
+              navigate('/experiments');
+            }
           } else {
             navigate('/login');
           }
@@ -110,7 +116,11 @@ const Register = () => {
         }
       }
     } catch (e) {
-      setAlertMessage(t('register_fail_message'));
+      if (e?.response?.status === 409) {
+        setAlertMessage(t('email_already_registered'));
+      } else {
+        setAlertMessage(t('register_fail_message'));
+      }
       setMessageType('fail');
     } finally {
       setIsLoading(false);

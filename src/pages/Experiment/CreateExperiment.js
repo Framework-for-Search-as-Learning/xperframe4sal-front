@@ -3,9 +3,11 @@
  * Licensed under The MIT License [see LICENSE for details]
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import * as yaml from 'js-yaml';
 import { api } from '../../config/axios';
 import {
+  Box,
   Typography,
   Stepper,
   Step,
@@ -13,6 +15,13 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+  LinearProgress,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
@@ -23,21 +32,115 @@ import ConfirmCreateExperiment from '../components/ExperimentForms/ConfirmCreate
 import ExperimentICF from '../components/ExperimentForms/ExperimentICF';
 import ExperimentMetadataForm from '../components/ExperimentForms/ExperimentMetadataForm';
 import StudyDesignForm from '../components/ExperimentForms/StudyDesignForm';
+import {
+  AUTOSAVE_STATUS,
+  clearExperimentDraft,
+  clearExperimentDraftFromServer,
+  isExperimentDraftMeaningful,
+  loadExperimentDraft,
+  loadExperimentDraftFromServer,
+  pickFreshestDraft,
+  useExperimentDraftAutosave,
+} from '../../hooks/useExperimentDraftAutosave';
 
 const CreateExperiment = () => {
   const { t } = useTranslation();
   const [user] = useState(JSON.parse(localStorage.getItem('user')));
+  const [pendingDraft, setPendingDraft] = useState(() => loadExperimentDraft(user?.id));
+  const [isDraftPromptOpen, setIsDraftPromptOpen] = useState(() =>
+    isExperimentDraftMeaningful(pendingDraft),
+  );
+  const hasUserActedOnDraftRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const syncWithServerDraft = async () => {
+      const serverDraft = await loadExperimentDraftFromServer(user);
+      if (cancelled || hasUserActedOnDraftRef.current) return;
+
+      const freshest = pickFreshestDraft(pendingDraft, serverDraft);
+      if (freshest && freshest !== pendingDraft) {
+        setPendingDraft(freshest);
+        setIsDraftPromptOpen(true);
+      }
+    };
+
+    syncWithServerDraft();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [ExperimentTitle, setExperimentTitle] = useState('');
   const [ExperimentTitleICF, setExperimentTitleICF] = useState('');
   const [ExperimentDescICF, setExperimentDescICF] = useState('');
   const [ExperimentType, setExperimentType] = useState('within-subject');
   const [BtypeExperiment, setBtypeExperiment] = useState('random');
+  const [BalancedRuleType, setBalancedRuleType] = useState('score');
+  const [BalancedSurveyId, setBalancedSurveyId] = useState('');
+  const [BalancedQuestionIds, setBalancedQuestionIds] = useState([]);
   const [ExperimentDesc, setExperimentDesc] = useState('');
   const [ExperimentTasks, setExperimentTasks] = useState([]);
   const [ExperimentSurveys, setExperimentSurveys] = useState([]);
 
   const [step, setStep] = useState(0);
   const [maxStep, setMaxStep] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState(new Set());
+  const [isCurrentStepValid, setIsCurrentStepValid] = useState(true);
+
+  const [saveFailure, setSaveFailure] = useState({ open: false, message: '' });
+
+  const applyDraftValues = (values) => {
+    setExperimentTitle(values.ExperimentTitle || '');
+    setExperimentTitleICF(values.ExperimentTitleICF || '');
+    setExperimentDescICF(values.ExperimentDescICF || '');
+    setExperimentType(values.ExperimentType || 'within-subject');
+    setBtypeExperiment(values.BtypeExperiment || 'random');
+    setBalancedRuleType(values.BalancedRuleType || 'score');
+    setBalancedSurveyId(values.BalancedSurveyId || '');
+    setBalancedQuestionIds(values.BalancedQuestionIds || []);
+    setExperimentDesc(values.ExperimentDesc || '');
+    setExperimentTasks(values.ExperimentTasks || []);
+    setExperimentSurveys(values.ExperimentSurveys || []);
+    setStep(values.step || 0);
+    setMaxStep(values.maxStep || 0);
+    setCompletedSteps(new Set(values.completedSteps || []));
+    setIsDraftPromptOpen(false);
+  };
+
+  const handleResumeDraft = () => {
+    hasUserActedOnDraftRef.current = true;
+    applyDraftValues(pendingDraft);
+  };
+
+  const handleDiscardDraft = () => {
+    hasUserActedOnDraftRef.current = true;
+    clearExperimentDraft(user?.id);
+    clearExperimentDraftFromServer(user);
+    setIsDraftPromptOpen(false);
+  };
+
+  const currentDraftValues = {
+    step,
+    maxStep,
+    completedSteps: [...completedSteps],
+    ExperimentTitle,
+    ExperimentTitleICF,
+    ExperimentDescICF,
+    ExperimentType,
+    BtypeExperiment,
+    BalancedRuleType,
+    BalancedSurveyId,
+    BalancedQuestionIds,
+    ExperimentDesc,
+    ExperimentTasks,
+    ExperimentSurveys,
+  };
+
+  const autosaveStatus = useExperimentDraftAutosave(user, currentDraftValues, {
+    enabled: !isDraftPromptOpen,
+  });
 
   const [feedback, setFeedback] = useState({
     open: false,
@@ -50,6 +153,50 @@ const CreateExperiment = () => {
     setFeedback({ ...feedback, open: false });
   };
 
+  const getExperimentErrorMessage = (error) => {
+    if (!error?.response) {
+      return t('experiment_create_network_error');
+    }
+    const data = error.response.data;
+    if (Array.isArray(data?.message)) {
+      return data.message.map((msg) => t(msg, { defaultValue: msg })).join(' ');
+    }
+    if (typeof data?.message === 'string') {
+      return t(data.message, { defaultValue: data.message });
+    }
+    return t('experiment_create_unknown_error');
+  };
+
+  // Backup export/import happens entirely client-side: this is the escape
+  // hatch offered when the backend is unreachable, so it must not itself
+  // depend on the backend.
+  const handleDownloadDraftBackup = () => {
+    try {
+      const yamlContent = yaml.dump(currentDraftValues);
+      const blob = new Blob([yamlContent], { type: 'application/x-yaml' });
+      const url = window.URL.createObjectURL(blob);
+      const slug =
+        (ExperimentTitle || 'experimento').trim().replace(/[^a-zA-Z0-9]+/g, '_').slice(0, 60) ||
+        'experimento';
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `draft_${slug}.yaml`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erro ao exportar rascunho:', error);
+      setFeedback({
+        open: true,
+        message: t('draft_export_error'),
+        severity: 'error',
+        isLoading: false,
+      });
+    }
+  };
+
   const STEPS = [
     { index: 0, title: t('step_metadata') },
     { index: 1, title: t('ICF') },
@@ -60,11 +207,17 @@ const CreateExperiment = () => {
   ];
 
   const handleSetStep = (newStep) => {
+    if (newStep > step && !isCurrentStepValid) return;
+    if (newStep > step) {
+      setCompletedSteps((prev) => new Set([...prev, step]));
+    }
+    setIsCurrentStepValid(true);
     setStep(newStep);
     if (newStep > maxStep) setMaxStep(newStep);
   };
 
   const handleStepClick = (stepIndex) => {
+    if (stepIndex > step && !isCurrentStepValid) return;
     if (stepIndex <= maxStep) setStep(stepIndex);
   };
 
@@ -90,6 +243,12 @@ const CreateExperiment = () => {
           summary: ExperimentDesc,
           typeExperiment: ExperimentType,
           betweenExperimentType: BtypeExperiment,
+          balancedRuleType: BtypeExperiment === 'balanced' ? BalancedRuleType : undefined,
+          balancedSurveyId: BtypeExperiment === 'balanced' ? BalancedSurveyId || undefined : undefined,
+          balancedQuestionIds:
+            BtypeExperiment === 'balanced' && BalancedRuleType === 'question'
+              ? BalancedQuestionIds
+              : undefined,
           surveysProps: ExperimentSurveys,
           tasksProps: ExperimentTasks,
           icf: experimentIcf,
@@ -97,6 +256,8 @@ const CreateExperiment = () => {
         { headers: { Authorization: `Bearer ${user.accessToken}` } },
       );
 
+      clearExperimentDraft(user?.id);
+      clearExperimentDraftFromServer(user);
       setFeedback({
         open: true,
         message: t('Success') || 'Experimento criado!',
@@ -105,82 +266,144 @@ const CreateExperiment = () => {
       });
       return true;
     } catch (error) {
-      console.error(t('Error creating experiment'), error);
-      setFeedback({
-        open: true,
-        message: t('Error') || 'Falha ao criar o experimento.',
-        severity: 'error',
-        isLoading: false,
-      });
+      console.error('Erro ao criar experimento:', error);
+      setFeedback({ open: false, message: '', severity: 'error', isLoading: false });
+      setSaveFailure({ open: true, message: getExperimentErrorMessage(error) });
       return false;
     }
   };
 
-  const CustomStepIcon = ({ active, completed, icon }) => {
-    if (completed) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 30,
-            height: 30,
-            borderRadius: '50%',
-            backgroundColor: '#1976d2',
-            color: '#fff',
-            fontSize: 16,
-          }}
-        >
-          ✓
-        </div>
-      );
-    }
-    if (active) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 30,
-            height: 30,
-            borderRadius: '50%',
-            backgroundColor: '#f2912d',
-            color: '#fff',
-            fontSize: 14,
-            fontWeight: 'bold',
-            boxShadow: '0 0 0 4px rgba(242, 145, 45, 0.25)',
-          }}
-        >
-          {icon}
-        </div>
-      );
-    }
-    return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: 30,
-          height: 30,
-          borderRadius: '50%',
-          backgroundColor: '#e0e0e0',
-          color: '#9e9e9e',
-          fontSize: 14,
-        }}
-      >
-        {icon}
-      </div>
-    );
+  const handleRetryCreateExperiment = () => {
+    setSaveFailure({ open: false, message: '' });
+    handleCreateExperiment();
   };
+
+  const makeStepIcon =
+    (completedSteps) =>
+      ({ active, icon }) => {
+        const isCompleted = completedSteps.has(icon - 1);
+
+        if (isCompleted) {
+          return (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                backgroundColor: '#1976d2',
+                color: '#fff',
+                fontSize: 16,
+              }}
+            >
+              ✓
+            </div>
+          );
+        }
+        if (active) {
+          return (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                backgroundColor: '#f2912d',
+                color: '#fff',
+                fontSize: 14,
+                fontWeight: 'bold',
+                boxShadow: '0 0 0 4px rgba(242, 145, 45, 0.25)',
+              }}
+            >
+              {icon}
+            </div>
+          );
+        }
+        return (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 30,
+              height: 30,
+              borderRadius: '50%',
+              backgroundColor: '#e0e0e0',
+              color: '#9e9e9e',
+              fontSize: 14,
+            }}
+          >
+            {icon}
+          </div>
+        );
+      };
+  const CustomStepIcon = makeStepIcon(completedSteps);
 
   return (
     <>
+      <Dialog open={isDraftPromptOpen} onClose={handleDiscardDraft}>
+        <DialogTitle>{t('resume_draft_title')}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{t('resume_draft_message')}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDiscardDraft}>{t('resume_draft_discard')}</Button>
+          <Button onClick={handleResumeDraft} variant="contained" autoFocus>
+            {t('resume_draft_continue')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={saveFailure.open}
+        onClose={() => setSaveFailure({ open: false, message: '' })}
+      >
+        <DialogTitle>{t('experiment_save_failed_title')}</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 1 }}>{saveFailure.message}</DialogContentText>
+          <DialogContentText>{t('experiment_save_failed_message')}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSaveFailure({ open: false, message: '' })}>{t('close')}</Button>
+          <Button onClick={handleDownloadDraftBackup}>{t('download_draft_backup')}</Button>
+          <Button onClick={handleRetryCreateExperiment} variant="contained" autoFocus>
+            {t('retry')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Typography variant="h4" component="h1" gutterBottom align="center">
         {t('Experiment_create')}
       </Typography>
+
+      {(autosaveStatus === AUTOSAVE_STATUS.SAVING || autosaveStatus === AUTOSAVE_STATUS.SAVED) && (
+        <LinearProgress
+          role="status"
+          aria-label={t(
+            autosaveStatus === AUTOSAVE_STATUS.SAVING ? 'autosave_saving' : 'autosave_saved',
+          )}
+          sx={{
+            position: 'fixed',
+            top: { xs: 56, sm: 64 },
+            left: 0,
+            width: '100%',
+            height: 3,
+            zIndex: 1400,
+          }}
+        />
+      )}
+
+      {autosaveStatus === AUTOSAVE_STATUS.ERROR && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          <Alert severity="warning" sx={{ py: 0, alignItems: 'center' }}>
+            {t('autosave_error')}
+          </Alert>
+        </Box>
+      )}
 
       <Stepper sx={{ display: { xs: 'none', sm: 'flex' } }} activeStep={step} alternativeLabel>
         {STEPS.map((s) => (
@@ -229,6 +452,12 @@ const CreateExperiment = () => {
           setExperimentType,
           BtypeExperiment,
           setBtypeExperiment,
+          BalancedRuleType,
+          setBalancedRuleType,
+          BalancedSurveyId,
+          setBalancedSurveyId,
+          BalancedQuestionIds,
+          setBalancedQuestionIds,
           ExperimentDesc,
           setExperimentDesc,
           ExperimentTasks,
@@ -239,6 +468,8 @@ const CreateExperiment = () => {
           setExperimentTitleICF,
           ExperimentDescICF,
           setExperimentDescICF,
+          isCurrentStepValid,
+          setIsCurrentStepValid,
         }}
       >
         {step === 0 && <ExperimentMetadataForm />}

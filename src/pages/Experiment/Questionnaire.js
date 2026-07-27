@@ -6,19 +6,62 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../../config/axios';
-import { Button, Typography } from '@mui/material';
+import {
+  Button,
+  Typography,
+  Box,
+  Paper,
+  Container,
+  CircularProgress,
+  Stack,
+  Tooltip,
+} from '@mui/material';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SendIcon from '@mui/icons-material/Send';
+import SaveIcon from '@mui/icons-material/Save'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
 import { Questionnaire as SurveyComponent } from '../../components/Questionnaire/Questionnaire';
 import { CustomSnackbar } from '../../components/CustomSnackbar';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingIndicator } from '../../components/LoadIndicator';
 import { useTranslation } from 'react-i18next';
 
+function buildFormDataFromAnswers(answers, questions) {
+  if (!answers || !questions) return {};
+  const result = {};
+  answers.forEach((answer) => {
+    const questionIndex = questions.findIndex((q, i) => (q.id || q._id || String(i)) === answer.id);
+    if (questionIndex === -1) return;
+    if (answer.questionType === 'open') {
+      result[questionIndex] = {
+        questionStatement: answer.questionStatement,
+        answer: answer.textAnswer,
+        selectedOption: { statement: answer.textAnswer },
+      };
+    } else if (answer.questionType === 'multiple-choices') {
+      result[questionIndex] = {
+        questionStatement: answer.questionStatement,
+        selectedOption: answer.selectedOptions?.[0] ?? null,
+      };
+    } else {
+      result[questionIndex] = {
+        questionStatement: answer.questionStatement,
+        selectedOption: answer.selectedOptions ?? [],
+      };
+    }
+  });
+  return result;
+}
+
 function wasAllRequiredQuestionsAnswered(formData, survey) {
-  const questionsNotAnswered = Object.keys(survey?.questions).filter(
+  const questionsNotAnswered = Object.keys(survey?.questions || {}).filter(
     (key) => survey.questions[key].required && !Object.keys(formData).includes(key),
   );
   return questionsNotAnswered.length === 0;
 }
+
 async function updateUserExperimentStatus(
   userSurveysApiCalls,
   stepName,
@@ -54,8 +97,8 @@ async function updateUserExperimentStatus(
         }
         if (finishedExperiment) {
           await api.patch(
-            `user-experiment/${userExperiment._id}`,
-            { hasFinished: true },
+            `user-experiment/${userExperiment._id}/finish`,
+            {},
             {
               headers: {
                 Authorization: `Bearer ${user.accessToken}`,
@@ -134,6 +177,7 @@ const Questionnaire = () => {
   const [userExperiment, setUserExperiment] = useState(null);
   const [redirect, setRedirect] = useState(false);
   const [surveySent, setSurveySent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showSnackBar, setShowSnackBar] = useState(false);
   const [severity, setSeverity] = useState('success');
@@ -190,9 +234,7 @@ const Questionnaire = () => {
         setUserSurvey(userSurveyResult);
 
         if (isMounted) {
-          let uniqueAnswer = false;
           if (experimentResult) {
-            uniqueAnswer = survey?.uniqueAnswer;
             setExperiment(experimentResult);
           }
 
@@ -200,8 +242,20 @@ const Questionnaire = () => {
             setSurvey(surveyResult);
           }
 
-          if (userSurveyResult?.length > 0 && uniqueAnswer) {
+          const loadedSurvey = surveyResult || survey;
+          if (userSurveyResult && loadedSurvey?.uniqueAnswer) {
             navigate(`/experiments/${experimentId}/surveys`);
+          }
+
+          if (userSurveyResult && loadedSurvey?.questions) {
+            const initialFormData = buildFormDataFromAnswers(
+              userSurveyResult.answers,
+              loadedSurvey.questions,
+            );
+            setFormData(initialFormData);
+            setAllRequiredQuestionsAnswered(
+              wasAllRequiredQuestionsAnswered(initialFormData, loadedSurvey),
+            );
           }
         }
         setIsLoading(false);
@@ -220,8 +274,11 @@ const Questionnaire = () => {
 
   const handleChange = (result) => {
     setAllRequiredQuestionsAnswered(wasAllRequiredQuestionsAnswered(result, survey));
-
     setFormData(result);
+  };
+
+  const handleBack = () => {
+    navigate(`/experiments/${experimentId}/surveys`);
   };
 
   const handleSubmit = async (surveyAnswer, surveysProps) => {
@@ -242,6 +299,8 @@ const Questionnaire = () => {
         setMessage(t('please_answer_all_required_questions'));
         return;
       }
+
+      setIsSubmitting(true);
 
       const answers = Object.entries(formData)
         .map(([index, value]) => {
@@ -278,9 +337,9 @@ const Questionnaire = () => {
           }
         })
         .filter(Boolean);
+
       if (surveyAnswer) {
         surveyAnswer.answers = answers;
-        if (surveyAnswer.score !== undefined) delete surveyAnswer.score;
         if (surveyAnswer.score !== undefined) delete surveyAnswer.score;
         await separateUsersInGroup(api, user, null, experiment);
 
@@ -333,6 +392,7 @@ const Questionnaire = () => {
 
       await updateUserExperimentStatus(userPreSurveysApiCalls, 'pre', userExperiment, user, api);
       await updateUserExperimentStatus(userPostSurveysApiCalls, 'post', userExperiment, user, api);
+      
       setSurveySent(true);
       setShowSnackBar(true);
       setIsSuccess(true);
@@ -344,6 +404,8 @@ const Questionnaire = () => {
       setSeverity('error');
       setMessage(error.message);
       setSurveySent(false);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -363,19 +425,27 @@ const Questionnaire = () => {
   }, [redirect, navigate, experimentId]);
 
   return (
-    <>
-      {!survey && <Typography variant="body1">{t('loading_survey_message')}</Typography>}
-      {!survey && isLoading && <LoadingIndicator size={70} />}
-      {survey && survey?.uniqueAnswer && (
+    <Container maxWidth="lg" sx={{ py: 3 }}>
+      {isLoading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <LoadingIndicator size={70} />
+        </Box>
+      )}
+
+      {!survey && !isLoading && (
+        <Typography variant="body1" align="center" sx={{ py: 4, color: 'text.secondary' }}>
+          {t('loading_survey_message')}
+        </Typography>
+      )}
+
+      {survey && !isLoading && survey?.uniqueAnswer && (
         <ErrorMessage
-          style={{
-            flex: 1,
-            marginBottom: 10,
-          }}
+          style={{ marginBottom: 16 }}
           message={t('unique_answer_survey_message')}
           messageType={'warning'}
         />
       )}
+
       <CustomSnackbar
         open={showSnackBar}
         handleClose={handleCloseSuccessSnackbar}
@@ -386,32 +456,94 @@ const Questionnaire = () => {
         variant="filled"
         showLinear={true}
       />
-      {survey && (
+
+      {survey && !isLoading && (
         <>
-          <SurveyComponent
-            survey={survey}
-            callback={handleChange}
-            params={{ user: user, experimentId: experimentId }}
-          />
-          <div
-            style={{
-              display: 'flex',
-              marginTop: '8px',
-              justifyContent: 'flex-end',
+          {/* COMPONENTE PRINCIPAL DO QUESTIONÁRIO */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 2, sm: 3 },
+              mb: 3,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              backgroundColor: '#ffffff',
             }}
           >
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => handleSubmit(surveyAnswer, experiment?.surveysProps)}
-              disabled={!allRequiredQuestionsAnswered || surveySent}
+            <SurveyComponent
+              survey={survey}
+              callback={handleChange}
+              params={{ user: user, experimentId: experimentId }}
+              initialAnswers={surveyAnswer?.answers}
+            />
+          </Paper>
+
+          {/* BARRA INFERIOR DE AÇÕES */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              backgroundColor: '#ffffff',
+            }}
+          >
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={2}
             >
-              {t('submit_button')}
-            </Button>
-          </div>
+              <Button
+                variant="outlined"
+                color="inherit"
+                startIcon={<ArrowBackIcon />}
+                onClick={handleBack}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  borderColor: '#cbd5e1',
+                  color: '#475569',
+                  width: { xs: '100%', sm: 'auto' },
+                }}
+              >
+                {t('back')}
+              </Button>
+
+              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ width: { xs: '100%', sm: 'auto' }, justifyContent: 'flex-end' }}>
+                {!allRequiredQuestionsAnswered && !surveySent && (
+                  <Tooltip title={t('please_answer_all_required_questions') || 'Responda a todas as perguntas obrigatórias'}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                      <InfoOutlinedIcon fontSize="small" sx={{ mr: 0.5, color: 'warning.main' }} />
+                      <Typography variant="caption" color="text.secondary">
+                        {t('required_fields_pending')}
+                      </Typography>
+                    </Box>
+                  </Tooltip>
+                )}
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+                  onClick={() => handleSubmit(surveyAnswer, experiment?.surveysProps)}
+                  disabled={!allRequiredQuestionsAnswered || surveySent || isSubmitting}
+                  sx={{
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    boxShadow: 2,
+                    width: { xs: '100%', sm: 'auto' },
+                  }}
+                >
+                  {isSubmitting ? t('submitting'): t('save_button')}
+                </Button>
+              </Stack>
+            </Stack>
+          </Paper>
         </>
       )}
-    </>
+    </Container>
   );
 };
 

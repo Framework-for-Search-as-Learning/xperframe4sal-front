@@ -26,8 +26,10 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { api } from '../../config/axios';
 import useQuestionnaireForm from '../Questionnaire/useQuestionnaireForm';
-import QuestionCard from '../Questionnaire/QuestionCard';
+import SortableQuestionCard from '../Questionnaire/SortableQuestionCard';
 import { useState } from 'react';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 const SURVEY_TYPES = (t) => [
   { value: 'pre', label: t('pre') },
@@ -38,6 +40,7 @@ const QUESTION_TYPES = (t) => [
   { value: 'multiple-choices', label: t('multiple_choices') },
   { value: 'multiple-selection', label: t('multiple_selection') },
   { value: 'open', label: t('open') },
+  { value: 'short-answer', label: t('short_answer') },
 ];
 
 const CreateQuestionnaire = ({
@@ -65,11 +68,14 @@ const CreateQuestionnaire = ({
     addQuestion,
     removeQuestion,
     updateQuestion,
+    reorderQuestions,
     isValid,
     buildPayload,
     reset,
     hasEmptyStatement,
   } = useQuestionnaireForm();
+
+  const sensors = useSensors(useSensor(PointerSensor));
 
   const surveyTypes = SURVEY_TYPES(t);
   const questionTypes = QUESTION_TYPES(t);
@@ -123,7 +129,7 @@ const CreateQuestionnaire = ({
     >
       <DialogContent sx={{ backgroundColor: '#f9f9f9', p: { xs: 2, sm: 3 } }}>
         <Typography variant="h5" align="center" gutterBottom sx={{ fontWeight: 600 }}>
-          {t('create_survey')}
+          {t('add_questionnaire')}
         </Typography>
 
         <form onSubmit={handleSubmit}>
@@ -184,17 +190,30 @@ const CreateQuestionnaire = ({
             {t('questions')}
           </Typography>
 
-          {questions.map((q, idx) => (
-            <QuestionCard
-              key={q.id}
-              q={q}
-              index={idx}
-              questionTypes={questionTypes}
-              t={t}
-              onUpdate={updateQuestion}
-              onRemove={removeQuestion}
-            />
-          ))}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={({ active, over }) => {
+              if (over && active.id !== over.id) reorderQuestions(active.id, over.id);
+            }}
+          >
+            <SortableContext
+              items={questions.map((q) => q.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {questions.map((q, idx) => (
+                <SortableQuestionCard
+                  key={q.id}
+                  q={q}
+                  index={idx}
+                  questionTypes={questionTypes}
+                  t={t}
+                  onUpdate={updateQuestion}
+                  onRemove={removeQuestion}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
 
           <Button
             variant="outlined"
@@ -216,7 +235,7 @@ const CreateQuestionnaire = ({
               color="primary"
               disabled={!isValid || hasEmptyStatement || isLoading}
             >
-              {isLoading ? <CircularProgress size={24} /> : t('create_survey')}
+              {isLoading ? <CircularProgress size={24} /> : t('save')}
             </Button>
           </Box>
           <Box sx={{ display: { xs: 'flex', sm: 'none' }, justifyContent: 'space-between', mt: 2 }}>
