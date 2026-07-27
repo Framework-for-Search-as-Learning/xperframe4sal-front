@@ -5,7 +5,7 @@
 
 import React, { useState, useContext } from 'react';
 import { Box, CircularProgress, Typography, Button, Snackbar, Alert } from '@mui/material';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import { ArrowBack, ArrowForward, Add as AddIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { api } from '../../../config/axios';
@@ -88,9 +88,9 @@ const ExperimentTask = () => {
         message:
           ExperimentType === 'between-subject'
             ? t('cannot_delete_min_2_tasks') ||
-            "Não é possível excluir. Experimentos 'Between-subject' exigem pelo menos 2 tarefas."
+              "Não é possível excluir. Experimentos 'Between-subject' exigem pelo menos 2 tarefas."
             : t('cannot_delete_min_1_task') ||
-            'Não é possível excluir a única tarefa do experimento.',
+              'Não é possível excluir a única tarefa do experimento.',
         severity: 'warning',
       });
       handleCloseDeleteDialog();
@@ -188,8 +188,8 @@ const ExperimentTask = () => {
         const [questionsResponse, linkedSurveysResponse] = await Promise.all([
           ruleType === 'question'
             ? api.get(`task-question-map/task/${taskId}`, {
-              headers: { Authorization: `Bearer ${user.accessToken}` },
-            })
+                headers: { Authorization: `Bearer ${user.accessToken}` },
+              })
             : Promise.resolve({ data: [] }),
           api.get(`task-survey/task/${taskId}`, {
             headers: { Authorization: `Bearer ${user.accessToken}` },
@@ -445,6 +445,7 @@ const ExperimentTask = () => {
   };
 
   const filteredTasks = filterTasks(ExperimentTasks, searchTerm);
+  const hasTasks = Array.isArray(ExperimentTasks) && ExperimentTasks.length > 0;
   const minimal_tasks = ExperimentType === 'between-subject' ? 2 : 1;
   const canGoNext = ExperimentTasks.length >= minimal_tasks;
 
@@ -461,11 +462,9 @@ const ExperimentTask = () => {
       >
         <Box
           sx={{
-            padding: 3,
+            padding: { xs: 2, sm: 3 },
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
             backgroundColor: '#f9f9f9',
             borderRadius: '8px',
             boxShadow: 4,
@@ -476,9 +475,25 @@ const ExperimentTask = () => {
           <Typography variant="h6" align="center" sx={{ mb: 2 }}>
             {t('task')}
           </Typography>
+
+          {hasTasks && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={toggleCreateTask}
+              >
+                {t('create_task')}
+              </Button>
+            </Box>
+          )}
+
           {isLoadingTask ? (
-            <CircularProgress />
-          ) : Array.isArray(ExperimentTasks) && ExperimentTasks.length > 0 ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : hasTasks ? (
             <TaskList
               tasks={filteredTasks}
               searchTerm={searchTerm}
@@ -491,61 +506,75 @@ const ExperimentTask = () => {
               t={t}
             />
           ) : (
-            <NotFound title={t('NTaskFound')} subTitle={t('NoTaskcreated')} />
-          )}
-
-          <Box
-            sx={{
-              display: { xs: 'none', sm: 'flex' },
-              justifyContent: isEditMode ? 'flex-end' : 'space-between',
-              mt: 4,
-              width: '100%',
-            }}
-          >
-            {!isEditMode && (
-              <Button variant="contained" onClick={handleBack} sx={{ maxWidth: 150 }}>
-                {t('back')}
-              </Button>
-            )}
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button variant="contained" onClick={toggleCreateTask}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 300,
+                p: 3,
+                backgroundColor: '#fff',
+                borderRadius: '8px',
+                border: '1px dashed #cccccc',
+              }}
+            >
+              <NotFound title={t('NTaskFound')} subTitle={t('NoTaskcreated')} />
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={toggleCreateTask}
+                sx={{ mt: 3, px: 3, py: 1 }}
+              >
                 {t('create_task')}
               </Button>
-              {!isEditMode && (
-                <Button variant="contained" onClick={handleNext} disabled={!canGoNext}>
-                  {t('next')}
-                </Button>
-              )}
             </Box>
-          </Box>
+          )}
 
           {!canGoNext && !isEditMode && (
-            <Typography variant="caption" sx={{ color: 'error.main', mt: 1, fontWeight: 'bold' }}>
+            <Typography
+              variant="caption"
+              align="center"
+              sx={{ color: 'error.main', mt: 2, fontWeight: 'bold' }}
+            >
               {ExperimentType === 'between-subject'
-                ? t('needs_at_least_2_tasks')
-                : t('needs_at_least_1_task')}
+                ? t('needs_at_least_2_tasks') || 'Adicione pelo menos 2 tarefas para prosseguir.'
+                : t('needs_at_least_1_task') || 'Adicione pelo menos 1 tarefa para prosseguir.'}
             </Typography>
           )}
 
           <Box
             sx={{
-              display: { xs: 'flex', sm: 'none' },
-              justifyContent: isEditMode ? 'center' : 'space-between',
-              mt: 4,
+              display: 'flex',
+              justifyContent: isEditMode ? 'flex-end' : 'space-between',
+              alignItems: 'center',
+              mt: 3,
+              pt: 2,
+              borderTop: '1px solid #e0e0e0',
               width: '100%',
             }}
           >
             {!isEditMode && (
-              <Button variant="contained" onClick={handleBack}>
-                <ArrowBack />
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={handleBack}
+                startIcon={<ArrowBack />}
+              >
+                {t('back')}
               </Button>
             )}
-            <Button variant="contained" onClick={toggleCreateTask}>
-              {t('create_task')}
-            </Button>
+
             {!isEditMode && (
-              <Button variant="contained" onClick={handleNext} disabled={!canGoNext}>
-                <ArrowForward />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleNext}
+                endIcon={<ArrowForward />}
+                disabled={!canGoNext}
+              >
+                {t('next')}
               </Button>
             )}
           </Box>

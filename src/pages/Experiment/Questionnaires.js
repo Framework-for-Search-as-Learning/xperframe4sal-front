@@ -13,10 +13,24 @@ import {
   Button,
   Typography,
   Divider,
+  Box,
+  Chip,
+  Paper,
+  Stack,
 } from '@mui/material';
+
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import LockIcon from '@mui/icons-material/Lock';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+
 import { CustomSnackbar } from '../../components/CustomSnackbar';
-import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingIndicator } from '../../components/LoadIndicator';
 
 import { useTranslation } from 'react-i18next';
@@ -49,7 +63,6 @@ const Questionnaires = () => {
   const [severity, setSeverity] = useState('success');
   const [message, setMessage] = useState('success');
   const [shouldActivateTask, setShouldActivateTask] = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
   const [expanded, setExpanded] = useState(`panel-0`);
   const [hasFinishedTasks, setHasFinishedTasks] = useState(false);
 
@@ -90,10 +103,6 @@ const Questionnaires = () => {
         const tasksFinished = !!userExperimentResult?.stepsCompleted['task'];
         setHasFinishedTasks(tasksFinished);
 
-        // Collect linkedSurveyRefs from the user's tasks to filter surveys.
-        // featureEnabled is true when at least one task explicitly defines linkedSurveyRefs
-        // (even as an empty array), allowing us to distinguish from old experiments that
-        // don't have this field at all.
         const userTasksData = userTasksResponse?.data || [];
         const taskRefs = userTasksData.map((ut) => ut.task?.linkedSurveyRefs);
         const featureEnabled = taskRefs.some((refs) => Array.isArray(refs));
@@ -111,7 +120,6 @@ const Questionnaires = () => {
 
         for (const survey of surveysResponse.data) {
           if (!survey.isActive) continue;
-          // When the feature is enabled, only show surveys linked to the user's tasks
           if (
             featureEnabled &&
             !linkedSurveyIds.has(String(survey._id)) &&
@@ -150,7 +158,6 @@ const Questionnaires = () => {
         setUserExperiment(userExperimentResult);
         setSteps(experimentSteps);
 
-        // Only redirect to tasks if there are no surveys AND tasks are not yet done
         if (surveyList.length === 0 && !tasksFinished) {
           navigate(`/experiments/${experimentId}/tasks`);
           return;
@@ -159,7 +166,6 @@ const Questionnaires = () => {
         setSurveys(surveyList);
 
         const allPreAnswered = localPre.every((survey) => localAnsweredPre[survey._id]);
-        setShowWarning(!allPreAnswered);
         setShouldActivateTask(allPreAnswered);
 
         setIsLoading(false);
@@ -213,160 +219,265 @@ const Questionnaires = () => {
     });
   };
 
+  const renderSurveyAccordion = (survey, index, isAnswered) => {
+    const isUniqueAndAnswered = isAnswered && survey?.uniqueAnswer;
+
+    return (
+      <Accordion
+        key={survey._id}
+        elevation={0}
+        expanded={expanded === `panel-${index}`}
+        onChange={handleChange(`panel-${index}`)}
+        disabled={isUniqueAndAnswered}
+        sx={{
+          mb: 1.5,
+          border: '1px solid #e2e8f0',
+          borderRadius: '10px !important',
+          overflow: 'hidden',
+          '&:before': { display: 'none' },
+          backgroundColor: isUniqueAndAnswered ? '#f8fafc' : '#ffffff',
+          boxShadow: expanded === `panel-${index}` ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
+          transition: 'all 0.2s ease',
+        }}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls={`panel-${index}bh-content`}
+          id={`panel-${index}bh-header`}
+          sx={{
+            px: 2.5,
+            py: 0.5,
+            '&:hover': { backgroundColor: isUniqueAndAnswered ? 'transparent' : '#f8fafc' },
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1.5, pr: 1 }}>
+            <AssignmentIcon color={isAnswered ? 'disabled' : 'primary'} fontSize="small" />
+            
+            <Typography variant="subtitle1" fontWeight={600} sx={{ flexGrow: 1, color: '#0f172a' }}>
+              {survey.title}
+            </Typography>
+
+            {isAnswered && (
+              <Chip
+                icon={<CheckCircleOutlineIcon fontSize="small" />}
+                label={t('already_answered')}
+                color="success"
+                size="small"
+                variant="outlined"
+                sx={{ fontWeight: 500 }}
+              />
+            )}
+          </Box>
+        </AccordionSummary>
+        <Divider />
+        <AccordionDetails sx={{ p: 2.5, backgroundColor: '#fafafa' }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2, lineHeight: 1.6 }}>
+            {survey.description || t('no_description_available')}
+          </Typography>
+
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+            {isAnswered && !survey?.uniqueAnswer && (
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<EditIcon />}
+                onClick={() => handleEnterSurvey(survey._id)}
+                sx={{ textTransform: 'none', fontWeight: 600 }}
+              >
+                {t('edit_label')}
+              </Button>
+            )}
+
+            {!isAnswered && (
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<MeetingRoomIcon />}
+                onClick={() => handleEnterSurvey(survey._id)}
+                sx={{ textTransform: 'none', fontWeight: 600, px: 3 }}
+              >
+                {t('Access')}
+              </Button>
+            )}
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    );
+  };
+
+  const currentSurveyList = hasFinishedTasks ? postSurveys : preSurveys;
+  const currentAnsweredMap = hasFinishedTasks ? answeredPostSurveys : answeredPreSurveys;
+  const isPostSurveysFinished = postSurveys.filter((s) => !answeredPostSurveys[s._id]).length === 0;
+
   return (
     <ExperimentTemplate headerTitle={t('questionnaire_list_header')} steps={steps} hideFinishButton>
       <CustomSnackbar open={open} time={1500} message={message} severity={severity} />
 
-      <div style={{ display: 'flex', marginBottom: 10 }}>
-        {showWarning && (
-          <ErrorMessage
-            style={{ flex: 1 }}
-            message={t('attention_message')}
-            messageType={'warning'}
-          />
+      {/* ESTADOS DE CARREGAMENTO */}
+      {isLoading && !surveys && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 6 }}>
+          <LoadingIndicator size={50} />
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            {t('loading_surveys')}
+          </Typography>
+        </Box>
+      )}
+
+      {surveys?.length === 0 && !isLoading && (
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            textAlign: 'center',
+            borderRadius: 2,
+            border: '1px dashed #cbd5e1',
+            backgroundColor: '#ffffff',
+            mb: 3,
+          }}
+        >
+          <Typography variant="body1" color="text.secondary">
+            {t('no_surveys')}
+          </Typography>
+        </Paper>
+      )}
+
+      {/* LISTA DE QUESTIONÁRIOS */}
+      <Box sx={{ mt: 1 }}>
+        {currentSurveyList?.map((survey, index) =>
+          renderSurveyAccordion(survey, index, !!currentAnsweredMap[survey._id]),
         )}
-        {!showWarning && !hasFinishedTasks && (
-          <Button
-            variant="contained"
-            color="primary"
-            style={{ justifyContent: 'flex-end', marginLeft: 'auto' }}
-            onClick={handleEnterTasks}
-            disabled={!shouldActivateTask}
-          >
-            {t('go_to_tasks')}
-          </Button>
-        )}
-        {hasFinishedTasks &&
-          postSurveys.filter((s) => !answeredPostSurveys[s._id]).length === 0 && (
-            <Button
-              variant="contained"
-              color="primary"
-              style={{ justifyContent: 'flex-end', marginLeft: 'auto' }}
-              onClick={handleFinishExperiment}
-              disabled={!userExperiment}
+      </Box>
+
+      {/* CARD DE PRÓXIMO PASSO DA ETAPA (IR PARA TAREFAS OU FINALIZAR) */}
+      {!isLoading && currentSurveyList && (
+        <Paper
+          elevation={0}
+          sx={{
+            mt: 3,
+            p: 3,
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: shouldActivateTask || isPostSurveysFinished ? '#bbf7d0' : '#e2e8f0',
+            backgroundColor: shouldActivateTask || isPostSurveysFinished ? '#f0fdf4' : '#f8fafc',
+            transition: 'all 0.3s ease',
+          }}
+        >
+          {!hasFinishedTasks ? (
+            /* ETAPA PRÉ-TAREFA */
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={2}
             >
-              {t('finish_experiment')}
-            </Button>
-          )}
-      </div>
-
-      {!surveys && <Typography variant="body1">{t('loading_surveys')}</Typography>}
-      {!surveys && isLoading && <LoadingIndicator size={70} />}
-      {surveys?.length === 0 && <Typography variant="body1">{t('no_surveys')}</Typography>}
-
-      <div>
-        {!hasFinishedTasks &&
-          preSurveys?.map((survey, index) => (
-            <Accordion
-              sx={{ marginBottom: '5px' }}
-              key={survey._id}
-              elevation={3}
-              expanded={expanded === `panel-${index}`}
-              onChange={handleChange(`panel-${index}`)}
-              disabled={answeredPreSurveys[survey._id] && survey?.uniqueAnswer}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls={`panel-${index}bh-content`}
-                id={`panel-${index}bh-header`}
-                sx={{ '&:hover': { backgroundColor: 'lightgray' } }}
-              >
-                <Typography>
-                  <span>{survey.title}</span>
-                  {answeredPreSurveys[survey._id] && survey?.uniqueAnswer && (
-                    <span style={{ color: 'red', display: 'flex', justifyContent: 'end' }}>
-                      {t('already_answered')}
-                    </span>
-                  )}
-                </Typography>
-              </AccordionSummary>
-              <Divider />
-              <AccordionDetails>
-                <Typography>{survey.description}</Typography>
-                <div style={{ textAlign: 'right' }}>
-                  {answeredPreSurveys[survey._id] && !survey?.uniqueAnswer && (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      style={{ margin: '16px' }}
-                      onClick={() => handleEnterSurvey(survey._id)}
-                    >
-                      {t('edit_label')}
-                    </Button>
-                  )}
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    style={{ margin: '16px' }}
-                    onClick={() => handleEnterSurvey(survey._id)}
-                    disabled={answeredPreSurveys[survey._id]}
-                  >
-                    {t('enter_label')}
-                  </Button>
-                </div>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-      </div>
-
-      {hasFinishedTasks && (
-        <div>
-          {postSurveys?.map(
-            (survey, index) =>
-              (!answeredPostSurveys[survey._id] ||
-                (answeredPostSurveys[survey._id] && !survey?.uniqueAnswer)) && (
-                <Accordion
-                  sx={{ marginBottom: '5px' }}
-                  key={survey._id}
-                  elevation={3}
-                  expanded={expanded === `panel-${index}`}
-                  onChange={handleChange(`panel-${index}`)}
-                  disabled={answeredPostSurveys[survey._id] && survey?.uniqueAnswer}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: '50%',
+                    backgroundColor: shouldActivateTask ? '#dcfce7' : '#e2e8f0',
+                    color: shouldActivateTask ? '#16a34a' : '#64748b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                 >
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls={`panel-${index}bh-content`}
-                    id={`panel-${index}bh-header`}
-                    sx={{ '&:hover': { backgroundColor: 'lightgray' } }}
-                  >
-                    <Typography>
-                      <span>{survey.title}</span>
-                      {answeredPostSurveys[survey._id] && survey?.uniqueAnswer && (
-                        <span style={{ color: 'red', display: 'flex', justifyContent: 'end' }}>
-                          {t('already_answered')}
-                        </span>
-                      )}
-                    </Typography>
-                  </AccordionSummary>
-                  <Divider />
-                  <AccordionDetails>
-                    <Typography>{survey.description}</Typography>
-                    <div style={{ textAlign: 'right' }}>
-                      {answeredPostSurveys[survey._id] && !survey?.uniqueAnswer && (
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          style={{ margin: '16px' }}
-                          onClick={() => handleEnterSurvey(survey._id)}
-                        >
-                          {t('edit_label')}
-                        </Button>
-                      )}
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        style={{ margin: '16px' }}
-                        onClick={() => handleEnterSurvey(survey._id)}
-                        disabled={answeredPostSurveys[survey._id]}
-                      >
-                        {t('enter_label')}
-                      </Button>
-                    </div>
-                  </AccordionDetails>
-                </Accordion>
-              ),
+                  {shouldActivateTask ? <RocketLaunchIcon /> : <LockIcon />}
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a' }}>
+                    {shouldActivateTask
+                      ? t('pre_surveys_completed_title')
+                      : t('pre_surveys_pending_title')}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {shouldActivateTask
+                      ? t('pre_surveys_completed_subtitle')
+                      : t('pre_surveys_pending_subtitle')}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                endIcon={<ArrowForwardIcon />}
+                onClick={handleEnterTasks}
+                disabled={!shouldActivateTask}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  px: 4,
+                  py: 1.2,
+                  borderRadius: 2.5,
+                  minWidth: { xs: '100%', sm: 'auto' },
+                  boxShadow: shouldActivateTask ? '0 4px 14px rgba(2, 132, 199, 0.35)' : 'none',
+                }}
+              >
+                {t('go_to_tasks')}
+              </Button>
+            </Stack>
+          ) : (
+            /* ETAPA PÓS-TAREFA (FINALIZAÇÃO) */
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={2}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: '50%',
+                    backgroundColor: isPostSurveysFinished ? '#dcfce7' : '#e2e8f0',
+                    color: isPostSurveysFinished ? '#16a34a' : '#64748b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CheckCircleIcon />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#0f172a' }}>
+                    {isPostSurveysFinished
+                      ? t('post_surveys_completed_title')
+                      : t('post_surveys_pending_title')}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {isPostSurveysFinished
+                      ? t('post_surveys_completed_subtitle')
+                      : t('post_surveys_pending_subtitle')}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Button
+                variant="contained"
+                color="success"
+                size="large"
+                startIcon={<CheckCircleIcon />}
+                onClick={handleFinishExperiment}
+                disabled={!isPostSurveysFinished || !userExperiment}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  px: 4,
+                  py: 1.2,
+                  borderRadius: 2.5,
+                  minWidth: { xs: '100%', sm: 'auto' },
+                  boxShadow: isPostSurveysFinished ? '0 4px 14px rgba(22, 163, 74, 0.35)' : 'none',
+                }}
+              >
+                {t('finish_experiment')}
+              </Button>
+            </Stack>
           )}
-        </div>
+        </Paper>
       )}
     </ExperimentTemplate>
   );

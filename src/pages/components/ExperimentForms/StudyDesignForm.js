@@ -17,7 +17,7 @@ import {
   Link,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import { ArrowBack, ArrowForward, Save as SaveIcon } from '@mui/icons-material';
 import StepContext from './context/StepContext';
 import FormStepContainer from '../../../components/Forms/FormStepContainer';
 import GroupSeparationInfoModal from '../../../components/Modals/GroupSeparationInfoModal';
@@ -73,10 +73,19 @@ const StudyDesignForm = () => {
     }
   };
 
+  // Suas regras originais de validação de tarefas
   const isBetweenSubject = ExperimentType === 'between-subject';
   const minimumTasksRequired = isBetweenSubject ? 2 : 1;
   const hasEnoughTasks = ExperimentTasks && ExperimentTasks.length >= minimumTasksRequired;
   const isSaveDisabled = isEditMode && !hasEnoughTasks;
+
+  // Regra adicional: Validação para o método Balanceado
+  const isBalancedIncomplete =
+    isBetweenSubject &&
+    BtypeExperiment === 'balanced' &&
+    (!BalancedSurveyId || (BalancedRuleType === 'question' && (!BalancedQuestionIds || BalancedQuestionIds.length === 0)));
+
+  const isButtonDisabled = isSaveDisabled || isBalancedIncomplete;
 
   return (
     <FormStepContainer>
@@ -240,64 +249,50 @@ const StudyDesignForm = () => {
               'Você precisa ter pelo menos 1 tarefa cadastrada para salvar o design.'}
         </Alert>
       )}
+
       <Box
         sx={{
-          display: { xs: 'none', sm: 'flex' },
+          display: 'flex',
           justifyContent: isEditMode ? 'flex-end' : 'space-between',
-          marginTop: 2,
+          alignItems: 'center',
+          mt: 3,
+          pt: 2,
+          borderTop: '1px solid #e0e0e0',
           width: '100%',
         }}
       >
         {!isEditMode && (
           <Button
-            variant="contained"
-            color="primary"
+            variant="outlined"
+            color="inherit"
+            startIcon={<ArrowBack />}
             onClick={() => setStep(step - 1)}
-            sx={{ maxWidth: '150px' }}
           >
             {t('back')}
           </Button>
         )}
 
-        <Button
-          variant="contained"
-          color={isEditMode ? 'success' : 'primary'}
-          onClick={isEditMode ? handleSaveExperiment : () => setStep(step + 1)}
-          sx={{ maxWidth: '150px' }}
-          disabled={isSaveDisabled}
-        >
-          {isEditMode ? t('save') : t('next')}
-        </Button>
-      </Box>
-
-      <Box
-        sx={{
-          display: { xs: 'flex', sm: 'none' },
-          justifyContent: isEditMode ? 'flex-end' : 'space-between',
-          marginTop: 2,
-          width: '100%',
-        }}
-      >
-        {!isEditMode && (
+        {isEditMode ? (
+          <Button
+            variant="contained"
+            color="success"
+            onClick={handleSaveExperiment}
+            disabled={isButtonDisabled}
+            startIcon={<SaveIcon />}
+          >
+            {t('save')}
+          </Button>
+        ) : (
           <Button
             variant="contained"
             color="primary"
-            onClick={() => setStep(step - 1)}
-            sx={{ maxWidth: '150px' }}
+            onClick={() => setStep(step + 1)}
+            disabled={isButtonDisabled}
+            endIcon={<ArrowForward />}
           >
-            <ArrowBack />
+            {t('next')}
           </Button>
         )}
-
-        <Button
-          variant="contained"
-          color={isEditMode ? 'success' : 'primary'}
-          onClick={isEditMode ? handleSaveExperiment : () => setStep(step + 1)}
-          sx={{ maxWidth: '150px' }}
-          disabled={isSaveDisabled}
-        >
-          {isEditMode ? t('save') : <ArrowForward />}
-        </Button>
       </Box>
 
       <GroupSeparationInfoModal

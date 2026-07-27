@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import ReactQuill from 'react-quill';
 import StepContext from './context/StepContext';
 import 'react-quill/dist/quill.snow.css';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import { ArrowBack, ArrowForward, Save as SaveIcon } from '@mui/icons-material';
 
 const CustomContainer = styled('div')(({ theme }) => ({
   backgroundColor: '#fafafa',
@@ -47,11 +47,13 @@ const ExperimentICF = () => {
 
   const { t } = useTranslation();
   const [isValidTitleExp, setIsValidTitleExp] = useState(true);
-  const stripHtml = (html) => html.replace(/<[^>]*>/g, '').trim();
+
+  const stripHtml = (html) => (html ? html.replace(/<[^>]*>/g, '').trim() : '');
 
   const [isDescEmpty, setIsDescEmpty] = useState(() => stripHtml(ExperimentDescICF).length === 0);
 
-  const isValidFormExperiment = isValidTitleExp && ExperimentTitleICF && !isDescEmpty;
+  const isValidFormExperiment = isValidTitleExp && ExperimentTitleICF?.trim().length > 0 && !isDescEmpty;
+
   const handleNameChangeTitle = (e) => {
     const value = e.target.value;
     setExperimentTitleICF(value);
@@ -75,6 +77,7 @@ const ExperimentICF = () => {
       <Typography variant="h6" align="center" sx={{ mb: 2 }}>
         {t('ICF')}
       </Typography>
+
       <TextField
         label={t('Experiment_title_ICF')}
         error={!isValidTitleExp}
@@ -103,60 +106,47 @@ const ExperimentICF = () => {
 
       <Box
         sx={{
-          display: { xs: 'none', sm: 'flex' },
+          display: 'flex',
           justifyContent: isEditMode ? 'flex-end' : 'space-between',
-          mt: 2,
+          alignItems: 'center',
+          mt: 3,
+          pt: 2,
+          borderTop: '1px solid #e0e0e0',
           width: '100%',
         }}
       >
         {!isEditMode && (
           <Button
-            variant="contained"
-            color="primary"
+            variant="outlined"
+            color="inherit"
+            startIcon={<ArrowBack />}
             onClick={handleBackResearcher}
-            sx={{ maxWidth: '150px' }}
           >
             {t('back')}
           </Button>
         )}
-        <Button
-          variant="contained"
-          color={isEditMode ? 'success' : 'primary'}
-          onClick={isEditMode ? handleSaveExperiment : handleNextExperiment}
-          sx={{ maxWidth: '150px' }}
-          disabled={!isValidFormExperiment}
-        >
-          {isEditMode ? t('save') : t('next')}
-        </Button>
-      </Box>
 
-      <Box
-        sx={{
-          display: { xs: 'flex', sm: 'none' },
-          justifyContent: isEditMode ? 'flex-end' : 'space-between',
-          mt: 2,
-          width: '100%',
-        }}
-      >
-        {!isEditMode && (
+        {isEditMode ? (
+          <Button
+            variant="contained"
+            color="success"
+            onClick={handleSaveExperiment}
+            disabled={!isValidFormExperiment}
+            startIcon={<SaveIcon />}
+          >
+            {t('save')}
+          </Button>
+        ) : (
           <Button
             variant="contained"
             color="primary"
-            onClick={handleBackResearcher}
-            sx={{ maxWidth: '150px' }}
+            onClick={handleNextExperiment}
+            disabled={!isValidFormExperiment}
+            endIcon={<ArrowForward />}
           >
-            <ArrowBack />
+            {t('next')}
           </Button>
         )}
-        <Button
-          variant="contained"
-          color={isEditMode ? 'success' : 'primary'}
-          onClick={isEditMode ? handleSaveExperiment : handleNextExperiment}
-          sx={{ maxWidth: '150px' }}
-          disabled={!isValidFormExperiment}
-        >
-          {isEditMode ? t('save') : <ArrowForward />}
-        </Button>
       </Box>
     </FormStepContainer>
   );
