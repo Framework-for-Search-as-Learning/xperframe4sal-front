@@ -23,7 +23,6 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LockIcon from '@mui/icons-material/Lock';
@@ -252,7 +251,7 @@ const Questionnaires = () => {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1.5, pr: 1 }}>
             <AssignmentIcon color={isAnswered ? 'disabled' : 'primary'} fontSize="small" />
-            
+
             <Typography variant="subtitle1" fontWeight={600} sx={{ flexGrow: 1, color: '#0f172a' }}>
               {survey.title}
             </Typography>

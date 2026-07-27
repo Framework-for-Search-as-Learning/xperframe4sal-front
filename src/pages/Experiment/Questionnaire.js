@@ -18,7 +18,6 @@ import {
 } from '@mui/material';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SendIcon from '@mui/icons-material/Send';
 import SaveIcon from '@mui/icons-material/Save'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
@@ -392,7 +391,7 @@ const Questionnaire = () => {
 
       await updateUserExperimentStatus(userPreSurveysApiCalls, 'pre', userExperiment, user, api);
       await updateUserExperimentStatus(userPostSurveysApiCalls, 'post', userExperiment, user, api);
-      
+
       setSurveySent(true);
       setShowSnackBar(true);
       setIsSuccess(true);
