@@ -73,13 +73,11 @@ const StudyDesignForm = () => {
     }
   };
 
-  // Suas regras originais de validação de tarefas
   const isBetweenSubject = ExperimentType === 'between-subject';
   const minimumTasksRequired = isBetweenSubject ? 2 : 1;
   const hasEnoughTasks = ExperimentTasks && ExperimentTasks.length >= minimumTasksRequired;
   const isSaveDisabled = isEditMode && !hasEnoughTasks;
 
-  // Regra adicional: Validação para o método Balanceado
   const isBalancedIncomplete =
     isBetweenSubject &&
     BtypeExperiment === 'balanced' &&

@@ -338,7 +338,7 @@ const ExperimentAccordion = ({
         borderColor: expanded ? '#0284c7' : '#e2e8f0',
         backgroundColor: '#ffffff',
         transition: 'all 0.2s ease-in-out',
-        '&:before': { display: 'none' }, // Remove linha divisória padrão do MUI Accordion
+        '&:before': { display: 'none' },
         '&:hover': {
           borderColor: expanded ? '#0284c7' : '#cbd5e1',
         },
