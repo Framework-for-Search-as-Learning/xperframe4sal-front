@@ -216,6 +216,8 @@
   "no_tasks_execution": "No tasks execution",
   "no_experiments": "You are not currently enrolled in any experiments.",
   "no_questions_available": "No issues available",
+  "no_scored_questions_available": "No scored question available",
+  "no_scored_questions_warning": "The selected questionnaire has no multiple-choice question with scoring enabled. In this case, both overall-score balancing and specific-question balancing will always result in a score of zero for every participant, so groups won't be differentiated. Select a questionnaire with at least one scored question, or enable the \"Score\" option on a multiple-choice question in this questionnaire.",
   "no_survey_available": "No questionnaire available",
   "no_survey_warning": "No questionnaire has been added. Are you sure you want to proceed to the next step without creating any questionnaire?",
   "no_surveys": "At the moment you have not been enrolled in any surveys. Thank you!",

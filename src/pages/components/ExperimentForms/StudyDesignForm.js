@@ -50,6 +50,14 @@ const StudyDesignForm = () => {
     (survey) => (survey._id || survey.uuid || survey.id) === BalancedSurveyId,
   );
 
+  const scoredQuestions =
+    balancedSurvey?.questions?.filter(
+      (q) => (q.type === 'multiple-selection' || q.type === 'multiple-choices') && q.hasscore,
+    ) || [];
+
+  const hasNoScoredQuestions =
+    !!balancedSurvey && balancedSurvey.questions?.length > 0 && scoredQuestions.length === 0;
+
   const handleBalancedSurveyChange = (event) => {
     setBalancedSurveyId(event.target.value);
     setBalancedQuestionIds([]);
@@ -160,6 +168,12 @@ const StudyDesignForm = () => {
                 </Select>
               </FormControl>
 
+              {hasNoScoredQuestions && (
+                <Alert severity="warning" variant="outlined" sx={{ mt: 1, width: '100%' }}>
+                  {t('no_scored_questions_warning')}
+                </Alert>
+              )}
+
               <FormControl fullWidth margin="normal">
                 <InputLabel id="balanced-rule-label">{t('Separation_rule')}</InputLabel>
                 <Select
@@ -212,23 +226,21 @@ const StudyDesignForm = () => {
                       return t('questions_selected_count', { count: labels.length });
                     }}
                   >
-                    {balancedSurvey?.questions && balancedSurvey.questions.length > 0 ? (
-                      balancedSurvey.questions
-                        .filter(
-                          (q) =>
-                            (q.type === 'multiple-selection' || q.type === 'multiple-choices') &&
-                            q.hasscore,
-                        )
-                        .map((question) => (
-                          <MenuItem key={question.id} value={question.id}>
-                            <Checkbox
-                              checked={(BalancedQuestionIds || []).includes(question.id)}
-                            />
-                            {question.statement || 'Sem enunciado'}
-                          </MenuItem>
-                        ))
+                    {scoredQuestions.length > 0 ? (
+                      scoredQuestions.map((question) => (
+                        <MenuItem key={question.id} value={question.id}>
+                          <Checkbox
+                            checked={(BalancedQuestionIds || []).includes(question.id)}
+                          />
+                          {question.statement || 'Sem enunciado'}
+                        </MenuItem>
+                      ))
                     ) : (
-                      <MenuItem disabled>{t('no_questions_available')}</MenuItem>
+                      <MenuItem disabled>
+                        {hasNoScoredQuestions
+                          ? t('no_scored_questions_available')
+                          : t('no_questions_available')}
+                      </MenuItem>
                     )}
                   </Select>
                 </FormControl>
