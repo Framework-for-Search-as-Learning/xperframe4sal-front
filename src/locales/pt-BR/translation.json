@@ -214,6 +214,8 @@
   "no_tasks_execution": "Nenhuma execução de tarefa disponível",
   "no_experiments": "No momento você não foi inscrito em nenhum experimento.",
   "no_questions_available": "Nenhuma Questão Disponível",
+  "no_scored_questions_available": "Nenhuma Questão Pontuada Disponível",
+  "no_scored_questions_warning": "O questionário selecionado não possui nenhuma questão de múltipla escolha com pontuação habilitada. Nesse caso, tanto o balanceamento por pontuação geral quanto por questão específica resultará sempre em pontuação zero para todos os participantes, sem diferenciar os grupos. Selecione um questionário com ao menos uma questão pontuada, ou habilite a opção \"Pontuação\" em alguma questão de múltipla escolha desse questionário.",
   "no_survey_available": "Nenhum Questionário Disponível",
   "no_survey_warning": "Nenhum questionário foi adicionado. Tem certeza de que deseja avançar para o próximo passo sem criar nenhum questionário?",
   "no_surveys": "No momento você não foi inscrito em nenhum questionário. Obrigad@!",
