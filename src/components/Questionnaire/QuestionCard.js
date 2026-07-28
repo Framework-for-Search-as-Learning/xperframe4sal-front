@@ -133,6 +133,7 @@ const QuestionCard = ({
                   type="number"
                   value={opt.score || 0}
                   onChange={(e) => updateOption(opt.id, 'score', Number(e.target.value))}
+                  onFocus={(e) => e.target.select()}
                   variant="standard"
                   inputProps={{ style: { textAlign: 'center' } }}
                   sx={{ width: 70, flexShrink: 0 }}
