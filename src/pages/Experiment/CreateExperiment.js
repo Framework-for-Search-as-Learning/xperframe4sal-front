@@ -166,10 +166,6 @@ const CreateExperiment = () => {
     }
     return t('experiment_create_unknown_error');
   };
-
-  // Backup export/import happens entirely client-side: this is the escape
-  // hatch offered when the backend is unreachable, so it must not itself
-  // depend on the backend.
   const handleDownloadDraftBackup = () => {
     try {
       const yamlContent = yaml.dump(currentDraftValues);

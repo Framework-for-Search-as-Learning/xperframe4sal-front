@@ -1,4 +1,8 @@
-// components/Questionnaire/RichTextField.jsx
+/*
+ * Copyright (c) 2026, lapic-ufjf
+ * Licensed under The MIT License [see LICENSE for details]
+ */
+
 import React, { useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';

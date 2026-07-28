@@ -1,17 +1,14 @@
-
 /*
  * Copyright (c) 2026, lapic-ufjf
  * Licensed under The MIT License [see LICENSE for details]
- */
+*/
  
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import { api } from '../../config/axios.js';
 import { ResultModal } from '../../components/ResultModal.js';
 import { Tooltip, IconButton, Box } from '@mui/material';
-// import Pause from '@mui/icons-material/Pause';
 import Stop from '@mui/icons-material/Stop';
-// import PlayArrow from '@mui/icons-material/PlayArrow';
 import { ConfirmDialog } from '../../components/ConfirmDialog.js';
 import { CustomSnackbar } from '../../components/CustomSnackbar.js';
 import { useTranslation } from 'react-i18next';

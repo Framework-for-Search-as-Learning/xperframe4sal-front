@@ -47,7 +47,9 @@ const JoinExperiment = () => {
           return;
         }
       } catch (_) {
-        // 404 means not enrolled yet — proceed to enroll
+        /**
+         * TODO: Handle error when checking if the user is already part of the experiment.
+         */
       }
 
       try {
