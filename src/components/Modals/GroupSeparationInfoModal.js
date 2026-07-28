@@ -13,7 +13,6 @@ import {
   Typography,
   Box,
   IconButton,
-  Chip,
   Divider,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -73,7 +72,7 @@ const GroupSeparationInfoModal = ({ open, onClose }) => {
 
       {/* Conteúdo com Hierarquia Semântica */}
       <DialogContent sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-        
+
         {/* SEÇÃO 1: INTRA-SUJEITOS */}
         <Box
           sx={{
