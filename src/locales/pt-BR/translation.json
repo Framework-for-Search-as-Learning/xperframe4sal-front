@@ -464,7 +464,7 @@
   "avg_time_seconds": "Tempo Médio (s)",
   "task_search_success": "Busca bem-sucedida",
   "select_task": "Selecionar Tarefa",
-  "step_design": "Design do Estudo",
+  "step_design": "Delineamento do Estudo",
   "explanation_within": "No design intra-sujeitos, todos os participantes realizam todas as tarefas. Ao menos uma tarefa deve ser criada.",
   "explanation_between": "No design entre-sujeitos, cada participante realiza apenas um subconjunto de tarefas. Ao menos duas tarefas devem ser criadas.",
   "explanation_random": "Os participantes são alocados aleatoriamente entre os grupos de tarefas.",
