@@ -41,7 +41,7 @@
   "NTaskFound": "Nenhuma Tarefa Foi Encontrada",
   "Nenhum questionário disponível": "Nenhum questionário disponível",
   "Nenhum questionário selecionado": "Nenhum questionário selecionado",
-  "NoTaskcreated": "Nenhuma tarefa foi criada ainda. Comece criando uma nova!",
+  "NoTaskcreated": "As tarefas definem as atividades que os participantes deverão realizar durante o experimento. Em estudos com múltiplos grupos (entre-sujeitos), é criada uma tarefa específica para cada grupo experimental.",
   "Nosurveyscreated": "Os questionários permitem coletar dados em diferentes momentos do experimento, incluindo informações demográficas, pré-testes para caracterização ou separação de grupos e questionários pós-tarefa para avaliar os participantes.",
   "Nome": "Nome",
   "Não foi possível atualizar o cadastro. Verifique todos os campos e tente novamente.": "Não foi possível atualizar o cadastro. Verifique todos os campos e tente novamente.",

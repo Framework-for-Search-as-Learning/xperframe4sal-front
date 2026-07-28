@@ -41,7 +41,7 @@
   "NTaskFound": "No tasks found",
   "Nenhum questionário disponível": "No questionnaire available",
   "Nenhum questionário selecionado": "No questionnaire selected",
-  "NoTaskcreated": "No task has been created yet. Start by creating a new one!",
+  "NoTaskcreated": "Tasks define the activities that participants will perform during the experiment. In studies with multiple groups (between-subjects), a specific task is created for each experimental group.",
   "Nosurveyscreated": "Questionnaires allow you to collect data at different stages of the experiment, including demographic information, pre-tests for characterization or group separation, and post-task questionnaires to evaluate participants.",
   "Nome": "First Name",
   "Não foi possível atualizar o cadastro. Verifique todos os campos e tente novamente.": "Could not update profile. Please check all fields and try again.",
